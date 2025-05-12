@@ -1,0 +1,50 @@
+﻿using System;
+using DravusSensorPanel.Models;
+using DravusSensorPanel.Services;
+using DravusSensorPanel.Services.InfoExtractor;
+using DravusSensorPanel.Views.Windows;
+using Microsoft.Extensions.DependencyInjection;
+using EditPanelWindow = DravusSensorPanel.Views.Windows.EditPanelWindow;
+using MainWindow = DravusSensorPanel.Views.Windows.MainWindow;
+using PanelItemFormWindow = DravusSensorPanel.Views.Windows.PanelItemFormWindow;
+
+namespace DravusSensorPanel;
+
+public static class Startup {
+    public static IServiceProvider ConfigureServices() {
+        var services = new ServiceCollection();
+
+        services.AddSingleton<SensorPanelService>();
+        services.AddSingleton<SensorPanelFileService>();
+        services.AddSingleton<UnitService>();
+        services.AddSingleton<ImageService>();
+        services.AddSingleton<FileDialogService>();
+
+        services.AddTransient<IInfoExtractor, LibreHardwareExtractor>();
+        services.AddTransient<IInfoExtractor, RtssHardwareExtractor>();
+
+        AddWindows(services);
+
+        return services.BuildServiceProvider();
+    }
+
+    private static void AddWindows(ServiceCollection services) {
+        services.AddTransient<SplashScreenWindow>();
+        services.AddTransient<MainWindow>();
+        services.AddTransient<EditPanelWindow>();
+        services.AddTransient<PanelItemFormWindow>();
+
+        services.AddTransient<Func<SplashScreenWindow>>(sp => sp.GetRequiredService<SplashScreenWindow>);
+        services.AddTransient<Func<MainWindow>>(sp => sp.GetRequiredService<MainWindow>);
+        services.AddTransient<Func<EditPanelWindow>>(sp => sp.GetRequiredService<EditPanelWindow>);
+
+        services.AddTransient<Func<PanelItem?, PanelItemFormWindow>>(sp =>
+            panelItem => {
+                if ( panelItem is null ) {
+                    return sp.GetRequiredService<PanelItemFormWindow>();
+                }
+
+                return ActivatorUtilities.CreateInstance<PanelItemFormWindow>(sp, panelItem);
+            });
+    }
+}

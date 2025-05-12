@@ -1,0 +1,37 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:DravusSensorPanel.Views.Windows"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="DravusSensorPanel.Views.Windows.MainWindow"
+        x:DataType="vm:MainWindow"
+        Icon="/Assets/app-logo.ico"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        Title="Dravus">
+
+    <Grid Background="Transparent"
+          PointerReleased="PanelContainer_PointerReleased">
+        <Grid.RowDefinitions>
+            <!-- <RowDefinition Height="Auto" /> -->
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- <Border Name="TitleBar" -->
+        <!--         Height="32" -->
+        <!--         Background="#333" -->
+        <!--         IsVisible="{Binding Collapsed}" -->
+        <!--         HorizontalAlignment="Stretch"> -->
+        <!-- -->
+        <!--     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"> -->
+        <!--         <Button Content="" Width="45"/> -->
+        <!--         <Button Content="" Width="45"/> -->
+        <!--         <Button Content="" Width="45"/> -->
+        <!--     </StackPanel> -->
+        <!-- </Border> -->
+
+        <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="CanvasPanel" />
+    </Grid>
+
+</Window>

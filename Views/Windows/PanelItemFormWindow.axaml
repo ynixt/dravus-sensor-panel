@@ -1,0 +1,51 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:DravusSensorPanel.Views.Windows"
+        x:DataType="vm:PanelItemFormWindow"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="DravusSensorPanel.Views.Windows.PanelItemFormWindow"
+        Icon="/Assets/app-logo.ico"
+        Title="Edit Item">
+
+    <Grid Margin="10" Name="Grid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8">
+            <ComboBox SelectedIndex="{Binding ItemTypeSelectedIndex, Mode=TwoWay}" MaxDropDownHeight="100">
+                <ComboBoxItem>Sensor value</ComboBoxItem>
+                <ComboBoxItem>Sensor chart</ComboBoxItem>
+                <ComboBoxItem>Label</ComboBoxItem>
+                <ComboBoxItem>Image</ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel
+            Margin="0, 10"
+            Grid.Row="2"
+            Orientation="Vertical" Spacing="30">
+
+            <StackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="8">
+                <Button
+                    Width="120"
+                    HorizontalContentAlignment="Center"
+                    Click="OkClick">
+                    Ok
+                </Button>
+
+                <Button
+                    Width="120"
+                    HorizontalContentAlignment="Center"
+                    Click="CancelClick">
+                    Cancel
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

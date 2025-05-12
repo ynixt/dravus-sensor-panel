@@ -1,0 +1,142 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:DravusSensorPanel.Views.PanelItemsInfo"
+             x:DataType="vm:PanelItemInfoImage"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="DravusSensorPanel.Views.PanelItemsInfo.PanelItemInfoImage">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel
+            Margin="0, 10"
+            Grid.Row="0"
+            Orientation="Vertical" Spacing="30">
+
+            <Grid ColumnSpacing="20" RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Description
+                </TextBlock>
+
+                <TextBox
+                    Grid.ColumnSpan="7"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Text="{Binding PanelItem.Description,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+
+                <Button
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="7"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    Click="ChooseImageClick">
+                    Choose image
+                </Button>
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    X
+                </TextBlock>
+
+
+                <NumericUpDown Grid.Row="2"
+                               Grid.Column="1" Increment="1"
+                               Value="{Binding PanelItem.X, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Y
+                </TextBlock>
+                <NumericUpDown Grid.Row="2"
+                               Grid.Column="3" Increment="1"
+                               Value="{Binding PanelItem.Y,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Width
+                </TextBlock>
+
+
+                <NumericUpDown Grid.Row="2"
+                               Grid.Column="5" Increment="1"
+                               Minimum="1"
+                               Value="{Binding PanelItem.Width, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Height
+                </TextBlock>
+                <NumericUpDown Grid.Row="2"
+                               Grid.Column="7" Increment="1"
+                               Minimum="1"
+                               Value="{Binding PanelItem.Height,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+
+
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Z
+                </TextBlock>
+
+
+                <NumericUpDown Grid.Row="3"
+                               Grid.Column="1" Increment="1"
+                               Value="{Binding PanelItem.ZIndex, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+
+
+                <TextBlock
+                    Grid.Row="4"
+                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Preview
+                </TextBlock>
+
+                <TextBox Grid.Row="4"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="7"
+                         VerticalAlignment="Center"
+                         IsReadOnly="True"
+                         Text="{Binding PanelItem.ImagePath,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+
+                <Image
+                    Grid.Row="5"
+                    Grid.Column="1"
+                    Grid.ColumnSpan="7"
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch"
+                    MaxWidth="400"
+                    MaxHeight="400"
+                    Stretch="Uniform"
+                    Source="{Binding PanelItem.ImageBitmap,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

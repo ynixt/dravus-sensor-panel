@@ -1,0 +1,40 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:windows="clr-namespace:DravusSensorPanel.Views.Windows"
+        mc:Ignorable="d"
+        x:Class="DravusSensorPanel.Views.Windows.SplashScreenWindow"
+        Title="Dravus - Loading"
+        Icon="/Assets/app-logo.ico"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        WindowStartupLocation="CenterScreen"
+        Width="500" Height="500">
+
+    <!-- Grid para sobrepor controles -->
+    <Grid>
+        <Grid.Background>
+            <ImageBrush Source="/Assets/splash.png"
+                        Stretch="Fill" />
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,10">
+            <Image
+                Source="{Binding LoadingImage,RelativeSource={RelativeSource AncestorType=windows:SplashScreenWindow}}"
+                Width="59"
+                Height="50"
+                Stretch="Fill"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom" />
+        </StackPanel>
+    </Grid>
+</Window>
