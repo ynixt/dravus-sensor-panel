@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models;
+using DravusSensorPanel.Repositories;
 using LibreHardwareMonitor.Hardware;
 
 namespace DravusSensorPanel.Services.InfoExtractor;
@@ -23,11 +23,15 @@ public unsafe class RtssHardwareExtractor : IInfoExtractor, IDisposable {
         "RTSSSharedMemoryV1",
     };
 
-    private static readonly Dictionary<string, Sensor> SensorsBySourceId = new();
+    private readonly SensorRepository _sensorRepository;
 
     private IntPtr _hMapFile = IntPtr.Zero;
     private byte* _pBase = null;
     private bool _started;
+
+    public RtssHardwareExtractor(SensorRepository sensorRepository) {
+        _sensorRepository = sensorRepository;
+    }
 
 #region P/Invoke ------------------------------------------------------
 
@@ -115,7 +119,7 @@ public unsafe class RtssHardwareExtractor : IInfoExtractor, IDisposable {
         if ( !_started ) {
             _started = true;
 
-            SensorsBySourceId[FpsSourceId] = new Sensor {
+            _sensorRepository.AddSensor(new Sensor {
                 Id = Guid.NewGuid().ToString(),
                 Source = SourceName,
                 SourceId = FpsSourceId,
@@ -124,7 +128,7 @@ public unsafe class RtssHardwareExtractor : IInfoExtractor, IDisposable {
                 Name = "FPS",
                 Unit = FrameUnit.Fps,
                 InfoExtractor = this,
-            };
+            });
         }
 
         foreach ( string name in _sharedMemoryNames ) {
@@ -136,13 +140,13 @@ public unsafe class RtssHardwareExtractor : IInfoExtractor, IDisposable {
         }
 
         if ( _hMapFile == IntPtr.Zero ) {
-            return SensorsBySourceId.Values.ToList();
+            return _sensorRepository.GetAllSensors(SourceName);
         }
 
         _pBase = ( byte* ) MapViewOfFile(_hMapFile, FileMapAccess.FILE_MAP_READ, 0, 0, UIntPtr.Zero);
         if ( _pBase == null ) {
             CloseHandle(_hMapFile);
-            return SensorsBySourceId.Values.ToList();
+            return _sensorRepository.GetAllSensors(SourceName);
         }
 
         return Extract();
@@ -170,13 +174,13 @@ public unsafe class RtssHardwareExtractor : IInfoExtractor, IDisposable {
 #region Internals -----------------------------------------------------
 
     private List<Sensor> Extract() {
-        if ( _pBase == null ) return SensorsBySourceId.Values.ToList();
+        if ( _pBase == null ) return _sensorRepository.GetAllSensors(SourceName);
 
         var header = Marshal.PtrToStructure<SharedMemoryHeader>(( IntPtr ) _pBase);
-        if ( header.Signature != ExpectedSignature ) return SensorsBySourceId.Values.ToList();
+        if ( header.Signature != ExpectedSignature ) return _sensorRepository.GetAllSensors(SourceName);
 
         if ( header.AppArrSize == 0 || header.AppEntrySize == 0 ) {
-            return SensorsBySourceId.Values.ToList();
+            return _sensorRepository.GetAllSensors(SourceName);
         }
 
         byte* appBase = _pBase + header.AppArrOffset;
@@ -199,11 +203,11 @@ public unsafe class RtssHardwareExtractor : IInfoExtractor, IDisposable {
             NewFps(entry.Frames);
         }
 
-        return SensorsBySourceId.Values.ToList();
+        return _sensorRepository.GetAllSensors(SourceName);
     }
 
     private void NewFps(float fps) {
-        Sensor? s = SensorsBySourceId[FpsSourceId];
+        Sensor? s = _sensorRepository.FindSensor(SourceName, FpsSourceId);
         s.UpdateValue(fps, DateTime.Now);
     }
 

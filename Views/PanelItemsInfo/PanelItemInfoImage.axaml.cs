@@ -21,7 +21,11 @@ public partial class PanelItemInfoImage : PanelItemInfo {
         }
     }
 
-    public PanelItemInfoImage(bool editMode = false) : base(editMode) {
+    // Empty constructor to preview works on IDE
+    public PanelItemInfoImage() : this(false) {
+    }
+
+    public PanelItemInfoImage(bool editMode) : base(editMode) {
         InitializeComponent();
 
         DetachedFromVisualTree += OnDetached;

@@ -15,7 +15,11 @@ public partial class PanelItemInfoLabel : PanelItemInfo {
         }
     }
 
-    public PanelItemInfoLabel(bool editMode = false) : base(editMode) {
+    // Empty constructor to preview works on IDE
+    public PanelItemInfoLabel() : this(false) {
+    }
+
+    public PanelItemInfoLabel(bool editMode) : base(editMode) {
         InitializeComponent();
 
         DetachedFromVisualTree += OnDetached;

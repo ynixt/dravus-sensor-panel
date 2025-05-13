@@ -1,0 +1,89 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:DravusSensorPanel.Views.Windows"
+        x:DataType="vm:PanelSettingsWindow"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="DravusSensorPanel.Views.Windows.PanelSettingsWindow"
+        Icon="/Assets/app-logo.ico"
+        Title="Panel Settings">
+
+    <DockPanel Margin="10">
+        <StackPanel Orientation="Vertical" Spacing="20">
+            <Grid ColumnSpacing="20" RowSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Width
+                </TextBlock>
+                <NumericUpDown
+                    Grid.Row="0"
+                    Grid.Column="1" Increment="1" Minimum="1"
+                    Value="{Binding SensorPanel.Width,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+
+                <TextBlock
+                    Grid.Row="0"
+                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Height
+                </TextBlock>
+                <NumericUpDown
+                    Grid.Row="0"
+                    Grid.Column="3" Increment="1" Minimum="1"
+                    Value="{Binding SensorPanel.Height,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    X
+                </TextBlock>
+                <NumericUpDown
+                    Grid.Row="1"
+                    Grid.Column="1" Increment="1" Minimum="1"
+                    Value="{Binding SensorPanel.X,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+
+                <TextBlock
+                    Grid.Row="1"
+                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Y
+                </TextBlock>
+                <NumericUpDown
+                    Grid.Row="1"
+                    Grid.Column="3" Increment="1" Minimum="1"
+                    Value="{Binding SensorPanel.Y,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+            </Grid>
+
+            <StackPanel
+                Margin="0, 10"
+                Orientation="Vertical" Spacing="30">
+
+                <StackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="8">
+                    <Button
+                        Width="120"
+                        HorizontalContentAlignment="Center"
+                        Click="OkClick">
+                        Ok
+                    </Button>
+
+                    <Button
+                        Width="120"
+                        HorizontalContentAlignment="Center"
+                        Click="CancelClick">
+                        Cancel
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </DockPanel>
+</Window>

@@ -28,6 +28,7 @@ public partial class MainWindow : WindowViewModel {
     private readonly Canvas _canvasPanel;
     private readonly SensorPanelService? _sensorPanelService;
     private IDisposable? _subscriptionDisposable;
+    private List<IDisposable>? _windowPropertiesDisposables;
 
     public MainWindow() : this(null, null, null) {
     }
@@ -51,7 +52,29 @@ public partial class MainWindow : WindowViewModel {
             TrackSensorsValue();
 
             _sensorPanelService.SensorPanel.Items.CollectionChanged += OnCollectionChanged;
+
+            ChangeWindowPropertiesUsingPanel(_sensorPanelService!.SensorPanel);
+
+            foreach ( PanelItem item in _sensorPanelService.SensorPanel.Items ) {
+                item.Reload();
+
+                AddToCanvas(item);
+            }
         }
+    }
+
+    private void ChangeWindowPropertiesUsingPanel(SensorPanel sensorPanel) {
+        _windowPropertiesDisposables?.ForEach(d => d.Dispose());
+        _windowPropertiesDisposables = [
+            sensorPanel.WhenAnyValue(sp => sp.Width).Subscribe(newWidth => { Width = newWidth; }),
+            sensorPanel.WhenAnyValue(sp => sp.Height).Subscribe(newHeight => { Height = newHeight; }),
+            sensorPanel.WhenAnyValue(sp => sp.X).Subscribe(newX => { Position = new PixelPoint(newX, sensorPanel.Y); }),
+            sensorPanel.WhenAnyValue(sp => sp.Y).Subscribe(newY => { Position = new PixelPoint(sensorPanel.Y, newY); }),
+        ];
+
+        Width = sensorPanel.Width;
+        Height = sensorPanel.Height;
+        Position = new PixelPoint(sensorPanel.Y, sensorPanel.Y);
     }
 
     private void TrackSensorsValue() {
@@ -65,6 +88,8 @@ public partial class MainWindow : WindowViewModel {
 
     private void OnWindowClosed(object? sender, EventArgs e) {
         _subscriptionDisposable?.Dispose();
+        _windowPropertiesDisposables?.ForEach(d => d.Dispose());
+        _windowPropertiesDisposables = null;
         _infoExtractors?.ToList().ForEach(i => i.Dispose());
 
         var desktop = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
@@ -109,7 +134,7 @@ public partial class MainWindow : WindowViewModel {
 
         if ( e.OldItems != null ) {
             foreach ( PanelItem item in e.OldItems ) {
-                foreach ( ContentControl contentControl in _controlsById[item.Id] ) {
+                foreach ( Control contentControl in _controlsById[item.Id] ) {
                     _canvasPanel.Children.Remove(contentControl);
                 }
 
@@ -147,75 +172,54 @@ public partial class MainWindow : WindowViewModel {
         }
 
         if ( control != null ) {
-            Canvas.SetLeft(control, item.X);
-            Canvas.SetTop(control, item.Y);
-
             control.ZIndex = item.ZIndex;
+
+            control.Bind(ZIndexProperty, new Binding(nameof(item.ZIndex)));
+            control.Bind(Canvas.LeftProperty, new Binding(nameof(item.X)));
+            control.Bind(Canvas.TopProperty, new Binding(nameof(item.Y)));
 
             _canvasPanel.Children.Add(control);
 
             controls.Add(control);
 
             if ( item is PanelItemValue itemValue ) {
-                if ( itemValue.ShowUnit ) {
-                    controls.Add(CreateUnitLabel(itemValue, control));
-                }
+                controls.Add(CreateUnitLabel(itemValue, control));
 
                 control.SetValue(TextBlock.TextAlignmentProperty, TextAlignment.Right);
             }
 
             _controlsById[item.Id] = controls;
 
-            if ( item is IPanelItemHorizontalSizeable horizontalSizeable ) {
-                control.Width = horizontalSizeable.Width;
+            if ( item is IPanelItemHorizontalSizeable ) {
+                control.Bind(WidthProperty, new Binding(nameof(IPanelItemHorizontalSizeable.Width)));
             }
 
-            if ( item is IPanelItemVerticalSizeable verticalSizeable ) {
-                control.Height = verticalSizeable.Height;
+            if ( item is IPanelItemVerticalSizeable ) {
+                control.Bind(HeightProperty, new Binding(nameof(IPanelItemVerticalSizeable.Height)));
             }
 
             if ( item is IPanelItemText ) {
-                CalculateDesiredSize(controls);
+                control.InvalidateMeasure();
+                control.Measure(_canvasPanel.Bounds.Size);
             }
-        }
-    }
-
-    private void CalculateDesiredSize(List<Control> controls) {
-        Control firstControl = controls.First();
-
-        firstControl.InvalidateMeasure();
-        firstControl.Measure(_canvasPanel.Bounds.Size);
-
-        Control previousControl = firstControl;
-
-        for ( int i = 1; i < controls.Count; i++ ) {
-            Control currentControl = controls[i];
-
-            double previousControlWidth = previousControl.Width is 0 or double.NaN
-                ? previousControl.DesiredSize.Width
-                : previousControl.Width;
-
-            Canvas.SetLeft(currentControl, Canvas.GetLeft(previousControl) + previousControlWidth);
-            Canvas.SetTop(currentControl, Canvas.GetTop(previousControl));
-            currentControl.ZIndex = previousControl.ZIndex;
-            previousControl = currentControl;
         }
     }
 
     private Label CreateUnitLabel(PanelItemValue item, Control valueControl) {
         var label = new Label { DataContext = item };
 
+        label.Bind(IsVisibleProperty, new Binding(nameof(item.ShowUnit)));
         label.Bind(ContentProperty, new Binding(nameof(item.UnitSymbol)));
         label.Bind(FontSizeProperty, new Binding(nameof(item.FontSize)));
         label.Bind(FontFamilyProperty, new Binding(nameof(item.FontFamily)));
         label.Bind(ForegroundProperty, new Binding(nameof(item.UnitForegroundBrush)));
+        label.Bind(ZIndexProperty, new Binding(nameof(item.ZIndex)));
+        label.Bind(Canvas.LeftProperty, new Binding(nameof(item.UnitX)));
+        label.Bind(Canvas.TopProperty, new Binding(nameof(item.UnitY)));
 
         _canvasPanel.Children.Add(label);
 
         label.Measure(_canvasPanel.Bounds.Size);
-
-        Canvas.SetLeft(label, item.X + valueControl.Width + 5);
-        Canvas.SetTop(label, item.Y);
 
         return label;
     }

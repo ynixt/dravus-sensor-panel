@@ -60,5 +60,9 @@
         <DependentUpon>PanelItemInfoSensorChart.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Windows\PanelSettingsWindow.axaml.cs">
+        <DependentUpon>PanelSettingsWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 </Project>

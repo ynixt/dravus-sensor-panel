@@ -59,7 +59,11 @@ public partial class PanelItemInfoSensorChart : PanelItemInfo {
         }
     }
 
-    public PanelItemInfoSensorChart(bool editMode = false) : base(editMode) {
+    // Empty constructor to preview works on IDE
+    public PanelItemInfoSensorChart() : this(false) {
+    }
+
+    public PanelItemInfoSensorChart(bool editMode) : base(editMode) {
         InitializeComponent();
 
         AttachedToVisualTree += OnAttached;

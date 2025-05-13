@@ -54,7 +54,11 @@ public partial class PanelItemInfoSensorValue : PanelItemInfo {
         set => SetValue(PanelItemProperty, value);
     }
 
-    public PanelItemInfoSensorValue(bool editMode = false) : base(editMode) {
+    // Empty constructor to preview works on IDE
+    public PanelItemInfoSensorValue() : this(false) {
+    }
+
+    public PanelItemInfoSensorValue(bool editMode) : base(editMode) {
         InitializeComponent();
 
         AttachedToVisualTree += OnAttached;

@@ -1,5 +1,6 @@
 ﻿using System;
 using DravusSensorPanel.Models;
+using DravusSensorPanel.Repositories;
 using DravusSensorPanel.Services;
 using DravusSensorPanel.Services.InfoExtractor;
 using DravusSensorPanel.Views.Windows;
@@ -14,13 +15,15 @@ public static class Startup {
     public static IServiceProvider ConfigureServices() {
         var services = new ServiceCollection();
 
+        services.AddSingleton<SensorRepository>();
+
         services.AddSingleton<SensorPanelService>();
         services.AddSingleton<SensorPanelFileService>();
         services.AddSingleton<UnitService>();
         services.AddSingleton<ImageService>();
         services.AddSingleton<FileDialogService>();
 
-        services.AddTransient<IInfoExtractor, LibreHardwareExtractor>();
+        services.AddSingleton<IInfoExtractor, LibreHardwareExtractor>();
         services.AddTransient<IInfoExtractor, RtssHardwareExtractor>();
 
         AddWindows(services);
@@ -33,10 +36,12 @@ public static class Startup {
         services.AddTransient<MainWindow>();
         services.AddTransient<EditPanelWindow>();
         services.AddTransient<PanelItemFormWindow>();
+        services.AddTransient<PanelSettingsWindow>();
 
         services.AddTransient<Func<SplashScreenWindow>>(sp => sp.GetRequiredService<SplashScreenWindow>);
         services.AddTransient<Func<MainWindow>>(sp => sp.GetRequiredService<MainWindow>);
         services.AddTransient<Func<EditPanelWindow>>(sp => sp.GetRequiredService<EditPanelWindow>);
+        services.AddTransient<Func<PanelSettingsWindow>>(sp => sp.GetRequiredService<PanelSettingsWindow>);
 
         services.AddTransient<Func<PanelItem?, PanelItemFormWindow>>(sp =>
             panelItem => {

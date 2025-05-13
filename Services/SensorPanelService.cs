@@ -1,31 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System.IO;
 using System.Linq;
 using DravusSensorPanel.Models;
 
 namespace DravusSensorPanel.Services;
 
-public class SensorPanelService : IDisposable {
+public class SensorPanelService {
     private SensorPanel? _sensorPanel;
-    private readonly Dictionary<string, Dictionary<string, Sensor>> _sensorsBySourceAndId;
 
     public SensorPanel SensorPanel {
         get => _sensorPanel!;
-        private set {
-            if ( _sensorPanel != null ) {
-                _sensorPanel.Items.CollectionChanged -= OnCollectionChanged;
-            }
-
-            _sensorPanel = value;
-            SensorPanel.Items.CollectionChanged += OnCollectionChanged;
-        }
+        private set => _sensorPanel = value;
     }
+
 
     private readonly SensorPanelFileService _sensorPanelFileService;
 
     public SensorPanelService(SensorPanelFileService sensorPanelFileService) {
-        _sensorsBySourceAndId = new Dictionary<string, Dictionary<string, Sensor>>();
         _sensorPanelFileService = sensorPanelFileService;
     }
 
@@ -33,57 +23,59 @@ public class SensorPanelService : IDisposable {
         SensorPanel = _sensorPanelFileService.Load() ?? new SensorPanel();
     }
 
-    public List<Sensor> GetAllSensors(string source) {
-        _sensorsBySourceAndId.TryGetValue(source, out Dictionary<string, Sensor>? sensors);
-
-        return sensors?.Values.ToList() ?? Enumerable.Empty<Sensor>().ToList();
+    public void SavePanel() {
+        _sensorPanelFileService.Save(_sensorPanel!);
     }
 
-    public Sensor? FindSensor(string source, string sourceId) {
-        if ( _sensorsBySourceAndId.TryGetValue(source, out Dictionary<string, Sensor>? sensorsById) ) {
-            if ( sensorsById.TryGetValue(sourceId, out Sensor? sensor) ) {
-                return sensor;
-            }
+    public void AddNewItem(PanelItem item, bool persist = true) {
+        SensorPanel.Items.Add(item);
+
+        item.Reload();
+
+        if ( persist ) {
+            _sensorPanelFileService.Save(_sensorPanel!);
+        }
+    }
+
+    public void EditItem(PanelItem item, PanelItem oldItem, bool persist = true) {
+        if ( item.Type == oldItem.Type ) {
+            item.Reload();
+        }
+        else {
+            RemoveItem(oldItem, false);
+            AddNewItem(item);
         }
 
-        return null;
-    }
+        if ( persist ) {
+            SavePanel();
 
-    public void Dispose() {
-        SensorPanel.Items.CollectionChanged -= OnCollectionChanged;
-    }
-
-    private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-        if ( e.NewItems != null ) {
-            IEnumerable<Sensor?> sensors = e.NewItems.OfType<PanelItem>().Where(item => item is PanelItemSensor)
-                                            .Select(item => ( item as PanelItemSensor )?.Sensor);
-
-            foreach ( Sensor? sensor in sensors ) {
-                if ( sensor == null ) continue;
-
-                if ( !_sensorsBySourceAndId.TryGetValue(sensor.Source, out Dictionary<string, Sensor>? sensorsById) ) {
-                    sensorsById = new Dictionary<string, Sensor>();
-                    _sensorsBySourceAndId[sensor.Source] = sensorsById;
+            if ( item is PanelItemImage itemImage && oldItem is PanelItemImage oldItemImage ) {
+                if ( itemImage.ImagePath != oldItemImage.ImagePath ) {
+                    DeleteImageFromItem(oldItemImage);
                 }
-
-                sensorsById.TryAdd(sensor.SourceId, sensor);
             }
         }
+    }
 
-        if ( e.OldItems != null ) {
-            IEnumerable<Sensor?> sensors = e.OldItems.OfType<PanelItem>().Where(item => item is PanelItemSensor)
-                                            .Select(item => ( item as PanelItemSensor )?.Sensor);
+    public void RemoveItem(PanelItem item, bool persist = true, bool removeImage = true) {
+        // Item can be a clone
+        PanelItem? panelFound = SensorPanel.Items.FirstOrDefault(it => it.Id == item.Id);
 
-            foreach ( Sensor? sensor in sensors ) {
-                if ( sensor == null ) continue;
+        if ( panelFound != null ) SensorPanel.Items.Remove(panelFound);
 
-                if ( _sensorsBySourceAndId.TryGetValue(sensor.Source, out Dictionary<string, Sensor>? sensorsById) ) {
-                    sensorsById.Remove(sensor.SourceId);
+        if ( persist ) {
+            SavePanel();
+        }
 
-                    if ( sensorsById.Count == 0 ) {
-                        _sensorsBySourceAndId.Remove(sensor.Source);
-                    }
-                }
+        if ( removeImage ) {
+            DeleteImageFromItem(item);
+        }
+    }
+
+    private void DeleteImageFromItem(PanelItem item) {
+        if ( item is PanelItemImage panelItemImage ) {
+            if ( File.Exists(panelItemImage.ImagePath) ) {
+                File.Delete(panelItemImage.ImagePath);
             }
         }
     }

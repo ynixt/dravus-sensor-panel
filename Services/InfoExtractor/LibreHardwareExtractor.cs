@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using DravusSensorPanel.Models;
+using DravusSensorPanel.Repositories;
 using LibreHardwareMonitor.Hardware;
 using UnitsNet.Units;
 
@@ -10,7 +10,7 @@ namespace DravusSensorPanel.Services.InfoExtractor;
 public class LibreHardwareExtractor : IInfoExtractor {
     public string SourceName => "libre-hardware";
 
-    private static readonly Computer _computer = new() {
+    private readonly Computer _computer = new() {
         IsCpuEnabled = true,
         IsGpuEnabled = true,
         IsMemoryEnabled = true,
@@ -23,8 +23,12 @@ public class LibreHardwareExtractor : IInfoExtractor {
     };
 
     private readonly UpdateVisitor _visitor = new();
-    private static readonly Dictionary<string, Sensor> SensorsBySourceId = new();
-    private static bool _started;
+    private readonly SensorRepository _sensorRepository;
+    private bool _started;
+
+    public LibreHardwareExtractor(SensorRepository sensorRepository) {
+        _sensorRepository = sensorRepository;
+    }
 
     public List<Sensor> Start() {
         if ( !_started ) {
@@ -55,7 +59,9 @@ public class LibreHardwareExtractor : IInfoExtractor {
                 if ( libreSensor.SensorType == SensorType.Factor ) continue;
 
                 string? sourceId = libreSensor.Identifier.ToString();
-                if ( !SensorsBySourceId.TryGetValue(sourceId, out Sensor? sensor) ) {
+                Sensor? sensor = _sensorRepository.FindSensor(SourceName, sourceId);
+
+                if ( sensor == null ) {
                     sensor = new Sensor {
                         Id = Guid.NewGuid().ToString(),
                         Source = SourceName,
@@ -67,14 +73,14 @@ public class LibreHardwareExtractor : IInfoExtractor {
                         InfoExtractor = this,
                     };
 
-                    SensorsBySourceId[sensor.SourceId] = sensor;
+                    _sensorRepository.AddSensor(sensor);
                 }
 
                 sensor.UpdateValue(libreSensor.Value, currentTime);
             }
         }
 
-        return SensorsBySourceId.Values.ToList();
+        return _sensorRepository.GetAllSensors(SourceName);
     }
 
     private class UpdateVisitor : IVisitor {

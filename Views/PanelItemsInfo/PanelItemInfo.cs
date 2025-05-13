@@ -5,6 +5,9 @@ public abstract class PanelItemInfo : UserControlViewModel {
 
     public abstract bool IsValid();
 
+    protected PanelItemInfo() : this(false) {
+    }
+
     protected PanelItemInfo(bool editMode) {
         EditMode = editMode;
     }

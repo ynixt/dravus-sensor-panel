@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using Avalonia.Interactivity;
-using Avalonia.Threading;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Services;
-using DynamicData;
 
 namespace DravusSensorPanel.Views.Windows;
 
 public partial class EditPanelWindow : WindowViewModel {
-    public ObservableCollection<PanelItem> PanelItems { get; } = new();
+    public ObservableCollection<PanelItem> PanelItems { get; }
 
     private PanelItem? _selectedItem;
     private readonly Func<PanelItem?, PanelItemFormWindow>? _panelItemFormWindowFactory;
+    private readonly Func<PanelSettingsWindow>? _panelSettingsWindowFactory;
     private readonly SensorPanelService? _sensorPanelService;
 
     public PanelItem? SelectedItem {
@@ -20,78 +19,72 @@ public partial class EditPanelWindow : WindowViewModel {
         set => RaiseAndSetIfChanged(ref _selectedItem, value);
     }
 
-    public EditPanelWindow() : this(null, null) {
+    // Empty constructor to preview works on IDE
+    public EditPanelWindow() : this(null, null, null) {
     }
 
     public EditPanelWindow(
         Func<PanelItem?, PanelItemFormWindow>? panelItemFormWindowFactory,
-        SensorPanelService? sensorPanelService) {
+        SensorPanelService? sensorPanelService,
+        Func<PanelSettingsWindow>? panelSettingsWindowFactory) {
         DataContext = this;
         _panelItemFormWindowFactory = panelItemFormWindowFactory;
         _sensorPanelService = sensorPanelService;
+        _panelSettingsWindowFactory = panelSettingsWindowFactory;
 
+        PanelItems = sensorPanelService?.SensorPanel.Items ?? [];
         InitializeComponent();
-
-        if ( sensorPanelService?.SensorPanel.Items != null ) {
-            PanelItems.AddRange(sensorPanelService.SensorPanel.Items);
-        }
     }
 
-    public void NewItemClick(object sender, RoutedEventArgs args) {
+    public async void NewItemClick(object sender, RoutedEventArgs args) {
         if ( _panelItemFormWindowFactory != null ) {
             PanelItemFormWindow window = _panelItemFormWindowFactory(null);
 
-            window.ShowDialog<PanelItem?>(this).ContinueWith(task => {
-                PanelItem? item = task.Result;
-                if ( item != null ) {
-                    AddNewItem(item);
-                }
-            });
+            var item = await window.ShowDialog<PanelItem?>(this);
+
+            if ( item != null ) {
+                _sensorPanelService?.AddNewItem(item);
+            }
         }
     }
 
-    public void ModifyItemClick(object sender, RoutedEventArgs args) {
+    public async void ModifyItemClick(object sender, RoutedEventArgs args) {
         if ( _panelItemFormWindowFactory != null && SelectedItem != null ) {
             PanelItem originalItem = SelectedItem;
             PanelItem clone = SelectedItem.Clone();
             PanelItemFormWindow window = _panelItemFormWindowFactory(originalItem);
 
-            window.ShowDialog<PanelItem?>(this).ContinueWith(task => {
-                PanelItem? item = task.Result;
-                if ( item != null ) {
-                    if ( item is PanelItemSensor itemSensor ) {
-                        itemSensor.WatchSensorValueChange();
-                    }
-                }
-                else {
-                    RemoveItem(originalItem);
-                    AddNewItem(clone);
-                }
-            });
+            var item = await window.ShowDialog<PanelItem?>(this);
+
+            if ( item != null ) {
+                _sensorPanelService?.EditItem(item, clone);
+            }
+            else {
+                _sensorPanelService?.RemoveItem(originalItem, false, false);
+                _sensorPanelService?.AddNewItem(clone, false);
+            }
         }
     }
 
     public void DeleteItemClick(object sender, RoutedEventArgs args) {
         if ( SelectedItem != null ) {
-            RemoveItem(SelectedItem);
+            _sensorPanelService?.RemoveItem(SelectedItem);
         }
     }
 
-    private void AddNewItem(PanelItem item) {
-        Dispatcher.UIThread.Post(() => {
-            PanelItems.Add(item);
-            _sensorPanelService?.SensorPanel.Items.Add(item);
+    public async void PanelSettingsClick(object sender, RoutedEventArgs args) {
+        if ( _panelSettingsWindowFactory != null ) {
+            PanelSettingsWindow window = _panelSettingsWindowFactory();
 
-            if ( item is PanelItemSensor itemSensor ) {
-                itemSensor.WatchSensorValueChange();
+            SensorPanel originalPanel = _sensorPanelService!.SensorPanel.Clone();
+            var modifiedPanel = await window.ShowDialog<SensorPanel?>(this);
+
+            if ( modifiedPanel == null ) {
+                _sensorPanelService!.SensorPanel.CopyFrom(originalPanel);
             }
-        });
-    }
-
-    private void RemoveItem(PanelItem item) {
-        Dispatcher.UIThread.Post(() => {
-            _sensorPanelService?.SensorPanel.Items.Remove(item);
-            PanelItems.Remove(item);
-        });
+            else {
+                _sensorPanelService!.SavePanel();
+            }
+        }
     }
 }

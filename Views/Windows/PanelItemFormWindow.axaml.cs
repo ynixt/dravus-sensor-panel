@@ -9,6 +9,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Services.InfoExtractor;
 using DravusSensorPanel.Views.PanelItemsInfo;
@@ -54,9 +55,9 @@ public partial class PanelItemFormWindow : WindowViewModel {
         }
     }
 
+    // Empty constructor to preview works on IDE
     public PanelItemFormWindow() : this(null) {
     }
-
 
     public PanelItemFormWindow(
         IEnumerable<IInfoExtractor>? extractors,
