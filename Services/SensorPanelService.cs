@@ -19,6 +19,10 @@ public class SensorPanelService {
         _sensorPanelFileService = sensorPanelFileService;
     }
 
+    public PanelItem? GetItemById(string id) {
+        return _sensorPanel?.Items.FirstOrDefault(item => item.Id == id);
+    }
+
     public void LoadCurrentSensorPanel() {
         SensorPanel = _sensorPanelFileService.Load() ?? new SensorPanel();
     }

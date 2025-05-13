@@ -3,40 +3,48 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.Layout;
 using Avalonia.Media;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Services;
 using DravusSensorPanel.Services.InfoExtractor;
 using LiveChartsCore.SkiaSharpView.Avalonia;
 using ReactiveUI;
+using Control = Avalonia.Controls.Control;
 
 namespace DravusSensorPanel.Views.Windows;
 
 public partial class MainWindow : WindowViewModel {
     private readonly IEnumerable<IInfoExtractor>? _infoExtractors;
     private readonly Func<EditPanelWindow>? _editPanelWindowFactory;
-    private readonly Dictionary<string, List<Control>> _controlsById = new();
+    private readonly Func<PanelItem?, PanelItemFormWindow>? _panelItemFormWindowFactory;
+    private readonly Dictionary<string, Border> _controlsById = new();
 
     public bool Collapsed { get; set; } = false;
 
-    private EditPanelWindow? _editWindowOpen;
+    private Window? _editWindowOpen;
     private readonly Canvas _canvasPanel;
     private readonly SensorPanelService? _sensorPanelService;
     private IDisposable? _subscriptionDisposable;
     private List<IDisposable>? _windowPropertiesDisposables;
 
-    public MainWindow() : this(null, null, null) {
+    private Border? _selectedControl;
+
+    // Empty constructor to preview works on IDE
+    public MainWindow() : this(null, null, null, null) {
     }
 
     public MainWindow(
         Func<EditPanelWindow>? editPanelWindowFactory,
         SensorPanelService? sensorPanelService,
-        IEnumerable<IInfoExtractor>? infoExtractors) {
+        IEnumerable<IInfoExtractor>? infoExtractors,
+        Func<PanelItem?, PanelItemFormWindow>? panelItemFormWindowFactory) {
         DataContext = this;
 
         InitializeComponent();
@@ -44,6 +52,8 @@ public partial class MainWindow : WindowViewModel {
         _editPanelWindowFactory = editPanelWindowFactory;
         _sensorPanelService = sensorPanelService;
         _infoExtractors = infoExtractors;
+        _panelItemFormWindowFactory = panelItemFormWindowFactory;
+
         _canvasPanel = this.FindControl<Canvas>("CanvasPanel")!;
 
         Closed += OnWindowClosed;
@@ -96,17 +106,51 @@ public partial class MainWindow : WindowViewModel {
         desktop?.Shutdown();
     }
 
-    private void PanelContainer_PointerReleased(object? sender, PointerReleasedEventArgs e) {
-        if ( e.InitialPressMouseButton == MouseButton.Right && sender is Control target ) {
-            var menu = new ContextMenu {
-                ItemsSource = new[] {
-                    new MenuItem {
-                        Header = "Edit Panel",
-                        Command = ReactiveCommand.Create(OpenEditPanel),
-                    },
-                },
-            };
+    private void UnselectControl() {
+        if ( _selectedControl != null ) {
+            _selectedControl.BorderThickness = new Thickness(0);
+            _selectedControl = null;
+        }
+    }
 
+    private void PanelContainer_PointerReleased(object? sender, PointerReleasedEventArgs e) {
+        UnselectControl();
+
+        if ( e.InitialPressMouseButton == MouseButton.Right && sender is Control target ) {
+            List<MenuItem> menuItems = [
+                new() {
+                    Header = "Edit Panel",
+                    Command = ReactiveCommand.Create(OpenEditPanel),
+                },
+            ];
+
+            Point p = e.GetPosition(_canvasPanel);
+            var hit = _canvasPanel.InputHitTest(p) // devolve IInputElement?
+                as Control;
+            if ( hit is not null && hit != _canvasPanel ) {
+                PanelItem? item = GetPanelItemFromControlName(hit);
+
+                if ( item != null ) {
+                    Border border = _controlsById[item.Id];
+
+                    border.BorderThickness = new Thickness(2);
+                    _selectedControl = border;
+
+                    menuItems.Add(new MenuItem {
+                        Header = "Edit Item",
+                        Command = ReactiveCommand.Create(() => OpenEditPanelItem(item)),
+                    });
+
+                    menuItems.Add(new MenuItem {
+                        Header = "Remove Item",
+                        Command = ReactiveCommand.Create(() => RemovePanelItem(item)),
+                    });
+                }
+            }
+
+            var menu = new ContextMenu {
+                ItemsSource = menuItems,
+            };
             menu.Open(target);
         }
     }
@@ -125,6 +169,37 @@ public partial class MainWindow : WindowViewModel {
         }
     }
 
+    private async void OpenEditPanelItem(PanelItem selectedItem) {
+        if ( _editWindowOpen == null ) {
+            _editWindowOpen = _panelItemFormWindowFactory?.Invoke(selectedItem);
+
+            PanelItem originalItem = selectedItem;
+            PanelItem clone = selectedItem.Clone();
+
+            if ( _editWindowOpen != null ) {
+                var item = await _editWindowOpen.ShowDialog<PanelItem?>(this);
+
+                if ( item != null ) {
+                    _sensorPanelService?.EditItem(item, clone);
+                }
+                else {
+                    _sensorPanelService?.RemoveItem(originalItem, false, false);
+                    _sensorPanelService?.AddNewItem(clone, false);
+                }
+
+                _editWindowOpen = null;
+                UnselectControl();
+            }
+        }
+        else {
+            _editWindowOpen.Activate();
+        }
+    }
+
+    private void RemovePanelItem(PanelItem item) {
+        _sensorPanelService?.RemoveItem(item);
+    }
+
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
         if ( e.NewItems != null ) {
             foreach ( PanelItem item in e.NewItems ) {
@@ -134,8 +209,8 @@ public partial class MainWindow : WindowViewModel {
 
         if ( e.OldItems != null ) {
             foreach ( PanelItem item in e.OldItems ) {
-                foreach ( Control contentControl in _controlsById[item.Id] ) {
-                    _canvasPanel.Children.Remove(contentControl);
+                if ( _controlsById.TryGetValue(item.Id, out Border? control) ) {
+                    _canvasPanel.Children.Remove(control);
                 }
 
                 _controlsById.Remove(item.Id);
@@ -146,7 +221,7 @@ public partial class MainWindow : WindowViewModel {
     }
 
     private void AddToCanvas(PanelItem item) {
-        List<Control> controls = [];
+        var stackPanel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 5 };
         Control? control = null;
 
         switch ( item ) {
@@ -172,23 +247,31 @@ public partial class MainWindow : WindowViewModel {
         }
 
         if ( control != null ) {
-            control.ZIndex = item.ZIndex;
+            control.Name = MountNameForControl(item, false);
 
-            control.Bind(ZIndexProperty, new Binding(nameof(item.ZIndex)));
-            control.Bind(Canvas.LeftProperty, new Binding(nameof(item.X)));
-            control.Bind(Canvas.TopProperty, new Binding(nameof(item.Y)));
+            var border = new Border {
+                DataContext = item,
+                BorderThickness = new Thickness(0),
+                BorderBrush = Brushes.Red,
+                Child = stackPanel,
+            };
 
-            _canvasPanel.Children.Add(control);
+            _canvasPanel.Children.Add(border);
 
-            controls.Add(control);
+            border.Bind(ZIndexProperty, new Binding(nameof(item.ZIndex)));
+            border.Bind(Canvas.LeftProperty, new Binding(nameof(item.X)));
+            border.Bind(Canvas.TopProperty, new Binding(nameof(item.Y)));
+
+
+            stackPanel.Children.Add(control);
 
             if ( item is PanelItemValue itemValue ) {
-                controls.Add(CreateUnitLabel(itemValue, control));
+                stackPanel.Children.Add(CreateUnitLabel(itemValue));
 
                 control.SetValue(TextBlock.TextAlignmentProperty, TextAlignment.Right);
             }
 
-            _controlsById[item.Id] = controls;
+            _controlsById[item.Id] = border;
 
             if ( item is IPanelItemHorizontalSizeable ) {
                 control.Bind(WidthProperty, new Binding(nameof(IPanelItemHorizontalSizeable.Width)));
@@ -205,7 +288,7 @@ public partial class MainWindow : WindowViewModel {
         }
     }
 
-    private Label CreateUnitLabel(PanelItemValue item, Control valueControl) {
+    private Label CreateUnitLabel(PanelItemValue item) {
         var label = new Label { DataContext = item };
 
         label.Bind(IsVisibleProperty, new Binding(nameof(item.ShowUnit)));
@@ -213,14 +296,41 @@ public partial class MainWindow : WindowViewModel {
         label.Bind(FontSizeProperty, new Binding(nameof(item.FontSize)));
         label.Bind(FontFamilyProperty, new Binding(nameof(item.FontFamily)));
         label.Bind(ForegroundProperty, new Binding(nameof(item.UnitForegroundBrush)));
-        label.Bind(ZIndexProperty, new Binding(nameof(item.ZIndex)));
-        label.Bind(Canvas.LeftProperty, new Binding(nameof(item.UnitX)));
-        label.Bind(Canvas.TopProperty, new Binding(nameof(item.UnitY)));
-
-        _canvasPanel.Children.Add(label);
-
-        label.Measure(_canvasPanel.Bounds.Size);
+        label.Name = MountNameForControl(item, true);
 
         return label;
+    }
+
+    private string MountNameForControl(PanelItem item, bool isForUnitLabel) {
+        string name = "$-" + item.Id + "-$" + item.Description;
+
+        if ( isForUnitLabel ) {
+            name += "-Unit";
+        }
+
+        return name;
+    }
+
+    private PanelItem? GetPanelItemFromControlName(Control? control) {
+        string? name = GetFirstControlName(control);
+        if ( name == null ) return null;
+
+        const string pattern = @"\$-(.*?)-\$";
+        Match match = Regex.Match(name, pattern);
+
+        if ( match.Success ) {
+            string id = match.Groups[1].Value;
+
+            return _sensorPanelService?.GetItemById(id);
+        }
+
+        return null;
+    }
+
+    private string? GetFirstControlName(StyledElement? control) {
+        if ( control?.Parent == null ) return null;
+        if ( control.Name != null ) return control.Name;
+
+        return GetFirstControlName(control.Parent);
     }
 }

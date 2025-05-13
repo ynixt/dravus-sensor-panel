@@ -16,18 +16,11 @@ public sealed class PanelItemValue : PanelItemSensor, IPanelItemText, IPanelItem
     private int _fontSize = 14;
     private FontFamily _fontFamily = FontFamily.Default;
 
-    public int UnitX => X + Width + 5;
-    public int UnitY => Y;
-
     public override SensorPanelItemType Type => SensorPanelItemType.SensorValue;
 
     public int Width {
         get => _width;
-        set {
-            if ( !SetField(ref _width, value) ) return;
-
-            this.RaisePropertyChanged(nameof(UnitX));
-        }
+        set => SetField(ref _width, value);
     }
 
     public int FontSize {
@@ -146,16 +139,6 @@ public sealed class PanelItemValue : PanelItemSensor, IPanelItemText, IPanelItem
     protected override void UnitChanged(Enum? unit) {
         base.UnitChanged(unit);
         RefreshLabels();
-    }
-
-    protected override void XChanged(int newX) {
-        base.XChanged(newX);
-        this.RaisePropertyChanged(nameof(UnitX));
-    }
-
-    protected override void YChanged(int newY) {
-        base.YChanged(newY);
-        this.RaisePropertyChanged(nameof(UnitY));
     }
 
     private void RefreshLabels() {
