@@ -19,7 +19,9 @@ using DynamicData;
 using LiveChartsCore.SkiaSharpView.Avalonia;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Base;
+using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
+using MsBox.Avalonia.Models;
 using ReactiveUI;
 using Control = Avalonia.Controls.Control;
 using MouseButton = Avalonia.Input.MouseButton;
@@ -29,7 +31,10 @@ namespace DravusSensorPanel.Views.Windows;
 public partial class MainWindow : WindowViewModel {
     private readonly IEnumerable<IInfoExtractor>? _infoExtractors;
     private readonly Func<EditPanelWindow>? _editPanelWindowFactory;
+    private readonly Func<AboutWindow>? _aboutWindowFactory;
     private readonly Func<PanelItem?, PanelItemFormWindow>? _panelItemFormWindowFactory;
+    private readonly UtilService? _utilService;
+
     private readonly Dictionary<string, Border> _controlsById = new();
     private readonly SensorPanelService? _sensorPanelService;
     private readonly List<Border> _selectedControls = [];
@@ -41,14 +46,16 @@ public partial class MainWindow : WindowViewModel {
     private Point? _lastMousePosition;
 
     // Empty constructor to preview works on IDE
-    public MainWindow() : this(null, null, null, null) {
+    public MainWindow() : this(null, null, null, null, null, null) {
     }
 
     public MainWindow(
         Func<EditPanelWindow>? editPanelWindowFactory,
         SensorPanelService? sensorPanelService,
         IEnumerable<IInfoExtractor>? infoExtractors,
-        Func<PanelItem?, PanelItemFormWindow>? panelItemFormWindowFactory) {
+        Func<PanelItem?, PanelItemFormWindow>? panelItemFormWindowFactory,
+        UtilService? utilService,
+        Func<AboutWindow>? aboutWindowFactory) {
         DataContext = this;
 
         InitializeComponent();
@@ -57,6 +64,8 @@ public partial class MainWindow : WindowViewModel {
         _sensorPanelService = sensorPanelService;
         _infoExtractors = infoExtractors;
         _panelItemFormWindowFactory = panelItemFormWindowFactory;
+        _utilService = utilService;
+        _aboutWindowFactory = aboutWindowFactory;
 
         Closed += OnWindowClosed;
         KeyDown += OnKeyDown;
@@ -73,6 +82,10 @@ public partial class MainWindow : WindowViewModel {
                 item.Reload();
 
                 AddToCanvas(item);
+            }
+
+            if ( _sensorPanelService.SensorPanel.Items.Count == 0 ) {
+                ShowHelpPopup();
             }
         }
     }
@@ -338,14 +351,6 @@ public partial class MainWindow : WindowViewModel {
         _lastMousePosition = null;
 
         if ( e.InitialPressMouseButton == MouseButton.Right && sender is Control target ) {
-            MenuItem editPanelMenuItem = new() {
-                Header = "Edit Panel",
-                Command = ReactiveCommand.Create(() => {
-                    UnselectControls();
-                    OpenEditPanel();
-                }),
-            };
-
             List<MenuItem> menuItems = [];
 
             Point p = e.GetPosition(CanvasPanel);
@@ -373,7 +378,35 @@ public partial class MainWindow : WindowViewModel {
                 }
             }
 
-            menuItems.Add(editPanelMenuItem);
+            menuItems.Add(new() {
+                Header = "Edit Panel",
+                Command = ReactiveCommand.Create(() => {
+                    UnselectControls();
+                    OpenEditPanel();
+                }),
+            });
+
+            menuItems.Add(new MenuItem {
+                Header = "-",
+            });
+
+            menuItems.Add(new() {
+                Header = "About",
+                Command = ReactiveCommand.Create(() => {
+                    UnselectControls();
+
+                    AboutWindow? aboutWindow = _aboutWindowFactory?.Invoke();
+                    aboutWindow?.ShowDialog(this);
+                }),
+            });
+
+            menuItems.Add(new() {
+                Header = "Help",
+                Command = ReactiveCommand.Create(() => {
+                    UnselectControls();
+                    ShowHelpPopup();
+                }),
+            });
 
             var menu = new ContextMenu {
                 ItemsSource = menuItems,
@@ -575,5 +608,28 @@ public partial class MainWindow : WindowViewModel {
         if ( control.Name != null ) return control.Name;
 
         return GetFirstControlName(control.Parent);
+    }
+
+    private async void ShowHelpPopup() {
+        var popup = MessageBoxManager
+            .GetMessageBoxCustom(
+                new MessageBoxCustomParams {
+                    ButtonDefinitions = new List<ButtonDefinition> {
+                        new ButtonDefinition { Name = "Ok", IsDefault = true },
+                        new ButtonDefinition { Name = "GitHub", },
+                    },
+                    ContentTitle = "Help",
+                    ContentMessage = """
+                                     Click with the right mouse button on panel to add/edit/remove new items.
+                                     You can also drag items using ctrl.
+                                     Needing more help? Go to our github :)
+                                     """,
+                });
+
+        var choise = await popup.ShowAsPopupAsync(this);
+
+        if ( choise == "GitHub" ) {
+            _utilService.OpenGithub(this);
+        }
     }
 }

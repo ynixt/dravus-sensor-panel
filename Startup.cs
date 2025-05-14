@@ -22,6 +22,7 @@ public static class Startup {
         services.AddSingleton<UnitService>();
         services.AddSingleton<ImageService>();
         services.AddSingleton<FileDialogService>();
+        services.AddSingleton<UtilService>();
 
         services.AddSingleton<IInfoExtractor, LibreHardwareExtractor>();
         services.AddTransient<IInfoExtractor, RtssHardwareExtractor>();
@@ -37,11 +38,13 @@ public static class Startup {
         services.AddTransient<EditPanelWindow>();
         services.AddTransient<PanelItemFormWindow>();
         services.AddTransient<PanelSettingsWindow>();
+        services.AddTransient<AboutWindow>();
 
         services.AddTransient<Func<SplashScreenWindow>>(sp => sp.GetRequiredService<SplashScreenWindow>);
         services.AddTransient<Func<MainWindow>>(sp => sp.GetRequiredService<MainWindow>);
         services.AddTransient<Func<EditPanelWindow>>(sp => sp.GetRequiredService<EditPanelWindow>);
         services.AddTransient<Func<PanelSettingsWindow>>(sp => sp.GetRequiredService<PanelSettingsWindow>);
+        services.AddTransient<Func<AboutWindow>>(sp => sp.GetRequiredService<AboutWindow>);
 
         services.AddTransient<Func<PanelItem?, PanelItemFormWindow>>(sp =>
             panelItem => {

@@ -1,0 +1,80 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:windows="clr-namespace:DravusSensorPanel.Views.Windows"
+        mc:Ignorable="d"
+        x:Class="DravusSensorPanel.Views.Windows.AboutWindow"
+        Title="Dravus - Loading"
+        Icon="/Assets/app-logo.ico"
+        WindowStartupLocation="CenterScreen"
+        Width="500" Height="500">
+
+    <Grid ColumnSpacing="20" RowSpacing="40" Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock
+            Grid.Row="0"
+            Grid.Column="0">
+            Version
+        </TextBlock>
+
+        <TextBlock
+            Grid.Row="0"
+            Grid.Column="1"
+            Text="{Binding Version, RelativeSource={RelativeSource AncestorType=windows:AboutWindow}}">
+        </TextBlock>
+
+        <TextBlock
+            Grid.Row="0"
+            Grid.Column="2">
+            Made by
+        </TextBlock>
+
+        <TextBlock
+            Grid.Row="0"
+            Grid.Column="3"
+            xml:space="preserve"
+            TextAlignment="Center"
+            >Gabriel Alves Silva
+aka Ynixt
+        </TextBlock>
+
+        <Button
+            Grid.Row="1"
+            Grid.Column="0"
+            Content="Github" Click="OpenGithubClick" />
+
+        <Button
+            Grid.Row="1"
+            Grid.Column="1"
+            Content="License" Click="OpenLicenseClick" />
+
+        <TextBlock
+            Grid.Row="2"
+            Grid.Column="0"
+            Grid.ColumnSpan="4"
+            xml:space="preserve"
+            >
+Huge thanks to:
+
+    - LibreHardwareMonitorLib
+    - Avalonia
+    - LiveChartsCore
+    - UnitsNet
+    - YamlDotNet
+
+In Open Source we believe &lt;3
+        </TextBlock>
+    </Grid>
+</Window>

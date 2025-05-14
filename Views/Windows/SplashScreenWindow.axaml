@@ -12,7 +12,6 @@
         WindowStartupLocation="CenterScreen"
         Width="500" Height="500">
 
-    <!-- Grid para sobrepor controles -->
     <Grid>
         <Grid.Background>
             <ImageBrush Source="/Assets/splash.png"
