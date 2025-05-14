@@ -7,31 +7,16 @@
         x:Class="DravusSensorPanel.Views.Windows.MainWindow"
         x:DataType="vm:MainWindow"
         Icon="/Assets/app-logo.ico"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="NoChrome"
         Title="Dravus">
 
     <Grid Background="Transparent"
-          PointerReleased="PanelContainer_PointerReleased">
+          PointerReleased="PanelContainer_PointerReleased" PointerPressed="PanelContainer_OnPointerPressed" PointerMoved="PanelContainer_OnPointerMoved">
         <Grid.RowDefinitions>
-            <!-- <RowDefinition Height="Auto" /> -->
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- <Border Name="TitleBar" -->
-        <!--         Height="32" -->
-        <!--         Background="#333" -->
-        <!--         IsVisible="{Binding Collapsed}" -->
-        <!--         HorizontalAlignment="Stretch"> -->
-        <!-- -->
-        <!--     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"> -->
-        <!--         <Button Content="" Width="45"/> -->
-        <!--         <Button Content="" Width="45"/> -->
-        <!--         <Button Content="" Width="45"/> -->
-        <!--     </StackPanel> -->
-        <!-- </Border> -->
-
-        <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="CanvasPanel" />
+        <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="CanvasPanel">
+        </Canvas>
     </Grid>
 
 </Window>

@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:DravusSensorPanel.Views.Windows"
+        xmlns:views="clr-namespace:DravusSensorPanel.Views"
         x:DataType="vm:PanelSettingsWindow"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="DravusSensorPanel.Views.Windows.PanelSettingsWindow"
@@ -13,6 +14,7 @@
         <StackPanel Orientation="Vertical" Spacing="20">
             <Grid ColumnSpacing="20" RowSpacing="8">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -62,6 +64,26 @@
                     Grid.Row="1"
                     Grid.Column="3" Increment="1" Minimum="1"
                     Value="{Binding SensorPanel.Y,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Hide System Bar
+                </TextBlock>
+                <CheckBox
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    IsChecked="{Binding SensorPanel.HideBar,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+
+                <TextBlock
+                    Grid.Row="2"
+                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Display
+                </TextBlock>
+                <views:DisplayPicker
+                    Grid.Row="2"
+                    Grid.Column="3"
+                    DisplaySelected="{Binding SensorPanel.Display, Mode=TwoWay ,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
             </Grid>
 
             <StackPanel

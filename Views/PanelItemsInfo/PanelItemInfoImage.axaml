@@ -110,6 +110,7 @@
 
                 <NumericUpDown Grid.Row="3"
                                Grid.Column="1" Increment="1"
+                               Maximum="9999998"
                                Value="{Binding PanelItem.ZIndex, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
 
 
