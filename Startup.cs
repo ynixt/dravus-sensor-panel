@@ -23,6 +23,7 @@ public static class Startup {
         services.AddSingleton<ImageService>();
         services.AddSingleton<FileDialogService>();
         services.AddSingleton<UtilService>();
+        services.AddSingleton<SensorPanelImportService>();
 
         services.AddSingleton<IInfoExtractor, LibreHardwareExtractor>();
         services.AddTransient<IInfoExtractor, RtssHardwareExtractor>();

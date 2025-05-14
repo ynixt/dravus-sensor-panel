@@ -12,7 +12,11 @@ public partial class EditPanelWindow : WindowViewModel {
     private PanelItem? _selectedItem;
     private readonly Func<PanelItem?, PanelItemFormWindow>? _panelItemFormWindowFactory;
     private readonly Func<PanelSettingsWindow>? _panelSettingsWindowFactory;
+    private readonly Func<SplashScreenWindow>? _splashScreenWindowFactory;
     private readonly SensorPanelService? _sensorPanelService;
+    private readonly SensorPanelImportService? _sensorPanelImportService;
+
+    public MainWindow? MainWindow { get; set; }
 
     public PanelItem? SelectedItem {
         get => _selectedItem;
@@ -20,17 +24,21 @@ public partial class EditPanelWindow : WindowViewModel {
     }
 
     // Empty constructor to preview works on IDE
-    public EditPanelWindow() : this(null, null, null) {
+    public EditPanelWindow() : this(null, null, null, null, null) {
     }
 
     public EditPanelWindow(
         Func<PanelItem?, PanelItemFormWindow>? panelItemFormWindowFactory,
         SensorPanelService? sensorPanelService,
-        Func<PanelSettingsWindow>? panelSettingsWindowFactory) {
+        Func<PanelSettingsWindow>? panelSettingsWindowFactory,
+        SensorPanelImportService? sensorPanelImportService,
+        Func<SplashScreenWindow>? splashScreenWindowFactory) {
         DataContext = this;
         _panelItemFormWindowFactory = panelItemFormWindowFactory;
         _sensorPanelService = sensorPanelService;
         _panelSettingsWindowFactory = panelSettingsWindowFactory;
+        _sensorPanelImportService = sensorPanelImportService;
+        _splashScreenWindowFactory = splashScreenWindowFactory;
 
         PanelItems = sensorPanelService?.SensorPanel.Items ?? [];
         InitializeComponent();
@@ -86,5 +94,20 @@ public partial class EditPanelWindow : WindowViewModel {
                 _sensorPanelService!.SavePanel();
             }
         }
+    }
+
+    private async void ImportClick(object? sender, RoutedEventArgs e) {
+        if ( !await _sensorPanelImportService!.ImportUsingDialog(this) ) return;
+
+        MainWindow?.CloseWithoutKillApp();
+
+        SplashScreenWindow? splashScreen = _splashScreenWindowFactory?.Invoke();
+        splashScreen?.Show();
+
+        Close();
+    }
+
+    private void ExportClick(object? sender, RoutedEventArgs e) {
+        _sensorPanelImportService?.ExportUsingDialog(this);
     }
 }

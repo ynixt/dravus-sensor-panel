@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Avalonia;
@@ -28,10 +29,16 @@ public class SensorPanelService {
         return _sensorPanel?.Items.FirstOrDefault(item => item.Id == id);
     }
 
-    public void LoadCurrentSensorPanel() {
-        Window window = ( Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime )!
-            .MainWindow!;
-        SensorPanel = _sensorPanelFileService.Load() ?? new SensorPanel{ Display = window.Screens.Primary ?? window.Screens.All[0] };
+    public void LoadSensorPanel(string filePath = SensorPanelFileService.DefaultSensorPanelPath, bool ignorePersonalFields = false) {
+        Screen display = GetPrimaryDisplay() ?? GetAllDisplays()[0];
+
+        SensorPanel = _sensorPanelFileService.Load(filePath) ?? new SensorPanel{ Display = display };
+
+        if ( ignorePersonalFields ) {
+            SensorPanel.Display = display;
+            SensorPanel.X = 0;
+            SensorPanel.Y = 0;
+        }
 
         ChangeSensorPanelXY(SensorPanel.X, SensorPanel.Y);
     }
@@ -53,8 +60,8 @@ public class SensorPanelService {
         );
     }
 
-    public void SavePanel() {
-        _sensorPanelFileService.Save(_sensorPanel!);
+    public void SavePanel(string filePath = SensorPanelFileService.DefaultSensorPanelPath) {
+        _sensorPanelFileService.Save(_sensorPanel!, filePath);
     }
 
     public void AddNewItem(PanelItem item, bool persist = true) {
@@ -63,7 +70,7 @@ public class SensorPanelService {
         item.Reload();
 
         if ( persist ) {
-            _sensorPanelFileService.Save(_sensorPanel!);
+            SavePanel();
         }
     }
 
@@ -108,5 +115,19 @@ public class SensorPanelService {
                 File.Delete(panelItemImage.ImagePath);
             }
         }
+    }
+
+    private IReadOnlyList<Screen> GetAllDisplays() {
+        Window window = ( Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime )!
+            .MainWindow!;
+
+        return window.Screens.All;
+    }
+
+    public Screen? GetPrimaryDisplay() {
+        Window window = ( Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime )!
+            .MainWindow!;
+
+        return window.Screens.Primary;
     }
 }

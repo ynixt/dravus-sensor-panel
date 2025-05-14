@@ -17,6 +17,8 @@
             <Button Content="DELETE" Click="DeleteItemClick"
                     IsEnabled="{Binding SelectedItem, Converter={x:Static  ObjectConverters.IsNotNull}}" />
             <Button Content="PANEL SETTINGS" Click="PanelSettingsClick" />
+            <Button Content="IMPORT" Click="ImportClick" />
+            <Button Content="EXPORT" Click="ExportClick" />
         </StackPanel>
 
         <DataGrid

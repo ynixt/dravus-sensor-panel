@@ -12,11 +12,11 @@ using YamlDotNet.Serialization.NamingConventions;
 namespace DravusSensorPanel.Services;
 
 public class SensorPanelFileService {
-    public const string FilePath = "sensorpanel.yaml";
+    public const string DefaultSensorPanelPath = "sensorpanel.yaml";
 
     private readonly List<IYamlTypeConverter> _converters = [new FontFamilyYamlConverter(), new ColorYamlConverter()];
 
-    public void Save(SensorPanel sensorPanel) {
+    public void Save(SensorPanel sensorPanel, string filePath) {
         if ( sensorPanel == null ) throw new ArgumentNullException(nameof(sensorPanel));
 
         SerializerBuilder sb = new SerializerBuilder()
@@ -30,15 +30,15 @@ public class SensorPanelFileService {
         ISerializer serializer = sb.Build();
 
         string yaml = serializer.Serialize(sensorPanel.ToDto());
-        File.WriteAllText(FilePath, yaml);
+        File.WriteAllText(filePath, yaml);
     }
 
-    public SensorPanel? Load() {
-        if ( !File.Exists(FilePath) ) {
+    public SensorPanel? Load(string path) {
+        if ( !File.Exists(path) ) {
             return null;
         }
 
-        string yaml = File.ReadAllText(FilePath);
+        string yaml = File.ReadAllText(path);
         if ( string.IsNullOrWhiteSpace(yaml) ) {
             return null;
         }

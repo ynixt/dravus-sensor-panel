@@ -45,6 +45,7 @@ public partial class MainWindow : WindowViewModel {
     private List<IDisposable>? _windowPropertiesDisposables;
     private PanelItem? _itemDragging;
     private Point? _lastMousePosition;
+    private bool _dontCloseApp = false;
 
     // Empty constructor to preview works on IDE
     public MainWindow() : this(null, null, null, null, null, null) {
@@ -86,11 +87,14 @@ public partial class MainWindow : WindowViewModel {
             }
 
             if ( _sensorPanelService.SensorPanel.Items.Count == 0 ) {
-                Dispatcher.UIThread.Post(() => {
-                    ShowHelpPopup();
-                });
+                Dispatcher.UIThread.Post(() => { ShowHelpPopup(); });
             }
         }
+    }
+
+    public void CloseWithoutKillApp() {
+        _dontCloseApp = true;
+        Close();
     }
 
     private void ChangeWindowPropertiesUsingPanel(SensorPanel sensorPanel) {
@@ -176,6 +180,8 @@ public partial class MainWindow : WindowViewModel {
         _windowPropertiesDisposables = null;
         _infoExtractors?.ToList().ForEach(i => i.Dispose());
 
+        if ( _dontCloseApp ) return;
+
         var desktop = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
         desktop?.Shutdown();
     }
@@ -214,7 +220,7 @@ public partial class MainWindow : WindowViewModel {
     private void OnMainWindowPositionChange(PixelPointEventArgs e) {
         if ( _sensorPanelService != null ) {
             bool changed = false;
-            var sensorPanel = _sensorPanelService.SensorPanel;
+            SensorPanel? sensorPanel = _sensorPanelService.SensorPanel;
 
             PixelRect workingArea = sensorPanel.Display.WorkingArea;
             int x = e.Point.X - workingArea.TopLeft.X;
@@ -427,6 +433,7 @@ public partial class MainWindow : WindowViewModel {
             _editWindowOpen = _editPanelWindowFactory?.Invoke();
 
             if ( _editWindowOpen != null ) {
+                ( _editWindowOpen as EditPanelWindow )!.MainWindow = this;
                 _editWindowOpen.Show();
                 _editWindowOpen.Closed += (_, _) => _editWindowOpen = null;
             }
@@ -618,7 +625,7 @@ public partial class MainWindow : WindowViewModel {
     }
 
     private async void ShowHelpPopup() {
-        var popup = MessageBoxManager
+        IMsBox<string>? popup = MessageBoxManager
             .GetMessageBoxCustom(
                 new MessageBoxCustomParams {
                     ButtonDefinitions = new List<ButtonDefinition> {

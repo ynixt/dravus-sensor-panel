@@ -64,7 +64,7 @@ public partial class SplashScreenWindow : WindowViewModel {
             if ( remaining > 0 ) Thread.Sleep(remaining);
 
             Dispatcher.UIThread.Post(() => {
-                sensorPanelService.LoadCurrentSensorPanel();
+                sensorPanelService.LoadSensorPanel();
 
                 MainWindow mainWindow = mainWindowFactory.Invoke();
                 mainWindow.Show();
