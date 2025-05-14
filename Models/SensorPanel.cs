@@ -3,9 +3,11 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
 using Avalonia.Platform;
 using DravusSensorPanel.Models.Dtos;
 using DynamicData;
+using ReactiveUI;
 
 namespace DravusSensorPanel.Models;
 
@@ -18,6 +20,8 @@ public class SensorPanel : SuperReactiveObject {
     private bool _maximized;
     private int _displayIndex;
     private Screen _display;
+    private Color _background = Colors.Black;
+    private SolidColorBrush? _cachedBackgroundBrush;
 
     public ObservableCollection<PanelItem> Items { get; private init; } = new();
 
@@ -56,20 +60,31 @@ public class SensorPanel : SuperReactiveObject {
         set => SetField(ref _display, value);
     }
 
+    public IBrush BackgroundBrush => _cachedBackgroundBrush ??= new SolidColorBrush(_background);
+
+    public Color Background {
+        get => _background;
+        set {
+            if ( !SetField(ref _background, value) ) return;
+            _cachedBackgroundBrush = new SolidColorBrush(value);
+            this.RaisePropertyChanged(nameof(BackgroundBrush));
+        }
+    }
+
     public SensorPanelDto ToDto() {
         Window window = ( Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime )!
             .MainWindow!;
 
         return new SensorPanelDto {
             Items = Items.Select(item => item.ToDto()).ToList(), X = X, Y = Y, Width = Width, Height = Height, HideBar = HideBar,
-            Maximized = Maximized, DisplayIndex = window.Screens.All.IndexOf(Display),
+            Maximized = Maximized, DisplayIndex = window.Screens.All.IndexOf(Display), Background = Background
         };
     }
 
     public SensorPanel Clone() {
         return new SensorPanel {
             Items = Items, X = X, Y = Y, Width = Width, Height = Height, HideBar = HideBar, Maximized = Maximized,
-            Display = Display
+            Display = Display, Background = Background
         };
     }
 
@@ -81,6 +96,7 @@ public class SensorPanel : SuperReactiveObject {
         Height = sensorPanel.Height;
         HideBar = sensorPanel.HideBar;
         Maximized = sensorPanel.Maximized;
+        Background = sensorPanel.Background;
 
         if ( includeItems ) {
             Items.Clear();

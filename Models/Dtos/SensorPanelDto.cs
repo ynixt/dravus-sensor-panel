@@ -3,6 +3,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
 using Avalonia.Platform;
 using DynamicData;
 
@@ -16,6 +17,7 @@ public class SensorPanelDto {
     public bool HideBar { get; set; }
     public bool Maximized { get; set; }
     public int DisplayIndex { get; set; }
+    public Color Background { get; set; }
 
     public List<PanelItemDto> Items { get; set; }
 
@@ -31,8 +33,10 @@ public class SensorPanelDto {
             display = window.Screens.All[DisplayIndex];
         }
 
-        var sensorPanel = new SensorPanel
-            { X = X, Y = Y, Width = Width, Height = Height, HideBar = HideBar, Maximized = Maximized, Display = display };
+        var sensorPanel = new SensorPanel {
+            X = X, Y = Y, Width = Width, Height = Height, HideBar = HideBar, Maximized = Maximized, Display = display,
+            Background = Background
+        };
 
         sensorPanel.Items.AddRange(Items.Select(item => item.ToModel()));
 

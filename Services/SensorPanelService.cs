@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform;
 using DravusSensorPanel.Models;
@@ -28,14 +29,16 @@ public class SensorPanelService {
     }
 
     public void LoadCurrentSensorPanel() {
-        SensorPanel = _sensorPanelFileService.Load() ?? new SensorPanel();
+        Window window = ( Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime )!
+            .MainWindow!;
+        SensorPanel = _sensorPanelFileService.Load() ?? new SensorPanel{ Display = window.Screens.Primary ?? window.Screens.All[0] };
 
         ChangeSensorPanelXY(SensorPanel.X, SensorPanel.Y);
     }
 
     public void ChangeSensorPanelXY(int x, int y) {
-        int panelW = (int)SensorPanel.Width;
-        int panelH = (int)SensorPanel.Height;
+        int panelW = SensorPanel.Width;
+        int panelH = SensorPanel.Height;
 
         SensorPanel.X = Math.Clamp(
             x,

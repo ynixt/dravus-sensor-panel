@@ -12,6 +12,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Services;
 using DravusSensorPanel.Services.InfoExtractor;
@@ -85,7 +86,9 @@ public partial class MainWindow : WindowViewModel {
             }
 
             if ( _sensorPanelService.SensorPanel.Items.Count == 0 ) {
-                ShowHelpPopup();
+                Dispatcher.UIThread.Post(() => {
+                    ShowHelpPopup();
+                });
             }
         }
     }
@@ -100,8 +103,12 @@ public partial class MainWindow : WindowViewModel {
         ApplyPanelPosition(sensorPanel, sensorPanel.X, sensorPanel.Y);
         WindowState = sensorPanel.Maximized ? WindowState.Maximized : WindowState.Normal;
         ChangeBar(sensorPanel.HideBar);
+        Background = sensorPanel.BackgroundBrush;
 
         _windowPropertiesDisposables = [
+            sensorPanel.WhenAnyValue(sp => sp.BackgroundBrush)
+                       .ObserveOn(RxApp.MainThreadScheduler)
+                       .Subscribe(newBackground => { Background = newBackground; }),
             sensorPanel.WhenAnyValue(sp => sp.Width)
                        .ObserveOn(RxApp.MainThreadScheduler)
                        .Subscribe(newWidth => { Width = newWidth; }),
@@ -626,7 +633,7 @@ public partial class MainWindow : WindowViewModel {
                                      """,
                 });
 
-        var choise = await popup.ShowAsPopupAsync(this);
+        string choise = await popup.ShowAsPopupAsync(this);
 
         if ( choise == "GitHub" ) {
             _utilService.OpenGithub(this);

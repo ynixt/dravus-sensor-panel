@@ -17,6 +17,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -68,12 +69,13 @@
                 <TextBlock
                     Grid.Row="2"
                     Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    Hide System Bar
+                    Background color
                 </TextBlock>
-                <CheckBox
+                <ColorPicker
                     Grid.Row="2"
                     Grid.Column="1"
-                    IsChecked="{Binding SensorPanel.HideBar,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+                    HorizontalAlignment="Left"
+                    Color="{Binding SensorPanel.Background,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
 
                 <TextBlock
                     Grid.Row="2"
@@ -84,6 +86,17 @@
                     Grid.Row="2"
                     Grid.Column="3"
                     DisplaySelected="{Binding SensorPanel.Display, Mode=TwoWay ,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+
+                <TextBlock
+                    Grid.Row="3"
+                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Hide System Bar
+                </TextBlock>
+                <CheckBox
+                    Grid.Row="3"
+                    Grid.Column="1"
+                    IsChecked="{Binding SensorPanel.HideBar,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+
             </Grid>
 
             <StackPanel
