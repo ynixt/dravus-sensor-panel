@@ -2,27 +2,25 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Reactive.Linq;
 using Avalonia;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Services;
 using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
+using ReactiveUI;
 
 namespace DravusSensorPanel.Views.PanelItemsInfo;
 
-public partial class PanelItemInfoSensorChart : PanelItemInfo {
+public partial class PanelItemInfoSensorChart : PanelItemInfoSensor {
     public static readonly StyledProperty<IEnumerable<Sensor>> SensorsProperty =
         AvaloniaProperty.Register<PanelItemInfoSensorChart, IEnumerable<Sensor>>(nameof(Sensors));
 
     private int _valueTypeIndex;
-    private PropertyChangedEventHandler? _handler;
-    private PanelItemChart? _handlerUsedIn;
     private IDisposable? _panelItemDisposable;
 
-    public ObservableCollection<Enum> PossibleUnits { get; } = new();
-
-    public int ValueTypeIndex {
+    public override int ValueTypeIndex {
         get => _valueTypeIndex;
         set {
             _valueTypeIndex = value;
@@ -32,7 +30,6 @@ public partial class PanelItemInfoSensorChart : PanelItemInfo {
             }
         }
     }
-
 
     public IEnumerable<Sensor> Sensors {
         get => GetValue(SensorsProperty);
@@ -59,6 +56,8 @@ public partial class PanelItemInfoSensorChart : PanelItemInfo {
         }
     }
 
+    protected override PanelItemSensor GPanelItem => PanelItem;
+
     // Empty constructor to preview works on IDE
     public PanelItemInfoSensorChart() : this(false) {
     }
@@ -78,43 +77,17 @@ public partial class PanelItemInfoSensorChart : PanelItemInfo {
         return PanelItem.Sensor != null;
     }
 
-    private void OnAttached(object? sender, VisualTreeAttachmentEventArgs e) {
-        if ( _handler != null && _handlerUsedIn != null ) _handlerUsedIn.PropertyChanged -= _handler;
+    protected override void OnAttached(object? sender, VisualTreeAttachmentEventArgs e) {
+       base.OnAttached(sender, e);
 
-        _handler = PanelItemPropertyChanged;
-        _handlerUsedIn = PanelItem!;
-        _handlerUsedIn.PropertyChanged += _handler;
-
-        LoadUnits();
+        _panelItemDisposable = this.GetObservable(PanelItemProperty).ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => {
+            TrackPanelPropertiesChanged();
+        });
     }
 
-    private void OnDetached(object? sender, VisualTreeAttachmentEventArgs e) {
+    protected override void OnDetached(object? sender, VisualTreeAttachmentEventArgs e) {
+        base.OnDetached(sender, e);
         _panelItemDisposable?.Dispose();
         PanelItem?.Dispose();
-        if ( _handler != null && _handlerUsedIn != null ) _handlerUsedIn.PropertyChanged -= _handler;
-    }
-
-    private void PanelItemPropertyChanged(object? sender, PropertyChangedEventArgs e) {
-        if ( e.PropertyName == nameof(PanelItem.ValueType) ) {
-            ValueTypeIndex = ( int ) PanelItem!.ValueType;
-        }
-
-        if ( e.PropertyName == nameof(PanelItem.Sensor) ) {
-            LoadUnits();
-        }
-    }
-
-    private void LoadUnits() {
-        Enum? oldUnit = PanelItem?.Unit;
-        PossibleUnits.Clear();
-
-        if ( PanelItem?.Sensor != null ) {
-            PossibleUnits.AddRange(
-                App.ServiceProvider!.GetRequiredService<UnitService>().GetPossibleUnits(PanelItem.Sensor.Unit)
-            );
-
-            PanelItem.Unit = null;
-            PanelItem.Unit = EditMode ? oldUnit : PanelItem.Sensor.Unit;
-        }
     }
 }

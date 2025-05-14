@@ -73,7 +73,9 @@ public partial class PanelItemFormWindow : WindowViewModel {
 
         _infoExtractors = extractors;
 
-        ItemTypeSelectedIndex = 0;
+        if ( !EditMode ) {
+            ItemTypeSelectedIndex = 0;
+        }
 
         if ( _infoExtractors != null ) {
             List<Sensor> sensorsList = _infoExtractors
@@ -92,7 +94,7 @@ public partial class PanelItemFormWindow : WindowViewModel {
         }
 
         if ( EditMode ) {
-            Dispatcher.UIThread.Post(() => { LoadToEdit(panelItem!); });
+            LoadToEdit(panelItem!);
         }
     }
 

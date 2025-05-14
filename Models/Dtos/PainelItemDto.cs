@@ -34,7 +34,6 @@ public abstract class PanelItemSensorDto : PanelItemDto {
     protected void CopySensorBase(PanelItemSensor target) {
         CopyBaseToTarget(target);
 
-        target.Unit = App.ServiceProvider!.GetRequiredService<UnitService>().GetUnitFromNameAndQuantityName(Unit);
         target.NumDecimalPlaces = NumDecimalPlaces;
         target.ValueType = ValueType;
         target.Sensor = Sensor == null
@@ -42,7 +41,8 @@ public abstract class PanelItemSensorDto : PanelItemDto {
             : App.ServiceProvider!
                  .GetRequiredService<SensorRepository>()
                  .FindSensor(Sensor.Source, Sensor.SourceId);
-        ;
+
+        target.Unit = target.Sensor == null ? null : App.ServiceProvider!.GetRequiredService<UnitService>().GetUnitFromNameAndQuantityName(Unit);
     }
 }
 
