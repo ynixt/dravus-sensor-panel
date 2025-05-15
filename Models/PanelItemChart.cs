@@ -35,9 +35,19 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
 
     public ISeries[] Series { get; private set; } = [];
 
-    public ICartesianAxis[] YAxes { get; private set; } = [];
+    public ICartesianAxis[] YAxes { get; private set; } = [
+        new Axis {
+            IsVisible = false,
+            ShowSeparatorLines = false,
+        },
+    ];
 
-    public ICartesianAxis[] XAxes { get; private set; } = [];
+    public ICartesianAxis[] XAxes { get; private set; } = [
+        new Axis {
+            IsVisible = false,
+            ShowSeparatorLines = false,
+        },
+    ];
 
     public int Width {
         get => _width;
