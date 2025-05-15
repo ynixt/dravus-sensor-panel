@@ -15,6 +15,16 @@ public class NumberSensor : Sensor {
     private float? _min;
     private float? _max;
 
+    public void ClearAllValues() {
+        Values.Clear();
+        Mins.Clear();
+        Maxs.Clear();
+
+        Min = null;
+        Max = null;
+        Value = null;
+    }
+
     public void UpdateValue(float? newValue, DateTime updateTime, bool ifZeroReset = false) {
         if ( newValue != null ) {
             Values.Add(new DateValue(updateTime, newValue));

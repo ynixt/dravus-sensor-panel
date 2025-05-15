@@ -11,14 +11,14 @@ using Avalonia.Styling;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Models.Sensors;
-using DravusSensorPanel.Services.InfoExtractor;
+using DravusSensorPanel.Services.InfoExtractors;
 using DravusSensorPanel.Views.PanelItemsInfo;
 using DynamicData;
 
 namespace DravusSensorPanel.Views.Windows;
 
 public partial class PanelItemFormWindow : WindowViewModel {
-    private readonly IEnumerable<IInfoExtractor>? _infoExtractors;
+    private readonly IEnumerable<InfoExtractor>? _infoExtractors;
     private readonly Grid _grid;
 
     private int? _itemTypeSelectedIndex;
@@ -71,7 +71,7 @@ public partial class PanelItemFormWindow : WindowViewModel {
     }
 
     public PanelItemFormWindow(
-        IEnumerable<IInfoExtractor>? extractors,
+        IEnumerable<InfoExtractor>? extractors,
         PanelItem? panelItem = null) {
         EditMode = panelItem != null;
         DataContext = this;
@@ -105,6 +105,8 @@ public partial class PanelItemFormWindow : WindowViewModel {
         if ( EditMode ) {
             LoadToEdit(panelItem!);
         }
+
+        InfoExtractor.ByPassNoUse = true;
     }
 
     public void LoadToEdit(PanelItem panelItem) {
@@ -123,6 +125,7 @@ public partial class PanelItemFormWindow : WindowViewModel {
 
     private void OnWindowClosed(object? sender, EventArgs e) {
         _infoExtractors?.ToList().ForEach(i => i.Dispose());
+        InfoExtractor.ByPassNoUse = false;
     }
 
     public void OkClick(object sender, RoutedEventArgs args) {

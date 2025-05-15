@@ -7,6 +7,10 @@ namespace DravusSensorPanel.Repositories;
 public class SensorRepository {
     private readonly Dictionary<string, Dictionary<string, Sensor>> _sensorsBySourceAndId;
 
+    public List<Sensor> GetAllSensors() {
+        return _sensorsBySourceAndId.Values.SelectMany(s => s.Values).ToList();
+    }
+
     public List<Sensor> GetAllSensors(string source) {
         _sensorsBySourceAndId.TryGetValue(source, out Dictionary<string, Sensor>? sensors);
 

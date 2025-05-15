@@ -7,9 +7,9 @@ using LibreHardwareMonitor.Hardware;
 using NAudio.CoreAudioApi;
 using UnitsNet.Units;
 
-namespace DravusSensorPanel.Services.InfoExtractor;
+namespace DravusSensorPanel.Services.InfoExtractors;
 
-public class SystemExtractor : IInfoExtractor {
+public class SystemExtractor : InfoExtractor {
     private const string DateTimeUnitId = "system-datetime";
 
     private const string DateTimeSourceId = "system-datetime";
@@ -33,22 +33,20 @@ public class SystemExtractor : IInfoExtractor {
         },
     };
 
-    public string SourceName => "system";
+    public override string SourceName => "system";
 
-    private readonly SensorRepository _sensorRepository;
     private readonly UnitRepository _unitRepository;
     private bool _started;
 
-    public SystemExtractor(SensorRepository sensorRepository, UnitRepository unitRepository) {
-        _sensorRepository = sensorRepository;
+    public SystemExtractor(SensorRepository sensorRepository, UnitRepository unitRepository) : base(sensorRepository) {
         _unitRepository = unitRepository;
     }
 
-    public List<Sensor> Start() {
+    public override List<Sensor> Start() {
         if ( !_started ) {
             _started = true;
 
-            _sensorRepository.AddSensor(new ObjectSensor {
+            SensorRepository.AddSensor(new ObjectSensor {
                 Id = Guid.NewGuid().ToString(),
                 Source = SourceName,
                 SourceId = DateTimeSourceId,
@@ -58,7 +56,7 @@ public class SystemExtractor : IInfoExtractor {
                 Unit = UnitsByName[DateTimeUnitId],
                 InfoExtractor = this,
             });
-            _sensorRepository.AddSensor(new NumberSensor {
+            SensorRepository.AddSensor(new NumberSensor {
                 Id = Guid.NewGuid().ToString(),
                 Source = SourceName,
                 SourceId = VolumeSourceId,
@@ -73,11 +71,11 @@ public class SystemExtractor : IInfoExtractor {
         return Extract();
     }
 
-    public void Update() {
+    protected override void InternalUpdate() {
         Extract();
     }
 
-    public void Dispose() {
+    public override void Dispose() {
     }
 
     private List<Sensor> Extract() {
@@ -86,15 +84,21 @@ public class SystemExtractor : IInfoExtractor {
         ExtractDateTime(extractionTime);
         ExtractVolume(extractionTime);
 
-        return _sensorRepository.GetAllSensors(SourceName);
+        return SensorRepository.GetAllSensors(SourceName);
     }
 
     private void ExtractDateTime(DateTime _) {
-        _sensorRepository.FindSensor<ObjectSensor>(SourceName, DateTimeSourceId)!.ObjectValue = DateTime.Now;
+        var sensor = SensorRepository.FindSensor<ObjectSensor>(SourceName, DateTimeSourceId)!;
+
+        if ( !ShouldExtract(sensor) ) return;
+
+        sensor.ObjectValue = DateTime.Now;
     }
 
     private void ExtractVolume(DateTime extractionTime) {
-        var sensor = _sensorRepository.FindSensor<NumberSensor>(SourceName, VolumeSourceId)!;
+        var sensor = SensorRepository.FindSensor<NumberSensor>(SourceName, VolumeSourceId)!;
+
+        if ( !ShouldExtract(sensor) ) return;
 
         var enumerator = new MMDeviceEnumerator();
         var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);

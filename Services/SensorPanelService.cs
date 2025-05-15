@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform;
 using DravusSensorPanel.Models;
+using DravusSensorPanel.Models.Sensors;
 using DravusSensorPanel.Views.Windows;
 
 namespace DravusSensorPanel.Services;
@@ -44,6 +45,12 @@ public class SensorPanelService {
         }
 
         ChangeSensorPanelXY(SensorPanel.X, SensorPanel.Y);
+
+        foreach (PanelItem item in SensorPanel.Items) {
+            if ( item is PanelItemSensor { Sensor: not null } itemSensor ) {
+                itemSensor.Sensor.InUse = true;
+            }
+        }
     }
 
     public void ChangeSensorPanelXY(int x, int y) {
@@ -81,6 +88,10 @@ public class SensorPanelService {
     public void AddNewItem(PanelItem item, bool persist = true) {
         SensorPanel.Items.Add(item);
 
+        if ( item is PanelItemSensor { Sensor: not null } itemSensor ) {
+            itemSensor.Sensor.InUse = true;
+        }
+
         item.Reload();
 
         if ( persist ) {
@@ -93,6 +104,10 @@ public class SensorPanelService {
         }
     }
 
+    private bool CheckIfSensorIsInUse(Sensor sensor) {
+        return SensorPanel.Items.FirstOrDefault(s => s is PanelItemSensor pis && pis.Sensor?.Id == sensor.Id) != null;
+    }
+
     public void EditItem(PanelItem item, PanelItem oldItem, bool persist = true) {
         if ( item.Type == oldItem.Type ) {
             item.Reload();
@@ -100,6 +115,14 @@ public class SensorPanelService {
         else {
             RemoveItem(oldItem, false);
             AddNewItem(item);
+        }
+
+        if ( oldItem is PanelItemSensor { Sensor: not null } oldItemSensor ) {
+            oldItemSensor.Sensor.InUse = CheckIfSensorIsInUse(oldItemSensor.Sensor);
+        }
+
+        if ( item is PanelItemSensor { Sensor: not null } itemSensor ) {
+            itemSensor.Sensor.InUse = CheckIfSensorIsInUse(itemSensor.Sensor);
         }
 
         if ( persist ) {
@@ -118,6 +141,10 @@ public class SensorPanelService {
         PanelItem? panelFound = SensorPanel.Items.FirstOrDefault(it => it.Id == item.Id);
 
         if ( panelFound != null ) SensorPanel.Items.Remove(panelFound);
+
+        if ( item is PanelItemSensor { Sensor: not null } itemSensor ) {
+            itemSensor.Sensor.InUse = CheckIfSensorIsInUse(itemSensor.Sensor);
+        }
 
         if ( persist ) {
             SortItems();

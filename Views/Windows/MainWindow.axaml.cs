@@ -15,7 +15,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Services;
-using DravusSensorPanel.Services.InfoExtractor;
+using DravusSensorPanel.Services.InfoExtractors;
 using DynamicData;
 using LiveChartsCore.SkiaSharpView.Avalonia;
 using MsBox.Avalonia;
@@ -30,7 +30,7 @@ using MouseButton = Avalonia.Input.MouseButton;
 namespace DravusSensorPanel.Views.Windows;
 
 public partial class MainWindow : WindowViewModel {
-    private readonly IEnumerable<IInfoExtractor>? _infoExtractors;
+    private readonly IEnumerable<InfoExtractor>? _infoExtractors;
     private readonly Func<EditPanelWindow>? _editPanelWindowFactory;
     private readonly Func<AboutWindow>? _aboutWindowFactory;
     private readonly Func<PanelItem?, PanelItemFormWindow>? _panelItemFormWindowFactory;
@@ -55,7 +55,7 @@ public partial class MainWindow : WindowViewModel {
     public MainWindow(
         Func<EditPanelWindow>? editPanelWindowFactory,
         SensorPanelService? sensorPanelService,
-        IEnumerable<IInfoExtractor>? infoExtractors,
+        IEnumerable<InfoExtractor>? infoExtractors,
         Func<PanelItem?, PanelItemFormWindow>? panelItemFormWindowFactory,
         UtilService? utilService,
         Func<AboutWindow>? aboutWindowFactory) {

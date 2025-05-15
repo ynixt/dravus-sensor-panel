@@ -4,7 +4,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Services;
-using DravusSensorPanel.Services.InfoExtractor;
+using DravusSensorPanel.Services.InfoExtractors;
 using DravusSensorPanel.Views.Windows;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,7 +28,7 @@ public class App : Application {
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
-        foreach ( IInfoExtractor? infoExtractor in ServiceProvider.GetServices<IInfoExtractor>() ) {
+        foreach ( InfoExtractor? infoExtractor in ServiceProvider.GetServices<InfoExtractor>() ) {
             infoExtractor.Dispose();
         }
 

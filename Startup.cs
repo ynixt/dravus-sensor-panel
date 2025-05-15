@@ -5,7 +5,7 @@ using DravusSensorPanel.Models;
 using DravusSensorPanel.Models.Units;
 using DravusSensorPanel.Repositories;
 using DravusSensorPanel.Services;
-using DravusSensorPanel.Services.InfoExtractor;
+using DravusSensorPanel.Services.InfoExtractors;
 using DravusSensorPanel.Views.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using UnitsNet;
@@ -30,9 +30,9 @@ public static class Startup {
         services.AddSingleton<UtilService>();
         services.AddSingleton<SensorPanelImportService>();
 
-        services.AddSingleton<IInfoExtractor, LibreHardwareExtractor>();
-        services.AddTransient<IInfoExtractor, RtssHardwareExtractor>();
-        services.AddTransient<IInfoExtractor, SystemExtractor>();
+        services.AddSingleton<InfoExtractor, LibreHardwareExtractor>();
+        services.AddTransient<InfoExtractor, RtssHardwareExtractor>();
+        services.AddTransient<InfoExtractor, SystemExtractor>();
 
         services.AddSingleton<Dictionary<string, Unit>>(_ => RtssHardwareExtractor.UnitsByName);
         services.AddSingleton<Dictionary<string, Unit>>(_ => SystemExtractor.UnitsByName);

@@ -6,7 +6,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using DravusSensorPanel.Services;
-using DravusSensorPanel.Services.InfoExtractor;
+using DravusSensorPanel.Services.InfoExtractors;
 
 namespace DravusSensorPanel.Views.Windows;
 
@@ -27,7 +27,7 @@ public partial class SplashScreenWindow : WindowViewModel {
     }
 
     public SplashScreenWindow(
-        IEnumerable<IInfoExtractor>? infoExtractors,
+        IEnumerable<InfoExtractor>? infoExtractors,
         Func<MainWindow>? mainWindowFactory,
         SensorPanelService? sensorPanelService) {
         DataContext = this;
@@ -52,7 +52,7 @@ public partial class SplashScreenWindow : WindowViewModel {
 
         new Thread(o => {
             DateTime now = DateTime.Now;
-            foreach ( IInfoExtractor infoExtractor in infoExtractors ) {
+            foreach ( InfoExtractor infoExtractor in infoExtractors ) {
                 infoExtractor.Start();
                 infoExtractor.Dispose();
             }

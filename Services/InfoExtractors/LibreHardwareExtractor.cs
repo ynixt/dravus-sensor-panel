@@ -6,10 +6,10 @@ using DravusSensorPanel.Repositories;
 using LibreHardwareMonitor.Hardware;
 using UnitsNet.Units;
 
-namespace DravusSensorPanel.Services.InfoExtractor;
+namespace DravusSensorPanel.Services.InfoExtractors;
 
-public class LibreHardwareExtractor : IInfoExtractor {
-    public string SourceName => "libre-hardware";
+public class LibreHardwareExtractor : InfoExtractor {
+    public override string SourceName => "libre-hardware";
 
     private readonly Computer _computer = new() {
         IsCpuEnabled = true,
@@ -24,16 +24,15 @@ public class LibreHardwareExtractor : IInfoExtractor {
     };
 
     private readonly UpdateVisitor _visitor = new();
-    private readonly SensorRepository _sensorRepository;
     private readonly UnitRepository _unitRepository;
     private bool _started;
 
-    public LibreHardwareExtractor(SensorRepository sensorRepository, UnitRepository unitRepository) {
-        _sensorRepository = sensorRepository;
+    public LibreHardwareExtractor(SensorRepository sensorRepository, UnitRepository unitRepository) : base(sensorRepository) {
+        base.SensorRepository = sensorRepository;
         _unitRepository = unitRepository;
     }
 
-    public List<Sensor> Start() {
+    public override List<Sensor> Start() {
         if ( !_started ) {
             _started = true;
             _computer.Open();
@@ -43,14 +42,14 @@ public class LibreHardwareExtractor : IInfoExtractor {
         return Extract();
     }
 
-    public void Update() {
+    protected override void InternalUpdate() {
         if ( !_started ) return;
         _computer.Traverse(_visitor);
 
         Extract();
     }
 
-    public void Dispose() {
+    public override void Dispose() {
         // _computer.Close();
     }
 
@@ -62,7 +61,7 @@ public class LibreHardwareExtractor : IInfoExtractor {
                 if ( libreSensor.SensorType == SensorType.Factor ) continue;
 
                 string? sourceId = libreSensor.Identifier.ToString();
-                var sensor = _sensorRepository.FindSensor<NumberSensor>(SourceName, sourceId);
+                var sensor = SensorRepository.FindSensor<NumberSensor>(SourceName, sourceId);
 
                 if ( sensor == null ) {
                     sensor = new NumberSensor {
@@ -76,14 +75,19 @@ public class LibreHardwareExtractor : IInfoExtractor {
                         InfoExtractor = this,
                     };
 
-                    _sensorRepository.AddSensor(sensor);
+                    SensorRepository.AddSensor(sensor);
                 }
 
-                sensor.UpdateValue(libreSensor.Value, currentTime);
+                if ( ShouldExtract(sensor) ) {
+                    sensor.UpdateValue(libreSensor.Value, currentTime);
+                }
+
+                // We already stored the values on our side
+                libreSensor.ClearValues();
             }
         }
 
-        return _sensorRepository.GetAllSensors(SourceName);
+        return SensorRepository.GetAllSensors(SourceName);
     }
 
     private class UpdateVisitor : IVisitor {
