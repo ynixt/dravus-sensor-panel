@@ -46,11 +46,13 @@ public class SensorPanelService {
 
         ChangeSensorPanelXY(SensorPanel.X, SensorPanel.Y);
 
-        foreach (PanelItem item in SensorPanel.Items) {
+        foreach ( PanelItem item in SensorPanel.Items ) {
             if ( item is PanelItemSensor { Sensor: not null } itemSensor ) {
                 itemSensor.Sensor.InUse = true;
             }
         }
+
+        NormaliseSort();
     }
 
     public void ChangeSensorPanelXY(int x, int y) {
@@ -85,6 +87,47 @@ public class SensorPanelService {
         MainWindow.IgnoreCollectionChanged = false;
     }
 
+    private void NormaliseSort() {
+        int i = 0;
+        foreach ( PanelItem item in SensorPanel.Items.OrderBy(it => it.Sort) ) {
+            item.Sort = i++;
+        }
+    }
+
+    public void UpSortItem(PanelItem item) {
+        if ( item.Sort == 0 ) return;
+
+        item.Sort--;
+
+        IEnumerable<PanelItem> conflicting = SensorPanel.Items.Where(i => i.Sort == item.Sort && i != item);
+        int i = item.Sort + 1;
+
+        foreach ( PanelItem panelItem in conflicting ) {
+            panelItem.Sort = i++;
+        }
+
+        SortItems();
+        NormaliseSort();
+        SavePanel();
+    }
+
+    public void DownSortItem(PanelItem item) {
+        if ( item.Sort == SensorPanel.Items.Count - 1 ) return;
+
+        item.Sort++;
+
+        IEnumerable<PanelItem> conflicting = SensorPanel.Items.Where(i => i.Sort == item.Sort && i != item);
+        int i = item.Sort - 1;
+
+        foreach ( PanelItem panelItem in conflicting ) {
+            panelItem.Sort = i--;
+        }
+
+        SortItems();
+        NormaliseSort();
+        SavePanel();
+    }
+
     public void AddNewItem(PanelItem item, bool persist = true) {
         SensorPanel.Items.Add(item);
 
@@ -100,6 +143,7 @@ public class SensorPanelService {
             }
 
             SortItems();
+            NormaliseSort();
             SavePanel();
         }
     }
@@ -147,7 +191,7 @@ public class SensorPanelService {
         }
 
         if ( persist ) {
-            SortItems();
+            NormaliseSort();
             SavePanel();
         }
 

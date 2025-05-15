@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Services;
@@ -62,11 +64,16 @@ public partial class EditPanelWindow : WindowViewModel {
 
             if ( item != null ) {
                 _sensorPanelService?.AddNewItem(item);
+                SelectedItem = item;
             }
         }
     }
 
-    public async void ModifyItemClick(object sender, RoutedEventArgs args) {
+    public void ModifyItemClick(object sender, RoutedEventArgs args) {
+        OpenModifyItemDialog();
+    }
+
+    private async void OpenModifyItemDialog() {
         if ( _panelItemFormWindowFactory != null && SelectedItem != null ) {
             PanelItem originalItem = SelectedItem;
             PanelItem clone = SelectedItem.Clone();
@@ -81,6 +88,7 @@ public partial class EditPanelWindow : WindowViewModel {
                 _sensorPanelService?.RemoveItem(originalItem, false, false);
                 _sensorPanelService?.AddNewItem(clone, false);
                 _sensorPanelService?.SortItems();
+                SelectedItem = clone;
             }
         }
     }
@@ -89,14 +97,16 @@ public partial class EditPanelWindow : WindowViewModel {
         if ( _panelItemFormWindowFactory != null && SelectedItem != null ) {
             PanelItem clone = SelectedItem.ToDto().ToModel();
             clone.Id = Guid.NewGuid().ToString("N");
-            clone.Sort = 0;
+            clone.Description += " (clone)";
             _sensorPanelService?.AddNewItem(clone);
+            SelectedItem = clone;
         }
     }
 
     public void DeleteItemClick(object sender, RoutedEventArgs args) {
         if ( SelectedItem != null ) {
             _sensorPanelService?.RemoveItem(SelectedItem);
+            SelectedItem = null;
         }
     }
 
@@ -133,5 +143,30 @@ public partial class EditPanelWindow : WindowViewModel {
 
     private void OnWindowClosed(object? sender, EventArgs e) {
         MainWindow?.UnselectControls();
+    }
+
+    private void UpItemClick(object? sender, RoutedEventArgs e) {
+        if ( SelectedItem != null ) {
+            PanelItem selectedItem = SelectedItem;
+            SelectedItem = null;
+            _sensorPanelService?.UpSortItem(selectedItem);
+            SelectedItem = selectedItem;
+        }
+    }
+
+    private void DownItemClick(object? sender, RoutedEventArgs e) {
+        if ( SelectedItem != null ) {
+            PanelItem selectedItem = SelectedItem;
+            SelectedItem = null;
+            _sensorPanelService?.DownSortItem(selectedItem);
+            SelectedItem = selectedItem;
+        }
+    }
+
+    private void InputElement_OnDoubleTapped(object? sender, TappedEventArgs args) {
+        object? source = args.Source;
+        if (source is Border) {
+            OpenModifyItemDialog();
+        }
     }
 }
