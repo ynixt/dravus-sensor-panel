@@ -14,6 +14,7 @@ public partial class PanelItemInfoSensorChart : PanelItemInfoNumberSensor {
         AvaloniaProperty.Register<PanelItemInfoSensorChart, IEnumerable<NumberSensor>>(nameof(Sensors));
 
     private int _valueTypeIndex;
+    private int _chartTypeIndex;
     private IDisposable? _panelItemDisposable;
 
     public override int ValueTypeIndex {
@@ -23,6 +24,35 @@ public partial class PanelItemInfoSensorChart : PanelItemInfoNumberSensor {
 
             if ( PanelItem != null ) {
                 PanelItem.ValueType = ( PanelItemSensorValueType ) _valueTypeIndex;
+            }
+        }
+    }
+
+    public bool IsHorizontalChart => PanelItem?.ChartType is ChartType.HorizontalBar or ChartType.HorizontalBars;
+    public bool IsVerticalChart => !IsHorizontalChart;
+
+    public int CharTypeIndex {
+        get => _chartTypeIndex;
+        set {
+            _chartTypeIndex = value;
+
+            if ( PanelItem != null ) {
+                PanelItem.ChartType = ( ChartType ) _chartTypeIndex;
+
+                OnPropertyChanged(nameof(IsHorizontalChart));
+                OnPropertyChanged(nameof(IsVerticalChart));
+
+                if ( IsHorizontalChart ) {
+                    PanelItem.YMaxValue = null;
+                    PanelItem.YMaxValue = null;
+
+                    PanelItem.ShowYAxis = PanelItem.ChartType is not ChartType.HorizontalBar;
+                }
+                else {
+                    PanelItem.XMaxValue = null;
+                    PanelItem.XMaxValue = null;
+                    PanelItem.ShowYAxis = true;
+                }
             }
         }
     }

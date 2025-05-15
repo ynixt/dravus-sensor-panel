@@ -89,6 +89,7 @@ public partial class EditPanelWindow : WindowViewModel {
         if ( _panelItemFormWindowFactory != null && SelectedItem != null ) {
             PanelItem clone = SelectedItem.ToDto().ToModel();
             clone.Id = Guid.NewGuid().ToString("N");
+            clone.Sort = 0;
             _sensorPanelService?.AddNewItem(clone);
         }
     }

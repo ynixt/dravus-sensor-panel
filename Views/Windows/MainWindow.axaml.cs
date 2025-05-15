@@ -600,6 +600,7 @@ public partial class MainWindow : WindowViewModel {
                 control.Bind(CartesianChart.YAxesProperty, new Binding(nameof(itemChart.YAxes)));
                 control.Bind(CartesianChart.XAxesProperty, new Binding(nameof(itemChart.XAxes)));
                 control.Bind(CartesianChart.SeriesProperty, new Binding(nameof(itemChart.Series)));
+                control.Bind(CartesianChart.BackgroundProperty, new Binding(nameof(itemChart.BackgroundBrush)));
                 break;
         }
 

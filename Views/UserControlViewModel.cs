@@ -24,4 +24,10 @@ public abstract class UserControlViewModel : UserControl, INotifyPropertyChanged
     }
 
     public new event PropertyChangedEventHandler? PropertyChanged;
+
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null) {
+        if ( EqualityComparer<T>.Default.Equals(field, value) ) return false;
+        RaiseAndSetIfChanged(ref field, value, propertyName);
+        return true;
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Avalonia.Media;
 using DravusSensorPanel.Enums;
@@ -18,20 +19,63 @@ using SkiaSharp;
 
 namespace DravusSensorPanel.Models;
 
+public enum ChartType {
+    Lines,
+    HorizontalBar,
+    HorizontalBars,
+}
+
 public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
     private int _width = 300;
     private int _height = 150;
+    private Color _background = Colors.Transparent;
+    private SolidColorBrush? _cachedBackgroundBrush;
+    private double? _yMinValue;
+    private double? _yMaxValue;
+    private double? _xMinValue;
+    private double? _xMaxValue;
+    private bool _showYAxis;
+    private bool _showXAxis;
 
     public override SensorPanelItemType Type => SensorPanelItemType.SensorChart;
 
-    public double? YMinValue { get; set; }
-    public double? YMaxValue { get; set; }
+    public double? YMinValue {
+        get => _yMinValue;
+        set => SetField(ref _yMinValue, value);
+    }
+
+    public double? YMaxValue {
+        get => _yMaxValue;
+        set => SetField(ref _yMaxValue, value);
+    }
+
+    public double? XMinValue {
+        get => _xMinValue;
+        set => SetField(ref _xMinValue, value);
+    }
+
+    public double? XMaxValue {
+        get => _xMaxValue;
+        set => SetField(ref _xMaxValue, value);
+    }
+
     public Color Stroke { get; set; } = Colors.Lime;
     public Color Fill { get; set; } = Colors.Transparent;
     public double LineSmoothness { get; set; } = 0.6;
     public double MinStep { get; set; } = 1;
-    public bool ShowYAxis { get; set; }
-    public bool ShowXAxis { get; set; }
+
+    public bool ShowYAxis {
+        get => _showYAxis;
+        set => SetField(ref _showYAxis, value);
+    }
+
+    public bool ShowXAxis {
+        get => _showXAxis;
+        set => SetField(ref _showXAxis, value);
+    }
+
+    public ChartType ChartType { get; set; } = ChartType.Lines;
+    public IBrush BackgroundBrush => _cachedBackgroundBrush ??= new SolidColorBrush(_background);
 
     public ISeries[] Series { get; private set; } = [];
 
@@ -48,6 +92,15 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
             ShowSeparatorLines = false,
         },
     ];
+
+    public Color Background {
+        get => _background;
+        set {
+            if ( !SetField(ref _background, value) ) return;
+            _cachedBackgroundBrush = new SolidColorBrush(value);
+            this.RaisePropertyChanged(nameof(BackgroundBrush));
+        }
+    }
 
     public int Width {
         get => _width;
@@ -82,12 +135,16 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
             Height = Height,
             YMinValue = YMinValue,
             YMaxValue = YMaxValue,
+            XMinValue = XMinValue,
+            XMaxValue = XMaxValue,
+            Background = Background,
             Stroke = Stroke,
             Fill = Fill,
             LineSmoothness = LineSmoothness,
             MinStep = MinStep,
             ShowYAxis = ShowYAxis,
             ShowXAxis = ShowXAxis,
+            ChartType = ChartType,
         };
 
         clone.UpdateChart();
@@ -114,12 +171,16 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
             Height = Height,
             YMinValue = YMinValue,
             YMaxValue = YMaxValue,
+            XMinValue = XMinValue,
+            XMaxValue = XMaxValue,
+            Background = Background,
             Stroke = Stroke,
             Fill = Fill,
             LineSmoothness = LineSmoothness,
             MinStep = MinStep,
             ShowYAxis = ShowYAxis,
             ShowXAxis = ShowXAxis,
+            ChartType = ChartType,
         };
     }
 
@@ -179,25 +240,82 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
             if ( points.Count > limit ) points.RemoveAt(0);
         }
 
-        Series = [
-            new LineSeries<DateTimePoint> {
-                LineSmoothness = LineSmoothness,
-                Stroke =
-                    Stroke.A == 0 ? null : new SolidColorPaint(new SKColor(Stroke.R, Stroke.G, Stroke.B, Stroke.A)),
-                Fill = Fill.A == 0 ? null : new SolidColorPaint(new SKColor(Fill.R, Fill.G, Fill.B, Fill.A)),
-                GeometryFill = null,
-                GeometryStroke = null,
-                Values = points,
-            },
-        ];
+        if ( ChartType is ChartType.HorizontalBar or ChartType.HorizontalBars ) {
+            if ( ChartType is ChartType.HorizontalBar ) {
+                Series = [
+                    new RowSeries<double> {
+                        Stroke =
+                            Stroke.A == 0 ? null : new SolidColorPaint(new SKColor(Stroke.R, Stroke.G, Stroke.B, Stroke.A)),
+                        Fill = Fill.A == 0 ? null : new SolidColorPaint(new SKColor(Fill.R, Fill.G, Fill.B, Fill.A)),
+                        Values = points.Count > 0 && points[^1].Value != null ? [points[^1].Value!.Value] : null,
+                    },
+                ];
+            }
+            else {
+                Series = [
+                    new RowSeries<DateTimePoint> {
+                        Stroke =
+                            Stroke.A == 0 ? null : new SolidColorPaint(new SKColor(Stroke.R, Stroke.G, Stroke.B, Stroke.A)),
+                        Fill = Fill.A == 0 ? null : new SolidColorPaint(new SKColor(Fill.R, Fill.G, Fill.B, Fill.A)),
+                        Values = points,
+                    },
+                ];
+            }
+        }
+        else {
+            Series = [
+                new LineSeries<DateTimePoint> {
+                    LineSmoothness = LineSmoothness,
+                    Stroke =
+                        Stroke.A == 0 ? null : new SolidColorPaint(new SKColor(Stroke.R, Stroke.G, Stroke.B, Stroke.A)),
+                    Fill = Fill.A == 0 ? null : new SolidColorPaint(new SKColor(Fill.R, Fill.G, Fill.B, Fill.A)),
+                    GeometryFill = null,
+                    GeometryStroke = null,
+                    Values = points,
+                },
+            ];
+        }
 
         this.RaisePropertyChanged(nameof(Series));
     }
 
     private void BuildAxes() {
+        bool isHorizontal = ChartType is ChartType.HorizontalBar or ChartType.HorizontalBars;
+
+        double? minXLimit;
+        double? maxXLimit;
+        double? minYLimit;
+        double? maxYLimit;
+
+        string DefaultLabeler(double x) => x.ToString(CultureInfo.CurrentCulture);
+        Func<double, string> tickerLabeler = ticks => new DateTime(( long ) ticks).ToString("HH:mm:ss");
+        Func<double, string> valueLabeler = v => $"{v.ToString(CultureInfo.CurrentCulture)} {UnitSymbol}";
+
+        Func<double, string> labelerY;
+        Func<double, string> labelerX;
+
+        if ( ChartType is ChartType.HorizontalBar or ChartType.HorizontalBars ) {
+            minXLimit = XMinValue;
+            maxXLimit = XMaxValue;
+            minYLimit = null;
+            maxYLimit = null;
+            labelerX = ChartType is ChartType.HorizontalBar ? x => "" : valueLabeler;
+            labelerY = ChartType is ChartType.HorizontalBar ? valueLabeler : tickerLabeler;
+        }
+        else {
+            minXLimit = null;
+            maxXLimit = null;
+            minYLimit = YMinValue;
+            maxYLimit = YMaxValue;
+            labelerX = tickerLabeler;
+            labelerY = valueLabeler;
+        }
+
         XAxes = [
             new Axis {
-                Labeler = ticks => new DateTime(( long ) ticks).ToString("HH:mm:ss"),
+                MinLimit = minXLimit,
+                MaxLimit = maxXLimit,
+                Labeler = labelerX,
                 IsVisible = ShowXAxis,
                 ShowSeparatorLines = false,
             },
@@ -206,9 +324,9 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
 
         YAxes = [
             new Axis {
-                MinLimit = YMinValue,
-                MaxLimit = YMaxValue,
-                Labeler = v => $"{v} {UnitSymbol}",
+                MinLimit = minYLimit,
+                MaxLimit = maxYLimit,
+                Labeler = labelerY,
                 ShowSeparatorLines = false,
                 IsVisible = ShowYAxis,
             },

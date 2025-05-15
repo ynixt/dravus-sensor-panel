@@ -115,12 +115,16 @@ public class PanelItemChartDto : PanelItemNumberSensorDto {
     public int Height { get; set; }
     public double? YMinValue { get; set; }
     public double? YMaxValue { get; set; }
+    public double? XMinValue { get; set; }
+    public double? XMaxValue { get; set; }
     public Color Stroke { get; set; }
     public Color Fill { get; set; }
+    public Color Background { get; set; }
     public double LineSmoothness { get; set; }
     public double MinStep { get; set; }
     public bool ShowYAxis { get; set; }
     public bool ShowXAxis { get; set; }
+    public ChartType ChartType { get; set; }
 
     public override PanelItemChart ToModel() {
         var model = new PanelItemChart {
@@ -128,12 +132,16 @@ public class PanelItemChartDto : PanelItemNumberSensorDto {
             Height = Height,
             YMinValue = YMinValue,
             YMaxValue = YMaxValue,
+            XMinValue = XMinValue,
+            XMaxValue = XMaxValue,
             Stroke = Stroke,
             Fill = Fill,
+            Background = Background,
             LineSmoothness = LineSmoothness,
             MinStep = MinStep,
             ShowYAxis = ShowYAxis,
             ShowXAxis = ShowXAxis,
+            ChartType = ChartType,
         };
         CopySensorBase(model);
         model.Reload();

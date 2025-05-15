@@ -199,25 +199,67 @@
                 </ComboBox>
 
                 <TextBlock
+                    Grid.Row="4"
+                    Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Background Color
+                </TextBlock>
+                <ColorPicker
+                    HorizontalAlignment="Left"
+                    Grid.Row="4"
+                    Grid.Column="7"
+                    Color="{Binding PanelItem.Background, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+
+
+                <TextBlock
                     Grid.Row="5"
-                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                    IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
                     Y min value
                 </TextBlock>
                 <NumericUpDown
                     Grid.Row="5"
                     Grid.Column="1" Increment="1"
+                    IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
                     Value="{Binding PanelItem.YMinValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
 
                 <TextBlock
                     Grid.Row="5"
-                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
+                    IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
                     Y max value
                 </TextBlock>
                 <NumericUpDown
                     Grid.Row="5"
                     Grid.Column="3" Increment="1"
-                    Value="{Binding PanelItem.YMaxValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                    Value="{Binding PanelItem.YMaxValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                    IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+
+                <TextBlock
+                    Grid.Row="5"
+                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                    IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                    X min value
+                </TextBlock>
+                <NumericUpDown
+                    Grid.Row="5"
+                    Grid.Column="1" Increment="1"
+                    IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                    Value="{Binding PanelItem.XMinValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+
+
+                <TextBlock
+                    Grid.Row="5"
+                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
+                    IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                    X max value
+                </TextBlock>
+                <NumericUpDown
+                    Grid.Row="5"
+                    Grid.Column="3" Increment="1"
+                    Value="{Binding PanelItem.XMaxValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                    IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+
 
                 <TextBlock
                     Grid.Row="5"
@@ -243,22 +285,38 @@
                 <TextBlock
                     Grid.Row="6"
                     Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Chart type
+                </TextBlock>
+
+                <ComboBox
+                    Grid.Row="6"
+                    Grid.Column="1"
+                    HorizontalAlignment="Stretch"
+                    SelectedIndex="{Binding CharTypeIndex, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                    <ComboBoxItem>Line</ComboBoxItem>
+                    <ComboBoxItem>Bar</ComboBoxItem>
+                    <ComboBoxItem>Bars</ComboBoxItem>
+                </ComboBox>
+
+                <TextBlock
+                    Grid.Row="6"
+                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
                     Show x axis
                 </TextBlock>
                 <CheckBox
                     Grid.Row="6"
-                    Grid.Column="1"
+                    Grid.Column="3"
                     IsThreeState="False"
                     IsChecked="{Binding PanelItem.ShowXAxis,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
                 <TextBlock
                     Grid.Row="6"
-                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
                     Show y axis
                 </TextBlock>
                 <CheckBox
                     Grid.Row="6"
-                    Grid.Column="3"
+                    Grid.Column="5"
                     IsThreeState="False"
                     IsChecked="{Binding PanelItem.ShowYAxis,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
@@ -274,6 +332,7 @@
                     Grid.Column="1"
                     Grid.ColumnSpan="7"
                     AnimationsSpeed="0:0:0"
+                    Background="{Binding PanelItem.BackgroundBrush, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
                     YAxes="{Binding PanelItem.YAxes, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
                     XAxes="{Binding PanelItem.XAxes, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
                     Series="{Binding PanelItem.Series, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
