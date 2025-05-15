@@ -52,6 +52,7 @@ public sealed class PanelItemImage : PanelItem, IPanelItemSizeable {
             X = X,
             Y = Y,
             ZIndex = ZIndex,
+            Sort = Sort,
             Description = Description,
             Width = Width,
             Height = Height,
@@ -67,6 +68,7 @@ public sealed class PanelItemImage : PanelItem, IPanelItemSizeable {
             X = X,
             Y = Y,
             ZIndex = ZIndex,
+            Sort = Sort,
             Description = Description,
             Type = Type,
 

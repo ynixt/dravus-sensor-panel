@@ -24,6 +24,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -117,12 +118,23 @@
                 <TextBlock
                     Grid.Row="3"
                     Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Text Alignment
+                </TextBlock>
+                <views:TextAlignmentPicker
+                    Grid.Row="3"
+                    Grid.Column="5"
+                    TextAlignmentSelected="{Binding PanelItem.TextAlignment, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoLabel}}" />
+
+
+                <TextBlock
+                    Grid.Row="4"
+                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
                     Font Color
                 </TextBlock>
                 <ColorPicker
                     HorizontalAlignment="Left"
-                    Grid.Row="3"
-                    Grid.Column="5"
+                    Grid.Row="4"
+                    Grid.Column="1"
                     Color="{Binding PanelItem.Foreground, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoLabel}}" />
             </Grid>
         </StackPanel>

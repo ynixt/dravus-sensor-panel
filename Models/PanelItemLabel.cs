@@ -5,12 +5,13 @@ using ReactiveUI;
 
 namespace DravusSensorPanel.Models;
 
-public sealed class PanelItemLabel : PanelItem, IPanelItemEditableText {
+public sealed class PanelItemLabel : PanelItem, IPanelItemEditableText, IPanelItemTextAlignment {
     private string _label = string.Empty;
     private Color _foreground = Colors.White;
     private SolidColorBrush? _cachedBrush;
     private int _fontSize = 14;
     private FontFamily _fontFamily = FontFamily.Default;
+    private TextAlignment _textAlignment = TextAlignment.Center;
 
     public override SensorPanelItemType Type => SensorPanelItemType.Label;
 
@@ -29,6 +30,11 @@ public sealed class PanelItemLabel : PanelItem, IPanelItemEditableText {
     public string Label {
         get => _label;
         set => SetField(ref _label, value);
+    }
+
+    public TextAlignment TextAlignment {
+        get => _textAlignment;
+        set => SetField(ref _textAlignment, value);
     }
 
     public Color Foreground {
@@ -51,6 +57,8 @@ public sealed class PanelItemLabel : PanelItem, IPanelItemEditableText {
             FontFamily = FontFamily,
             Foreground = Foreground,
             Label = Label,
+            TextAlignment = TextAlignment,
+            Sort = Sort,
         };
     }
 
@@ -62,11 +70,13 @@ public sealed class PanelItemLabel : PanelItem, IPanelItemEditableText {
             ZIndex = ZIndex,
             Description = Description,
             Type = Type,
+            Sort = Sort,
 
             FontSize = FontSize,
             FontFamily = FontFamily,
             Foreground = Foreground,
             Label = Label,
+            TextAlignment = TextAlignment,
         };
     }
 }

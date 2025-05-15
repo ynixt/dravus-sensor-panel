@@ -18,10 +18,11 @@
 
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8">
-            <ComboBox SelectedIndex="{Binding ItemTypeSelectedIndex, Mode=TwoWay}" MaxDropDownHeight="100">
+            <ComboBox SelectedIndex="{Binding ItemTypeSelectedIndex, Mode=TwoWay}">
                 <ComboBoxItem>Sensor value</ComboBoxItem>
+                <ComboBoxItem>Sensor text</ComboBoxItem>
                 <ComboBoxItem>Sensor chart</ComboBoxItem>
-                <ComboBoxItem>Label</ComboBoxItem>
+                <ComboBoxItem>Static text</ComboBoxItem>
                 <ComboBoxItem>Image</ComboBoxItem>
             </ComboBox>
         </StackPanel>

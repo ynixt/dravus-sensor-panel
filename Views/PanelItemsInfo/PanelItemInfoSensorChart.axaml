@@ -31,7 +31,7 @@
                 <DataGridTextColumn Header="Value" Binding="{Binding Value, StringFormat='{}{0:0.##}'}" Width="150" />
                 <DataGridTextColumn Header="Min" Binding="{Binding Min, StringFormat='{}{0:0.##}'}" Width="150" />
                 <DataGridTextColumn Header="Max" Binding="{Binding Max, StringFormat='{}{0:0.##}'}" Width="150" />
-                <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="150" />
+                <DataGridTextColumn Header="Unit" Binding="{Binding Unit.Name}" Width="150" />
             </DataGrid.Columns>
         </DataGrid>
 
@@ -190,7 +190,13 @@
                     Grid.Column="5"
                     HorizontalAlignment="Stretch"
                     SelectedValue="{Binding PanelItem.Unit, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-                    ItemsSource="{Binding PossibleUnits, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                    ItemsSource="{Binding PossibleUnits, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
                 <TextBlock
                     Grid.Row="5"

@@ -3,6 +3,7 @@
 public enum SensorPanelItemType {
     Label,
     SensorValue,
+    SensorObject,
     SensorChart,
     Image,
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using Avalonia.Media;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models.Dtos;
+using DravusSensorPanel.Models.Sensors;
+using DravusSensorPanel.Models.Units;
 using DravusSensorPanel.Services;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
@@ -16,7 +18,7 @@ using SkiaSharp;
 
 namespace DravusSensorPanel.Models;
 
-public sealed class PanelItemChart : PanelItemSensor, IPanelItemSizeable {
+public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
     private int _width = 300;
     private int _height = 150;
 
@@ -47,6 +49,11 @@ public sealed class PanelItemChart : PanelItemSensor, IPanelItemSizeable {
         set => SetField(ref _height, value);
     }
 
+    public NumberSensor? NumberSensor {
+        get => Sensor as NumberSensor;
+        set => Sensor = value;
+    }
+
     public override PanelItem Clone() {
         var clone = new PanelItemChart {
             Id = Id,
@@ -54,6 +61,7 @@ public sealed class PanelItemChart : PanelItemSensor, IPanelItemSizeable {
             Y = Y,
             ZIndex = ZIndex,
             Description = Description,
+            Sort = Sort,
 
             Sensor = Sensor,
             Unit = Unit,
@@ -85,11 +93,10 @@ public sealed class PanelItemChart : PanelItemSensor, IPanelItemSizeable {
             ZIndex = ZIndex,
             Description = Description,
             Type = Type,
+            Sort = Sort,
 
             Sensor = Sensor == null ? null : new SensorDto { Source = Sensor.Source, SourceId = Sensor.SourceId },
-            Unit = Unit == null
-                ? null
-                : App.ServiceProvider!.GetRequiredService<UnitService>().GetUnitWithQuantityName(Unit),
+            Unit = Unit?.ToDto(),
             NumDecimalPlaces = NumDecimalPlaces,
             ValueType = ValueType,
 
@@ -106,7 +113,7 @@ public sealed class PanelItemChart : PanelItemSensor, IPanelItemSizeable {
         };
     }
 
-    protected override void UnitChanged(Enum? unit) {
+    protected override void UnitChanged(Unit? unit) {
         base.UnitChanged(unit);
         UpdateChart();
     }
@@ -123,15 +130,15 @@ public sealed class PanelItemChart : PanelItemSensor, IPanelItemSizeable {
 
     private void BuildSeries() {
         const int limit = 100;
-        if ( Sensor == null ) {
+        if ( Sensor == null || NumberSensor == null ) {
             Series = [];
             return;
         }
 
         IEnumerable<DateValue> source = ValueType switch {
-            PanelItemSensorValueType.Value => Sensor.Values,
-            PanelItemSensorValueType.Min => Sensor.Mins,
-            PanelItemSensorValueType.Max => Sensor.Maxs,
+            PanelItemSensorValueType.Value => NumberSensor.Values,
+            PanelItemSensorValueType.Min => NumberSensor.Mins,
+            PanelItemSensorValueType.Max => NumberSensor!.Maxs,
             _ => Enumerable.Empty<DateValue>(),
         };
 
@@ -140,8 +147,8 @@ public sealed class PanelItemChart : PanelItemSensor, IPanelItemSizeable {
             ? App.ServiceProvider!
                  .GetRequiredService<UnitService>()
             : null;
-        Enum sensorUnit = Sensor.Unit;
-        Enum? targetUnit = Unit;
+        Unit sensorUnit = NumberSensor.Unit;
+        Unit? targetUnit = Unit;
 
         var points = new List<DateTimePoint>(limit);
         DateTime? last = null;
@@ -153,7 +160,7 @@ public sealed class PanelItemChart : PanelItemSensor, IPanelItemSizeable {
 
             double val = dv.Value.Value;
             if ( convert && unitSvc != null ) {
-                val = unitSvc.Convert(val, sensorUnit, targetUnit);
+                val = unitSvc.Convert(val, sensorUnit, targetUnit!);
             }
 
             val = Math.Round(val, NumDecimalPlaces, MidpointRounding.ToEven);

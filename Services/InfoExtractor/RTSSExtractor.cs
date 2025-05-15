@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using DravusSensorPanel.Enums;
-using DravusSensorPanel.Models;
+using DravusSensorPanel.Models.Sensors;
+using DravusSensorPanel.Models.Units;
 using DravusSensorPanel.Repositories;
 using LibreHardwareMonitor.Hardware;
 
@@ -12,10 +12,17 @@ namespace DravusSensorPanel.Services.InfoExtractor;
 ///     Extracts FPS from the RivaTuner Statistics Server shared memory (RTSSSharedMemoryV1‑V3)
 /// </summary>
 public unsafe class RtssHardwareExtractor : IInfoExtractor, IDisposable {
+    private const string FpsUnitId = "system-fps";
+    private const string FpsSourceId = "rtss-fps";
+
+
+    public static readonly Dictionary<string, Unit> UnitsByName = new() {
+        { FpsUnitId, new UnitWithoutConversion(FpsUnitId, "Frames per Second", "FPS") },
+    };
+
     public string SourceName => "RTSS";
 
     private const uint ExpectedSignature = 0x52545353;
-    private const string FpsSourceId = "rtss-fps";
 
     private readonly string[] _sharedMemoryNames = {
         "RTSSSharedMemoryV3",
@@ -119,14 +126,14 @@ public unsafe class RtssHardwareExtractor : IInfoExtractor, IDisposable {
         if ( !_started ) {
             _started = true;
 
-            _sensorRepository.AddSensor(new Sensor {
+            _sensorRepository.AddSensor(new NumberSensor {
                 Id = Guid.NewGuid().ToString(),
                 Source = SourceName,
                 SourceId = FpsSourceId,
                 Type = SensorType.Data,
-                Hardware = "FPS",
+                Hardware = "System",
                 Name = "FPS",
-                Unit = FrameUnit.Fps,
+                Unit = UnitsByName[FpsUnitId],
                 InfoExtractor = this,
             });
         }
@@ -207,8 +214,8 @@ public unsafe class RtssHardwareExtractor : IInfoExtractor, IDisposable {
     }
 
     private void NewFps(float fps) {
-        Sensor? s = _sensorRepository.FindSensor(SourceName, FpsSourceId);
-        s.UpdateValue(fps, DateTime.Now);
+        var s = _sensorRepository.FindSensor<NumberSensor>(SourceName, FpsSourceId);
+        s.UpdateValue(fps, DateTime.Now, true);
     }
 
 #endregion

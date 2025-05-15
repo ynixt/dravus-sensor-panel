@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using DravusSensorPanel.Models;
+using DravusSensorPanel.Models.Sensors;
 
 namespace DravusSensorPanel.Repositories;
 
@@ -13,6 +13,10 @@ public class SensorRepository {
         return sensors?.Values.ToList() ?? Enumerable.Empty<Sensor>().ToList();
     }
 
+    public List<T> GetAllSensors<T>(string source) where T : Sensor {
+        return GetAllSensors(source).Cast<T>().ToList();
+    }
+
     public Sensor? FindSensor(string source, string sourceId) {
         if ( _sensorsBySourceAndId.TryGetValue(source, out Dictionary<string, Sensor>? sensorsById) ) {
             if ( sensorsById.TryGetValue(sourceId, out Sensor? sensor) ) {
@@ -21,6 +25,10 @@ public class SensorRepository {
         }
 
         return null;
+    }
+
+    public T? FindSensor<T>(string source, string sourceId) where T : Sensor {
+        return FindSensor(source, sourceId) as T;
     }
 
     public void AddSensor(Sensor sensor) {

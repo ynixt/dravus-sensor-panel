@@ -18,7 +18,14 @@ public interface IPanelItemVerticalSizeable {
     public int Height { get; set; }
 }
 
+public interface IPanelItemTextAlignment {
+    public TextAlignment TextAlignment { get; set; }
+}
+
 public interface IPanelItemText {
+    // TODO: FontStyle (normal, italic, oblic)
+    // TODO: FontWeight
+    // TODO: Border
     string Label { get; }
     int FontSize { get; set; }
     FontFamily FontFamily { get; set; }
@@ -36,6 +43,7 @@ public abstract class PanelItem : SuperReactiveObject, IDisposable {
     private int _zIndex;
     private int _x;
     private int _y;
+    private int _sort;
 
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
 
@@ -57,6 +65,15 @@ public abstract class PanelItem : SuperReactiveObject, IDisposable {
         set {
             if ( !SetField(ref _y, value) ) return;
             YChanged(_y);
+        }
+    }
+
+
+    public int Sort {
+        get => _sort;
+        set {
+            if ( !SetField(ref _sort, value) ) return;
+            YChanged(_sort);
         }
     }
 

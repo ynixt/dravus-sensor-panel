@@ -2,49 +2,35 @@
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using Avalonia;
-using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Models.Sensors;
 using ReactiveUI;
 
 namespace DravusSensorPanel.Views.PanelItemsInfo;
 
-public partial class PanelItemInfoSensorValue : PanelItemInfoNumberSensor {
-    public static readonly StyledProperty<IEnumerable<NumberSensor>> SensorsProperty =
-        AvaloniaProperty.Register<PanelItemInfoSensorValue, IEnumerable<NumberSensor>>(nameof(Sensors));
+public partial class PanelItemInfoSensorObject : PanelItemInfoSensor {
+    public static readonly StyledProperty<IEnumerable<ObjectSensor>> SensorsProperty =
+        AvaloniaProperty.Register<PanelItemInfoSensorObject, IEnumerable<ObjectSensor>>(nameof(Sensors));
 
-    public static readonly StyledProperty<NumberSensor?> SelectedSensorProperty =
-        AvaloniaProperty.Register<PanelItemInfoSensorValue, NumberSensor?>(nameof(SelectedSensor));
+    public static readonly StyledProperty<ObjectSensor?> SelectedSensorProperty =
+        AvaloniaProperty.Register<PanelItemInfoSensorObject, ObjectSensor?>(nameof(SelectedSensor));
 
-    public static readonly StyledProperty<PanelItemValue?> PanelItemProperty =
-        AvaloniaProperty.Register<PanelItemInfoSensorValue, PanelItemValue?>(nameof(PanelItem));
+    public static readonly StyledProperty<PanelItemObjectSensor?> PanelItemProperty =
+        AvaloniaProperty.Register<PanelItemInfoSensorObject, PanelItemObjectSensor?>(nameof(PanelItem));
 
-    private int _valueTypeIndex;
     private IDisposable? _panelItemDisposable;
 
-
-    public override int ValueTypeIndex {
-        get => _valueTypeIndex;
-        set {
-            _valueTypeIndex = value;
-
-            if ( PanelItem != null ) {
-                PanelItem.ValueType = ( PanelItemSensorValueType ) _valueTypeIndex;
-            }
-        }
-    }
-
-    public IEnumerable<NumberSensor> Sensors {
+    public IEnumerable<ObjectSensor> Sensors {
         get => GetValue(SensorsProperty);
         set => SetValue(SensorsProperty, value);
     }
 
-    public NumberSensor? SelectedSensor {
+    public ObjectSensor? SelectedSensor {
         get => GetValue(SelectedSensorProperty);
         set => SetValue(SelectedSensorProperty, value);
     }
 
-    public PanelItemValue? PanelItem {
+    public PanelItemObjectSensor? PanelItem {
         get => GetValue(PanelItemProperty);
         set => SetValue(PanelItemProperty, value);
     }
@@ -52,10 +38,10 @@ public partial class PanelItemInfoSensorValue : PanelItemInfoNumberSensor {
     protected override PanelItemSensor GPanelItem => PanelItem;
 
     // Empty constructor to preview works on IDE
-    public PanelItemInfoSensorValue() : this(false) {
+    public PanelItemInfoSensorObject() : this(false) {
     }
 
-    public PanelItemInfoSensorValue(bool editMode) : base(editMode) {
+    public PanelItemInfoSensorObject(bool editMode) : base(editMode) {
         InitializeComponent();
 
         AttachedToVisualTree += OnAttached;

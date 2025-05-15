@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Reactive.Linq;
 using Avalonia;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models;
-using DravusSensorPanel.Services;
-using DynamicData;
-using Microsoft.Extensions.DependencyInjection;
+using DravusSensorPanel.Models.Sensors;
 using ReactiveUI;
 
 namespace DravusSensorPanel.Views.PanelItemsInfo;
 
-public partial class PanelItemInfoSensorChart : PanelItemInfoSensor {
-    public static readonly StyledProperty<IEnumerable<Sensor>> SensorsProperty =
-        AvaloniaProperty.Register<PanelItemInfoSensorChart, IEnumerable<Sensor>>(nameof(Sensors));
+public partial class PanelItemInfoSensorChart : PanelItemInfoNumberSensor {
+    public static readonly StyledProperty<IEnumerable<NumberSensor>> SensorsProperty =
+        AvaloniaProperty.Register<PanelItemInfoSensorChart, IEnumerable<NumberSensor>>(nameof(Sensors));
 
     private int _valueTypeIndex;
     private IDisposable? _panelItemDisposable;
@@ -31,15 +27,15 @@ public partial class PanelItemInfoSensorChart : PanelItemInfoSensor {
         }
     }
 
-    public IEnumerable<Sensor> Sensors {
+    public IEnumerable<NumberSensor> Sensors {
         get => GetValue(SensorsProperty);
         set => SetValue(SensorsProperty, value);
     }
 
-    public static readonly StyledProperty<Sensor?> SelectedSensorProperty =
-        AvaloniaProperty.Register<PanelItemInfoSensorChart, Sensor?>(nameof(SelectedSensor));
+    public static readonly StyledProperty<NumberSensor?> SelectedSensorProperty =
+        AvaloniaProperty.Register<PanelItemInfoSensorChart, NumberSensor?>(nameof(SelectedSensor));
 
-    public Sensor? SelectedSensor {
+    public NumberSensor? SelectedSensor {
         get => GetValue(SelectedSensorProperty);
         set => SetValue(SelectedSensorProperty, value);
     }
@@ -78,11 +74,10 @@ public partial class PanelItemInfoSensorChart : PanelItemInfoSensor {
     }
 
     protected override void OnAttached(object? sender, VisualTreeAttachmentEventArgs e) {
-       base.OnAttached(sender, e);
+        base.OnAttached(sender, e);
 
-        _panelItemDisposable = this.GetObservable(PanelItemProperty).ObserveOn(RxApp.MainThreadScheduler).Subscribe(_ => {
-            TrackPanelPropertiesChanged();
-        });
+        _panelItemDisposable = this.GetObservable(PanelItemProperty).ObserveOn(RxApp.MainThreadScheduler)
+                                   .Subscribe(_ => { TrackPanelPropertiesChanged(); });
     }
 
     protected override void OnDetached(object? sender, VisualTreeAttachmentEventArgs e) {

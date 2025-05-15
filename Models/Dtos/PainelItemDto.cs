@@ -1,7 +1,6 @@
 ﻿using Avalonia.Media;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Repositories;
-using DravusSensorPanel.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DravusSensorPanel.Models.Dtos;
@@ -11,6 +10,7 @@ public abstract class PanelItemDto {
     public int X { get; set; }
     public int Y { get; set; }
     public int ZIndex { get; set; }
+    public int Sort { get; set; }
     public SensorPanelItemType Type { get; set; }
     public string Description { get; set; }
 
@@ -20,6 +20,7 @@ public abstract class PanelItemDto {
         target.Y = Y;
         target.ZIndex = ZIndex;
         target.Description = Description;
+        target.Sort = Sort;
     }
 
     public abstract PanelItem ToModel();
@@ -27,11 +28,29 @@ public abstract class PanelItemDto {
 
 public abstract class PanelItemSensorDto : PanelItemDto {
     public SensorDto? Sensor { get; set; }
-    public string? Unit { get; set; }
+    public UnitDto? Unit { get; set; }
+
+    protected void CopySensorBase(PanelItemSensor target) {
+        CopyBaseToTarget(target);
+
+        target.Sensor = Sensor == null
+            ? null
+            : App.ServiceProvider!
+                 .GetRequiredService<SensorRepository>()
+                 .FindSensor(Sensor.Source, Sensor.SourceId);
+
+        target.Unit = target.Sensor == null || Unit == null
+            ? null
+            : App.ServiceProvider!.GetRequiredService<UnitRepository>().GetUnitById(Unit.Id);
+    }
+}
+
+public abstract class PanelItemNumberSensorDto : PanelItemSensorDto {
     public int NumDecimalPlaces { get; set; }
     public PanelItemSensorValueType ValueType { get; set; }
 
-    protected void CopySensorBase(PanelItemSensor target) {
+    protected void CopySensorBase(PanelItemNumberSensor target) {
+        base.CopySensorBase(target);
         CopyBaseToTarget(target);
 
         target.NumDecimalPlaces = NumDecimalPlaces;
@@ -42,15 +61,18 @@ public abstract class PanelItemSensorDto : PanelItemDto {
                  .GetRequiredService<SensorRepository>()
                  .FindSensor(Sensor.Source, Sensor.SourceId);
 
-        target.Unit = target.Sensor == null ? null : App.ServiceProvider!.GetRequiredService<UnitService>().GetUnitFromNameAndQuantityName(Unit);
+        target.Unit = target.Sensor == null || Unit == null
+            ? null
+            : App.ServiceProvider!.GetRequiredService<UnitRepository>().GetUnitById(Unit.Id);
     }
 }
 
 public class PanelItemLabelDto : PanelItemDto {
     public int FontSize { get; set; }
     public FontFamily FontFamily { get; set; }
-    public Color Foreground;
-    public string Label;
+    public Color Foreground { get; set; }
+    public string Label { get; set; }
+    public TextAlignment TextAlignment { get; set; }
 
     public override PanelItemLabel ToModel() {
         var model = new PanelItemLabel {
@@ -58,13 +80,14 @@ public class PanelItemLabelDto : PanelItemDto {
             FontFamily = FontFamily,
             Foreground = Foreground,
             Label = Label,
+            TextAlignment = TextAlignment,
         };
         CopyBaseToTarget(model);
         return model;
     }
 }
 
-public class PanelItemValueDto : PanelItemSensorDto {
+public class PanelItemValueDto : PanelItemNumberSensorDto {
     public int Width { get; set; }
     public int FontSize { get; set; }
     public FontFamily FontFamily { get; set; } = FontFamily.Default;
@@ -87,7 +110,7 @@ public class PanelItemValueDto : PanelItemSensorDto {
     }
 }
 
-public class PanelItemChartDto : PanelItemSensorDto {
+public class PanelItemChartDto : PanelItemNumberSensorDto {
     public int Width { get; set; }
     public int Height { get; set; }
     public double? YMinValue { get; set; }
@@ -111,6 +134,29 @@ public class PanelItemChartDto : PanelItemSensorDto {
             MinStep = MinStep,
             ShowYAxis = ShowYAxis,
             ShowXAxis = ShowXAxis,
+        };
+        CopySensorBase(model);
+        model.Reload();
+        return model;
+    }
+}
+
+public class PanelItemObjectDto : PanelItemSensorDto {
+    public int Width { get; set; }
+    public int FontSize { get; set; }
+    public FontFamily FontFamily { get; set; } = FontFamily.Default;
+    public Color Foreground { get; set; }
+    public string? Format { get; set; }
+    public TextAlignment TextAlignment { get; set; }
+
+    public override PanelItemObjectSensor ToModel() {
+        var model = new PanelItemObjectSensor {
+            Width = Width,
+            FontSize = FontSize,
+            FontFamily = FontFamily,
+            Foreground = Foreground,
+            Format = Format,
+            TextAlignment = TextAlignment,
         };
         CopySensorBase(model);
         model.Reload();

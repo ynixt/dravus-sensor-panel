@@ -1,9 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Media;
 using Avalonia.Platform;
 using DynamicData;
 
@@ -26,7 +24,7 @@ public partial class DisplayPicker : UserControl {
     }
 
     private void LoadAllDisplays() {
-        Window window = (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
+        Window window = ( Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime )!
             .MainWindow!;
 
         Displays.AddRange(window.Screens.All);

@@ -35,10 +35,10 @@ public class SensorPanelDto {
 
         var sensorPanel = new SensorPanel {
             X = X, Y = Y, Width = Width, Height = Height, HideBar = HideBar, Maximized = Maximized, Display = display,
-            Background = Background
+            Background = Background,
         };
 
-        sensorPanel.Items.AddRange(Items.Select(item => item.ToModel()));
+        sensorPanel.Items.AddRange(Items.Select(item => item.ToModel()).OrderBy(s => s.Sort));
 
         return sensorPanel;
     }

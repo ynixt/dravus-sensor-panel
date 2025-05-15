@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Reactive.Linq;
 using Avalonia;
 using DravusSensorPanel.Models;
+using DravusSensorPanel.Models.Units;
 using DravusSensorPanel.Services;
 using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,12 +13,11 @@ using ReactiveUI;
 namespace DravusSensorPanel.Views.PanelItemsInfo;
 
 public abstract class PanelItemInfoSensor : PanelItemInfo {
-    public ObservableCollection<Enum> PossibleUnits { get; } = new();
+    public ObservableCollection<Unit> PossibleUnits { get; } = new();
 
     protected abstract PanelItemSensor? GPanelItem { get; }
-    public abstract int ValueTypeIndex { get; set; }
 
-    private List<IDisposable>? _panelItemPropertiesDisposables;
+    protected List<IDisposable>? _panelItemPropertiesDisposables;
     private IDisposable? _panelItemDisposable;
 
     // Empty constructor to preview works on IDE
@@ -35,14 +35,10 @@ public abstract class PanelItemInfoSensor : PanelItemInfo {
         _panelItemPropertiesDisposables?.ForEach(p => p.Dispose());
     }
 
-    protected void TrackPanelPropertiesChanged() {
+    protected virtual void TrackPanelPropertiesChanged() {
         _panelItemPropertiesDisposables?.ForEach(p => p.Dispose());
 
         _panelItemPropertiesDisposables = [
-            GPanelItem.WhenAnyValue(p => p.ValueType)
-                     .ObserveOn(RxApp.MainThreadScheduler)
-                     .Subscribe(s => { ValueTypeIndex = ( int ) GPanelItem!.ValueType; }),
-
             GPanelItem.WhenAnyValue(p => p.Sensor)
                       .ObserveOn(RxApp.MainThreadScheduler)
                       .Subscribe(s => { LoadUnits(); }),
@@ -50,7 +46,7 @@ public abstract class PanelItemInfoSensor : PanelItemInfo {
     }
 
     protected void LoadUnits() {
-        Enum? oldUnit = GPanelItem?.Unit;
+        Unit? oldUnit = GPanelItem?.Unit;
         PossibleUnits.Clear();
 
         if ( GPanelItem?.Sensor != null ) {

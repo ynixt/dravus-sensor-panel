@@ -1,28 +1,30 @@
-﻿using Avalonia.Media;
+﻿using System;
+using Avalonia.Media;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models.Dtos;
 using DravusSensorPanel.Models.Sensors;
 using DravusSensorPanel.Models.Units;
-using DravusSensorPanel.Services;
-using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 
 namespace DravusSensorPanel.Models;
 
-public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPanelItemHorizontalSizeable {
-    private bool _showUnit = true;
+public sealed class PanelItemObjectSensor : PanelItemSensor, IPanelItemText, IPanelItemHorizontalSizeable,
+    IPanelItemTextAlignment {
     private Color _foreground = Colors.White;
-    private Color _unitForeground = Colors.Gray;
     private int _width = 100;
     private int _fontSize = 14;
     private FontFamily _fontFamily = FontFamily.Default;
+    private string? _format;
+    private TextAlignment _textAlignment = TextAlignment.Center;
 
-    public NumberSensor? NumberSensor {
-        get => Sensor as NumberSensor;
+    private IDisposable? _subscription;
+
+    public ObjectSensor? ObjectSensor {
+        get => Sensor as ObjectSensor;
         set => Sensor = value;
     }
 
-    public override SensorPanelItemType Type => SensorPanelItemType.SensorValue;
+    public override SensorPanelItemType Type => SensorPanelItemType.SensorObject;
 
     public int Width {
         get => _width;
@@ -39,12 +41,17 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
         set => SetField(ref _fontFamily, value);
     }
 
-    public bool ShowUnit {
-        get => _showUnit;
+    public string? Format {
+        get => _format;
         set {
-            if ( !SetField(ref _showUnit, value) ) return;
+            if ( !SetField(ref _format, value) ) return;
             RefreshLabels();
         }
+    }
+
+    public TextAlignment TextAlignment {
+        get => _textAlignment;
+        set => SetField(ref _textAlignment, value);
     }
 
     public Color Foreground {
@@ -55,41 +62,26 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
         }
     }
 
-    public Color UnitForeground {
-        get => _unitForeground;
-        set {
-            if ( !SetField(ref _unitForeground, value) ) return;
-            this.RaisePropertyChanged(nameof(UnitForegroundBrush));
-        }
-    }
-
     public IBrush ForegroundBrush => new SolidColorBrush(_foreground);
-    public IBrush UnitForegroundBrush => new SolidColorBrush(_unitForeground);
 
     public string Label {
         get {
-            if ( NumberSensor == null ) return Format(0);
+            if ( ObjectSensor == null ) return "";
 
-            double raw = ValueType switch {
-                PanelItemSensorValueType.Value => NumberSensor.Value ?? 0,
-                PanelItemSensorValueType.Min => NumberSensor.Min ?? 0,
-                PanelItemSensorValueType.Max => NumberSensor.Max ?? 0,
-                _ => 0,
-            };
+            if ( ObjectSensor.Unit is UnitFnFormat unitFn ) {
+                if ( Format != null ) {
+                    return unitFn.WithValueConverter(ObjectSensor.ObjectValue, Format);
+                }
 
-            if ( ShowUnit && Unit != null ) {
-                raw = App.ServiceProvider!
-                         .GetRequiredService<UnitService>().Convert(raw, NumberSensor.Unit, Unit);
+                return unitFn.EmptyValueConverter(ObjectSensor.ObjectValue);
             }
 
-            return Format(raw);
+            return ObjectSensor.NotFormatedValue;
         }
     }
 
-    public string LabelWithUnit => ShowUnit ? $"{Label} {UnitSymbol}" : Label;
-
     public override PanelItem Clone() {
-        var clone = new PanelItemValue {
+        var clone = new PanelItemObjectSensor {
             Id = Id,
             X = X,
             Y = Y,
@@ -99,22 +91,20 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
 
             Sensor = Sensor,
             Unit = Unit,
-            NumDecimalPlaces = NumDecimalPlaces,
-            ValueType = ValueType,
 
             Width = Width,
             FontSize = FontSize,
             FontFamily = FontFamily,
             Foreground = Foreground,
-            UnitForeground = UnitForeground,
-            ShowUnit = ShowUnit,
+            Format = Format,
+            TextAlignment = TextAlignment,
         };
 
         return clone;
     }
 
-    public override PanelItemValueDto ToDto() {
-        return new PanelItemValueDto {
+    public override PanelItemObjectDto ToDto() {
+        return new PanelItemObjectDto {
             Id = Id,
             X = X,
             Y = Y,
@@ -125,21 +115,20 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
 
             Sensor = Sensor == null ? null : new SensorDto { Source = Sensor.Source, SourceId = Sensor.SourceId },
             Unit = Unit?.ToDto(),
-            NumDecimalPlaces = NumDecimalPlaces,
-            ValueType = ValueType,
 
             Width = Width,
             FontSize = FontSize,
             FontFamily = FontFamily,
             Foreground = Foreground,
-            UnitForeground = UnitForeground,
-            ShowUnit = ShowUnit,
+            Format = Format,
+            TextAlignment = TextAlignment,
         };
     }
 
-    protected override void SensorValueChanged(float? value) {
-        base.SensorValueChanged(value);
-        RefreshLabels();
+    public override void Dispose() {
+        base.Dispose();
+        _subscription?.Dispose();
+        _subscription = null;
     }
 
     protected override void UnitChanged(Unit? unit) {
@@ -147,8 +136,33 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
         RefreshLabels();
     }
 
+    public override void Reload() {
+        base.Reload();
+        TrackSensorValueChanges();
+    }
+
+    protected override void SensorChanged(Sensor? s) {
+        base.SensorChanged(s);
+        TrackSensorValueChanges();
+    }
+
     private void RefreshLabels() {
         this.RaisePropertyChanged(nameof(Label));
-        this.RaisePropertyChanged(nameof(LabelWithUnit));
+    }
+
+    private void SensorValueChanged(object? value) {
+        RefreshLabels();
+    }
+
+    private void TrackSensorValueChanges() {
+        _subscription?.Dispose();
+
+        if ( Sensor is ObjectSensor objectSensor ) {
+            if ( Sensor != null ) {
+                _subscription = objectSensor.WhenAnyValue(s => s.ObjectValue).Subscribe(SensorValueChanged);
+            }
+
+            SensorValueChanged(objectSensor?.ObjectValue);
+        }
     }
 }

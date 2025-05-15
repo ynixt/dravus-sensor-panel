@@ -76,15 +76,16 @@ public class SensorPanel : SuperReactiveObject {
             .MainWindow!;
 
         return new SensorPanelDto {
-            Items = Items.Select(item => item.ToDto()).ToList(), X = X, Y = Y, Width = Width, Height = Height, HideBar = HideBar,
-            Maximized = Maximized, DisplayIndex = window.Screens.All.IndexOf(Display), Background = Background
+            Items = Items.Select(item => item.ToDto()).ToList(), X = X, Y = Y, Width = Width, Height = Height,
+            HideBar = HideBar,
+            Maximized = Maximized, DisplayIndex = window.Screens.All.IndexOf(Display), Background = Background,
         };
     }
 
     public SensorPanel Clone() {
         return new SensorPanel {
             Items = Items, X = X, Y = Y, Width = Width, Height = Height, HideBar = HideBar, Maximized = Maximized,
-            Display = Display, Background = Background
+            Display = Display, Background = Background,
         };
     }
 

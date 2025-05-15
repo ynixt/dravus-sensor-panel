@@ -32,8 +32,7 @@
         <TextBlock
             Grid.Row="0"
             Grid.Column="1"
-            Text="{Binding Version, RelativeSource={RelativeSource AncestorType=windows:AboutWindow}}">
-        </TextBlock>
+            Text="{Binding Version, RelativeSource={RelativeSource AncestorType=windows:AboutWindow}}" />
 
         <TextBlock
             Grid.Row="0"
@@ -45,8 +44,7 @@
             Grid.Row="0"
             Grid.Column="3"
             xml:space="preserve"
-            TextAlignment="Center"
-            >Gabriel Alves Silva
+            TextAlignment="Center">Gabriel Alves Silva
 aka Ynixt
         </TextBlock>
 
@@ -64,8 +62,7 @@ aka Ynixt
             Grid.Row="2"
             Grid.Column="0"
             Grid.ColumnSpan="4"
-            xml:space="preserve"
-            >
+            xml:space="preserve">
 Huge thanks to:
 
     - LibreHardwareMonitorLib
@@ -73,6 +70,7 @@ Huge thanks to:
     - LiveChartsCore
     - UnitsNet
     - YamlDotNet
+    - NAudio
 
 In Open Source we believe &lt;3
         </TextBlock>

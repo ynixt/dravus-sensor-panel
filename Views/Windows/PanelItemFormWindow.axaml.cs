@@ -8,9 +8,9 @@ using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models;
+using DravusSensorPanel.Models.Sensors;
 using DravusSensorPanel.Services.InfoExtractor;
 using DravusSensorPanel.Views.PanelItemsInfo;
 using DynamicData;
@@ -27,7 +27,8 @@ public partial class PanelItemFormWindow : WindowViewModel {
     private bool _editMode;
 
     public PanelItem PanelItem { get; set; }
-    public ObservableCollection<Sensor> Sensors { get; } = new();
+    public ObservableCollection<NumberSensor> NumberSensors { get; } = new();
+    public ObservableCollection<ObjectSensor> ObjectSensors { get; } = new();
 
     public bool EditMode {
         get => _editMode;
@@ -53,6 +54,16 @@ public partial class PanelItemFormWindow : WindowViewModel {
                 SelectedSensorChanged(_selectedSensor);
             }
         }
+    }
+
+    public NumberSensor? SelectedNumberSensor {
+        get => SelectedSensor as NumberSensor;
+        set => SelectedSensor = value;
+    }
+
+    public ObjectSensor? SelectedObjectSensor {
+        get => SelectedSensor as ObjectSensor;
+        set => SelectedSensor = value;
     }
 
     // Empty constructor to preview works on IDE
@@ -83,12 +94,10 @@ public partial class PanelItemFormWindow : WindowViewModel {
                                        .Order()
                                        .ToList();
 
-            Sensors.AddRange(sensorsList);
+            NumberSensors.AddRange(sensorsList.Where(s => s is NumberSensor).Cast<NumberSensor>());
+            ObjectSensors.AddRange(sensorsList.Where(s => s is ObjectSensor).Cast<ObjectSensor>());
 
-            if ( panelItem is not PanelItemSensor panelItemSensor ) {
-                SelectedSensor = sensorsList[0];
-            }
-            else {
+            if ( panelItem is PanelItemSensor panelItemSensor ) {
                 SelectedSensor = panelItemSensor.Sensor;
             }
         }
@@ -101,9 +110,10 @@ public partial class PanelItemFormWindow : WindowViewModel {
     public void LoadToEdit(PanelItem panelItem) {
         ItemTypeSelectedIndex = panelItem.Type switch {
             SensorPanelItemType.SensorValue => 0,
-            SensorPanelItemType.SensorChart => 1,
-            SensorPanelItemType.Label => 2,
-            SensorPanelItemType.Image => 3,
+            SensorPanelItemType.SensorObject => 1,
+            SensorPanelItemType.SensorChart => 2,
+            SensorPanelItemType.Label => 3,
+            SensorPanelItemType.Image => 4,
         };
 
         PanelItem = panelItem;
@@ -140,30 +150,62 @@ public partial class PanelItemFormWindow : WindowViewModel {
 
         RemovePanelControlFromGrid();
 
+        PanelItem? oldPanelItem = PanelItem;
+
         PanelItem = item switch {
             0 => new PanelItemValue {
                 Id = id, Sensor = SelectedSensor, FontSize = defaultFontSize, Width = 100, NumDecimalPlaces = 0,
                 Foreground = defaultColor,
                 UnitForeground = defaultColor, ShowUnit = true, FontFamily = defaultFont,
             },
-            1 => new PanelItemChart {
-                Id = id, Sensor = SelectedSensor, Width = 100, Height = 100, Stroke = defaultColor, ShowXAxis = false,
+            1 => new PanelItemObjectSensor {
+                Id = id, Sensor = SelectedObjectSensor, FontSize = defaultFontSize, Width = 100,
+                Foreground = defaultColor, FontFamily = defaultFont,
+            },
+            2 => new PanelItemChart {
+                Id = id, Sensor = SelectedNumberSensor, Width = 100, Height = 100, Stroke = defaultColor,
+                ShowXAxis = false,
                 ShowYAxis = true,
                 MinStep = 2, LineSmoothness = 1,
                 Fill = Color.FromArgb(0, 0, 0, 0),
             },
-            2 => new PanelItemLabel
+            3 => new PanelItemLabel
                 { Id = id, FontSize = defaultFontSize, Foreground = defaultColor, FontFamily = defaultFont },
-            3 => new PanelItemImage { Id = id, Width = 100, Height = 100 },
+            4 => new PanelItemImage { Id = id, Width = 100, Height = 100 },
             _ => throw new NotImplementedException(),
         };
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if ( oldPanelItem != null ) {
+            PanelItem.X = oldPanelItem.X;
+            PanelItem.Y = oldPanelItem.Y;
+            PanelItem.ZIndex = oldPanelItem.ZIndex;
+
+
+            if ( PanelItem is IPanelItemHorizontalSizeable panelItemHorizontalSizeable &&
+                 oldPanelItem is IPanelItemHorizontalSizeable oldPanelItemHorizontalSizeable ) {
+                panelItemHorizontalSizeable.Width = oldPanelItemHorizontalSizeable.Width;
+            }
+
+            if ( PanelItem is IPanelItemVerticalSizeable panelItemVerticalSizeable &&
+                 oldPanelItem is IPanelItemVerticalSizeable oldPanelItemVerticalSizeable ) {
+                panelItemVerticalSizeable.Height = oldPanelItemVerticalSizeable.Height;
+            }
+        }
+
         if ( PanelItem is PanelItemValue ) {
             _panelControl = new PanelItemInfoSensorValue(EditMode);
-            _panelControl.Bind(PanelItemInfoSensorValue.SensorsProperty, new Binding(nameof(Sensors)));
+            _panelControl.Bind(PanelItemInfoSensorValue.SensorsProperty, new Binding(nameof(NumberSensors)));
             _panelControl.Bind(PanelItemInfoSensorValue.SelectedSensorProperty,
-                new Binding(nameof(SelectedSensor), BindingMode.TwoWay));
+                new Binding(nameof(SelectedNumberSensor), BindingMode.TwoWay));
             _panelControl.Bind(PanelItemInfoSensorValue.PanelItemProperty, new Binding(nameof(PanelItem)));
+        }
+        else if ( PanelItem is PanelItemObjectSensor ) {
+            _panelControl = new PanelItemInfoSensorObject(EditMode);
+            _panelControl.Bind(PanelItemInfoSensorObject.SensorsProperty, new Binding(nameof(ObjectSensors)));
+            _panelControl.Bind(PanelItemInfoSensorObject.SelectedSensorProperty,
+                new Binding(nameof(SelectedObjectSensor), BindingMode.TwoWay));
+            _panelControl.Bind(PanelItemInfoSensorObject.PanelItemProperty, new Binding(nameof(PanelItem)));
         }
         else if ( PanelItem is PanelItemLabel ) {
             _panelControl = new PanelItemInfoLabel(EditMode);
@@ -175,9 +217,9 @@ public partial class PanelItemFormWindow : WindowViewModel {
         }
         else if ( PanelItem is PanelItemChart ) {
             _panelControl = new PanelItemInfoSensorChart(EditMode);
-            _panelControl.Bind(PanelItemInfoSensorChart.SensorsProperty, new Binding(nameof(Sensors)));
+            _panelControl.Bind(PanelItemInfoSensorChart.SensorsProperty, new Binding(nameof(NumberSensors)));
             _panelControl.Bind(PanelItemInfoSensorChart.SelectedSensorProperty,
-                new Binding(nameof(SelectedSensor), BindingMode.TwoWay));
+                new Binding(nameof(SelectedNumberSensor), BindingMode.TwoWay));
             _panelControl.Bind(PanelItemInfoSensorChart.PanelItemProperty, new Binding(nameof(PanelItem)));
         }
 
@@ -200,6 +242,7 @@ public partial class PanelItemFormWindow : WindowViewModel {
         }
 
         OnPropertyChanged(nameof(SelectedSensor));
+        OnPropertyChanged(nameof(SelectedNumberSensor));
         OnPropertyChanged(nameof(PanelItem));
     }
 
@@ -215,6 +258,7 @@ public partial class PanelItemFormWindow : WindowViewModel {
         return item?.Type switch {
             SensorPanelItemType.SensorValue => MountNameForItem(item as PanelItemSensor, "value"),
             SensorPanelItemType.SensorChart => MountNameForItem(item as PanelItemSensor, "chart"),
+            SensorPanelItemType.SensorObject => MountNameForItem(item as PanelItemSensor, "text"),
             SensorPanelItemType.Label => "label",
             SensorPanelItemType.Image => "image",
             _ => "",

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using DravusSensorPanel.Models;
+using DravusSensorPanel.Models.Sensors;
 
 namespace DravusSensorPanel.Services.InfoExtractor;
 

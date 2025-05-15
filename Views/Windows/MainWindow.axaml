@@ -10,13 +10,13 @@
         Title="Dravus">
 
     <Grid Background="Transparent"
-          PointerReleased="PanelContainer_PointerReleased" PointerPressed="PanelContainer_OnPointerPressed" PointerMoved="PanelContainer_OnPointerMoved">
+          PointerReleased="PanelContainer_PointerReleased" PointerPressed="PanelContainer_OnPointerPressed"
+          PointerMoved="PanelContainer_OnPointerMoved">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="CanvasPanel">
-        </Canvas>
+        <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="CanvasPanel" />
     </Grid>
 
 </Window>

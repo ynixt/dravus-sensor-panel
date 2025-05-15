@@ -14,7 +14,10 @@ public class SensorPanelImportService {
     private readonly UtilService _utilService;
     private readonly FileDialogService _fileDialogService;
 
-    public SensorPanelImportService(SensorPanelService sensorPanelService, UtilService utilService, FileDialogService fileDialogService) {
+    public SensorPanelImportService(
+        SensorPanelService sensorPanelService,
+        UtilService utilService,
+        FileDialogService fileDialogService) {
         _sensorPanelService = sensorPanelService;
         _utilService = utilService;
         _fileDialogService = fileDialogService;
@@ -61,7 +64,7 @@ public class SensorPanelImportService {
 
             foreach ( string img in imagePaths ) {
                 string dest = Path.Combine(imagesDir, Path.GetFileName(img));
-                File.Copy(img, dest, overwrite: true);
+                File.Copy(img, dest, true);
             }
 
             //---------------- manifest.yaml -------------------
@@ -70,24 +73,27 @@ public class SensorPanelImportService {
                 $"app_version: {_utilService.GetAppVersion()}");
 
             //---------------- ZIP (.dravus) --------------------
-            if ( File.Exists(dravusFilePath) )
+            if ( File.Exists(dravusFilePath) ) {
                 File.Delete(dravusFilePath);
+            }
 
             ZipFile.CreateFromDirectory(
-                sourceDirectoryName: tempDir,
-                destinationArchiveFileName: dravusFilePath,
-                compressionLevel: CompressionLevel.Optimal,
-                includeBaseDirectory: false);
+                tempDir,
+                dravusFilePath,
+                CompressionLevel.Optimal,
+                false);
         }
         finally {
-            if ( Directory.Exists(tempDir) )
-                Directory.Delete(tempDir, recursive: true);
+            if ( Directory.Exists(tempDir) ) {
+                Directory.Delete(tempDir, true);
+            }
         }
     }
 
     private void Import(string dravusFilePath) {
-        if ( !File.Exists(dravusFilePath) )
+        if ( !File.Exists(dravusFilePath) ) {
             throw new FileNotFoundException("File .dravus not found.", dravusFilePath);
+        }
 
         string tempDir = Path.Combine(Path.GetTempPath(), $"dravus_{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempDir);
@@ -99,11 +105,12 @@ public class SensorPanelImportService {
             string extractedImagesDir = Path.Combine(tempDir, "images");
             string exeImagesDir = Path.Combine(AppContext.BaseDirectory, "images");
 
-            if ( Directory.Exists(exeImagesDir) )
-                Directory.Delete(exeImagesDir, recursive: true);
+            if ( Directory.Exists(exeImagesDir) ) {
+                Directory.Delete(exeImagesDir, true);
+            }
 
             if ( Directory.Exists(extractedImagesDir) ) {
-                DirectoryCopy(extractedImagesDir, exeImagesDir, recursive: true);
+                DirectoryCopy(extractedImagesDir, exeImagesDir, true);
             }
 
             //---------------- sensorpanel.yaml ----------------
@@ -112,8 +119,9 @@ public class SensorPanelImportService {
             _sensorPanelService.SavePanel();
         }
         finally {
-            if ( Directory.Exists(tempDir) )
-                Directory.Delete(tempDir, recursive: true);
+            if ( Directory.Exists(tempDir) ) {
+                Directory.Delete(tempDir, true);
+            }
         }
     }
 
@@ -122,14 +130,15 @@ public class SensorPanelImportService {
     private static void DirectoryCopy(string sourceDir, string destDir, bool recursive) {
         var dir = new DirectoryInfo(sourceDir);
 
-        if ( !dir.Exists )
+        if ( !dir.Exists ) {
             throw new DirectoryNotFoundException($"Directory not found: {dir.FullName}");
+        }
 
         Directory.CreateDirectory(destDir);
 
         foreach ( FileInfo file in dir.GetFiles() ) {
             string target = Path.Combine(destDir, file.Name);
-            file.CopyTo(target, overwrite: true);
+            file.CopyTo(target, true);
         }
 
         if ( recursive ) {

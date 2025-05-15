@@ -14,6 +14,8 @@
             <Button Content="NEW" Click="NewItemClick" />
             <Button Content="MODIFY" Click="ModifyItemClick"
                     IsEnabled="{Binding SelectedItem, Converter={x:Static  ObjectConverters.IsNotNull}}" />
+            <Button Content="CLONE" Click="CloneItemClick"
+                    IsEnabled="{Binding SelectedItem, Converter={x:Static  ObjectConverters.IsNotNull}}" />
             <Button Content="DELETE" Click="DeleteItemClick"
                     IsEnabled="{Binding SelectedItem, Converter={x:Static  ObjectConverters.IsNotNull}}" />
             <Button Content="PANEL SETTINGS" Click="PanelSettingsClick" />
@@ -27,6 +29,7 @@
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
             AutoGenerateColumns="False"
             GridLinesVisibility="All"
+            IsReadOnly="True"
             BorderThickness="1" BorderBrush="Gray">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*" />

@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using DravusSensorPanel.Models;
+using DravusSensorPanel.Models.Units;
 using DravusSensorPanel.Repositories;
 using DravusSensorPanel.Services;
 using DravusSensorPanel.Services.InfoExtractor;
 using DravusSensorPanel.Views.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using UnitsNet;
 using EditPanelWindow = DravusSensorPanel.Views.Windows.EditPanelWindow;
 using MainWindow = DravusSensorPanel.Views.Windows.MainWindow;
 using PanelItemFormWindow = DravusSensorPanel.Views.Windows.PanelItemFormWindow;
@@ -16,6 +20,7 @@ public static class Startup {
         var services = new ServiceCollection();
 
         services.AddSingleton<SensorRepository>();
+        services.AddSingleton<UnitRepository>();
 
         services.AddSingleton<SensorPanelService>();
         services.AddSingleton<SensorPanelFileService>();
@@ -27,6 +32,20 @@ public static class Startup {
 
         services.AddSingleton<IInfoExtractor, LibreHardwareExtractor>();
         services.AddTransient<IInfoExtractor, RtssHardwareExtractor>();
+        services.AddTransient<IInfoExtractor, SystemExtractor>();
+
+        services.AddSingleton<Dictionary<string, Unit>>(_ => RtssHardwareExtractor.UnitsByName);
+        services.AddSingleton<Dictionary<string, Unit>>(_ => SystemExtractor.UnitsByName);
+        services.AddSingleton<Dictionary<string, Unit>>(_ => {
+            var units = new Dictionary<string, Unit>();
+            foreach ( UnitInfo unitInfo in Quantity
+                                           .Infos
+                                           .SelectMany(q => q.UnitInfos) ) {
+                units[UnitUnitsNet.GetIdFromEnum(unitInfo.Value)] = new UnitUnitsNet(unitInfo.Value);
+            }
+
+            return units;
+        });
 
         AddWindows(services);
 

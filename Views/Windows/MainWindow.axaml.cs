@@ -45,7 +45,8 @@ public partial class MainWindow : WindowViewModel {
     private List<IDisposable>? _windowPropertiesDisposables;
     private PanelItem? _itemDragging;
     private Point? _lastMousePosition;
-    private bool _dontCloseApp = false;
+    private bool _dontCloseApp;
+    private PanelItem? SelectedItem;
 
     // Empty constructor to preview works on IDE
     public MainWindow() : this(null, null, null, null, null, null) {
@@ -156,7 +157,8 @@ public partial class MainWindow : WindowViewModel {
 
     private void ChangeBar(bool shouldHide) {
         ExtendClientAreaToDecorationsHint = shouldHide;
-        ExtendClientAreaChromeHints = shouldHide ? ExtendClientAreaChromeHints.NoChrome : ExtendClientAreaChromeHints.Default;
+        ExtendClientAreaChromeHints =
+            shouldHide ? ExtendClientAreaChromeHints.NoChrome : ExtendClientAreaChromeHints.Default;
     }
 
     private void ApplyPanelPosition(SensorPanel sensorPanel, int x, int y) {
@@ -237,7 +239,8 @@ public partial class MainWindow : WindowViewModel {
             }
 
             // TODO: improve this. Currently has a weird behaviour when changing the screen using mouse drag.
-            if ( x < 0 || x >= sensorPanel.Display.Bounds.Width || y >= _sensorPanelService.SensorPanel.Display.Bounds.Height ) {
+            if ( x < 0 || x >= sensorPanel.Display.Bounds.Width ||
+                 y >= _sensorPanelService.SensorPanel.Display.Bounds.Height ) {
                 int displayIndex = Screens.All.IndexOf(sensorPanel.Display);
 
                 if ( x < 0 ) {
@@ -246,7 +249,8 @@ public partial class MainWindow : WindowViewModel {
                     }
                 }
                 else {
-                    Screen? correctDisplay = Screens.All.FirstOrDefault(s => x >= s.Bounds.TopLeft.X && x < s.Bounds.TopRight.X);
+                    Screen? correctDisplay =
+                        Screens.All.FirstOrDefault(s => x >= s.Bounds.TopLeft.X && x < s.Bounds.TopRight.X);
                     if ( correctDisplay != null ) {
                         sensorPanel.Display = correctDisplay;
                     }
@@ -261,7 +265,9 @@ public partial class MainWindow : WindowViewModel {
         }
     }
 
-    private void UnselectControls() {
+    public void UnselectControls() {
+        SelectedItem = null;
+
         if ( _selectedControls.Count > 0 ) {
             foreach ( Border selectedControl in _selectedControls ) {
                 selectedControl.BorderThickness = new Thickness(0);
@@ -271,8 +277,9 @@ public partial class MainWindow : WindowViewModel {
         }
     }
 
-    private void SelectItem(PanelItem item, bool alsoMarkAllOthers = false) {
+    public void SelectItem(PanelItem item, bool alsoMarkAllOthers = false) {
         Border border = _controlsById[item.Id];
+        SelectedItem = item;
 
         SelectControl(border, alsoMarkAllOthers);
     }
@@ -337,7 +344,8 @@ public partial class MainWindow : WindowViewModel {
         PointerPoint currentPoint = e.GetCurrentPoint(this);
 
         if ( _lastMousePosition != null ) {
-            if ( currentPoint.Properties.IsLeftButtonPressed && e.KeyModifiers == KeyModifiers.Control && _itemDragging != null ) {
+            if ( currentPoint.Properties.IsLeftButtonPressed && e.KeyModifiers == KeyModifiers.Control &&
+                 _itemDragging != null ) {
                 Point diff = currentPoint.Position - _lastMousePosition.Value;
 
                 int diffX = ( int ) diff.X;
@@ -369,9 +377,14 @@ public partial class MainWindow : WindowViewModel {
             Point p = e.GetPosition(CanvasPanel);
             var hit = CanvasPanel.InputHitTest(p)
                 as Control;
+
+            menuItems.Add(new MenuItem {
+                Header = "Add Item",
+                Command = ReactiveCommand.Create(() => { OpenAddPanelItem(p); }),
+            });
+
             if ( hit is not null && hit != CanvasPanel ) {
                 PanelItem? item = GetPanelItemFromControlName(hit);
-
                 if ( item != null ) {
                     SelectItem(item);
 
@@ -386,12 +399,22 @@ public partial class MainWindow : WindowViewModel {
                     });
 
                     menuItems.Add(new MenuItem {
-                        Header = "-",
+                        Header = "Move item to back",
+                        Command = ReactiveCommand.Create(() => { ChangeZIndex(item, item.ZIndex - 1); }),
+                    });
+
+                    menuItems.Add(new MenuItem {
+                        Header = "Move item to front",
+                        Command = ReactiveCommand.Create(() => { ChangeZIndex(item, item.ZIndex + 1); }),
                     });
                 }
             }
 
-            menuItems.Add(new() {
+            menuItems.Add(new MenuItem {
+                Header = "-",
+            });
+
+            menuItems.Add(new MenuItem {
                 Header = "Edit Panel",
                 Command = ReactiveCommand.Create(() => {
                     UnselectControls();
@@ -403,7 +426,7 @@ public partial class MainWindow : WindowViewModel {
                 Header = "-",
             });
 
-            menuItems.Add(new() {
+            menuItems.Add(new MenuItem {
                 Header = "About",
                 Command = ReactiveCommand.Create(() => {
                     UnselectControls();
@@ -413,7 +436,7 @@ public partial class MainWindow : WindowViewModel {
                 }),
             });
 
-            menuItems.Add(new() {
+            menuItems.Add(new MenuItem {
                 Header = "Help",
                 Command = ReactiveCommand.Create(() => {
                     UnselectControls();
@@ -428,6 +451,12 @@ public partial class MainWindow : WindowViewModel {
         }
     }
 
+    private void ChangeZIndex(PanelItem item, int newZIndex) {
+        item.ZIndex = newZIndex;
+        _sensorPanelService?.SavePanel();
+        UnselectControls();
+    }
+
     private void OpenEditPanel() {
         if ( _editWindowOpen == null ) {
             _editWindowOpen = _editPanelWindowFactory?.Invoke();
@@ -436,6 +465,35 @@ public partial class MainWindow : WindowViewModel {
                 ( _editWindowOpen as EditPanelWindow )!.MainWindow = this;
                 _editWindowOpen.Show();
                 _editWindowOpen.Closed += (_, _) => _editWindowOpen = null;
+            }
+        }
+        else {
+            _editWindowOpen.Activate();
+        }
+    }
+
+    private async void OpenAddPanelItem(Point point) {
+        if ( _editWindowOpen == null ) {
+            _editWindowOpen = _panelItemFormWindowFactory?.Invoke(null);
+
+            if ( _editWindowOpen != null ) {
+                PanelItem createdPanelItem = ( _editWindowOpen as PanelItemFormWindow )!.PanelItem;
+
+                createdPanelItem.X = ( int ) point.X;
+                createdPanelItem.Y = ( int ) point.Y;
+
+                if ( SelectedItem != null ) {
+                    createdPanelItem.ZIndex = SelectedItem.ZIndex + 1;
+                }
+
+                var item = await _editWindowOpen.ShowDialog<PanelItem?>(this);
+
+                if ( item != null ) {
+                    _sensorPanelService?.AddNewItem(item);
+                }
+
+                _editWindowOpen = null;
+                UnselectControls();
             }
         }
         else {
@@ -459,6 +517,7 @@ public partial class MainWindow : WindowViewModel {
                 else {
                     _sensorPanelService?.RemoveItem(originalItem, false, false);
                     _sensorPanelService?.AddNewItem(clone, false);
+                    _sensorPanelService?.SortItems();
                 }
 
                 _editWindowOpen = null;
@@ -489,7 +548,14 @@ public partial class MainWindow : WindowViewModel {
 
 #region Draw items on canvas
 
+    /// <summary>
+    ///     This is an ugly thing to not break SensorPanelService.SortItems
+    /// </summary>
+    public static bool IgnoreCollectionChanged { get; set; }
+
     private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        if ( IgnoreCollectionChanged ) return;
+
         if ( e.NewItems != null ) {
             foreach ( PanelItem item in e.NewItems ) {
                 AddToCanvas(item);
@@ -499,7 +565,9 @@ public partial class MainWindow : WindowViewModel {
         if ( e.OldItems != null ) {
             foreach ( PanelItem item in e.OldItems ) {
                 if ( _controlsById.TryGetValue(item.Id, out Border? control) ) {
-                    CanvasPanel.Children.Remove(control);
+                    if ( !CanvasPanel.Children.Remove(control) ) {
+                        Console.WriteLine("Warning: Control was not removed on canvas");
+                    }
                 }
 
                 _controlsById.Remove(item.Id);
@@ -569,6 +637,11 @@ public partial class MainWindow : WindowViewModel {
                 control.Bind(HeightProperty, new Binding(nameof(IPanelItemVerticalSizeable.Height)));
             }
 
+            if ( item is IPanelItemTextAlignment ) {
+                control.Bind(TextBlock.TextAlignmentProperty,
+                    new Binding(nameof(IPanelItemTextAlignment.TextAlignment)));
+            }
+
             if ( item is IPanelItemText ) {
                 control.InvalidateMeasure();
                 control.Measure(CanvasPanel.Bounds.Size);
@@ -629,8 +702,8 @@ public partial class MainWindow : WindowViewModel {
             .GetMessageBoxCustom(
                 new MessageBoxCustomParams {
                     ButtonDefinitions = new List<ButtonDefinition> {
-                        new ButtonDefinition { Name = "Ok", IsDefault = true },
-                        new ButtonDefinition { Name = "GitHub", },
+                        new() { Name = "Ok", IsDefault = true },
+                        new() { Name = "GitHub" },
                     },
                     ContentTitle = "Help",
                     ContentMessage = """

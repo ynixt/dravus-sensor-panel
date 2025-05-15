@@ -1,23 +1,12 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using DravusSensorPanel.Services.InfoExtractor;
-using LibreHardwareMonitor.Hardware;
 using ReactiveUI;
 
-namespace DravusSensorPanel.Models;
+namespace DravusSensorPanel.Models.Sensors;
 
 public sealed record DateValue(DateTime DateTime, float? Value);
 
-public class Sensor : ReactiveObject, IComparable {
-    public string Id { get; set; }
-    public IInfoExtractor InfoExtractor { get; set; }
-    public string Source { get; set; }
-    public string SourceId { get; set; }
-
-    public SensorType Type { get; set; }
-    public string Hardware { get; set; }
-    public string Name { get; set; }
-    public Enum Unit { get; set; }
+public class NumberSensor : Sensor {
     public ObservableCollection<DateValue> Values { get; } = new();
     public ObservableCollection<DateValue> Mins { get; } = new();
     public ObservableCollection<DateValue> Maxs { get; } = new();
@@ -26,7 +15,7 @@ public class Sensor : ReactiveObject, IComparable {
     private float? _min;
     private float? _max;
 
-    public void UpdateValue(float? newValue, DateTime updateTime) {
+    public void UpdateValue(float? newValue, DateTime updateTime, bool ifZeroReset = false) {
         if ( newValue != null ) {
             Values.Add(new DateValue(updateTime, newValue));
 
@@ -34,8 +23,13 @@ public class Sensor : ReactiveObject, IComparable {
                 Values.RemoveAt(0);
             }
 
-            if ( !Min.HasValue || Min <= 0 || ( newValue > 0 && newValue < Min.Value ) ) {
-                Min = newValue;
+            if ( ifZeroReset ) {
+                if ( !Min.HasValue || Min <= 0 || ( newValue > 0 && newValue < Min.Value ) ) {
+                    Min = newValue;
+                }
+            }
+            else {
+                Min = Min is null ? newValue : Math.Min(Min.Value, newValue.Value);
             }
 
             Max = Max is null ? newValue : Math.Max(Max.Value, newValue.Value);
@@ -82,25 +76,5 @@ public class Sensor : ReactiveObject, IComparable {
     public override string ToString() {
         return
             $"Type: {Type} - Hardware: {Hardware} - Name: {Name} - Value: {Value} - Min: {Min?.ToString() ?? "n/a"} - Max: {Max?.ToString() ?? "n/a"}";
-    }
-
-    public int CompareTo(object? obj) {
-        if ( obj is not Sensor other ) {
-            return 0;
-        }
-
-        int result = string.Compare(Hardware, other.Hardware, StringComparison.Ordinal);
-
-        if ( result != 0 ) {
-            return result;
-        }
-
-        result = string.Compare(Type.ToString(), other.Type.ToString(), StringComparison.Ordinal);
-
-        if ( result != 0 ) {
-            return result;
-        }
-
-        return string.Compare(Name, other.Name, StringComparison.Ordinal);
     }
 }

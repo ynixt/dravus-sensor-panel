@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reactive.Linq;
-using System.Threading;
-using Avalonia.Interactivity;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
-using Avalonia.Threading;
+﻿using Avalonia.Interactivity;
 using DravusSensorPanel.Services;
-using DravusSensorPanel.Services.InfoExtractor;
 
 namespace DravusSensorPanel.Views.Windows;
 
@@ -19,8 +11,7 @@ public partial class AboutWindow : WindowViewModel {
     public AboutWindow() : this(null) {
     }
 
-    public AboutWindow(
-        UtilService? utilService) {
+    public AboutWindow(UtilService? utilService) {
         DataContext = this;
 
         Version = utilService?.GetAppVersion() ?? string.Empty;

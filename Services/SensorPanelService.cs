@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform;
 using DravusSensorPanel.Models;
+using DravusSensorPanel.Views.Windows;
 
 namespace DravusSensorPanel.Services;
 
@@ -29,10 +30,12 @@ public class SensorPanelService {
         return _sensorPanel?.Items.FirstOrDefault(item => item.Id == id);
     }
 
-    public void LoadSensorPanel(string filePath = SensorPanelFileService.DefaultSensorPanelPath, bool ignorePersonalFields = false) {
+    public void LoadSensorPanel(
+        string filePath = SensorPanelFileService.DefaultSensorPanelPath,
+        bool ignorePersonalFields = false) {
         Screen display = GetPrimaryDisplay() ?? GetAllDisplays()[0];
 
-        SensorPanel = _sensorPanelFileService.Load(filePath) ?? new SensorPanel{ Display = display };
+        SensorPanel = _sensorPanelFileService.Load(filePath) ?? new SensorPanel { Display = display };
 
         if ( ignorePersonalFields ) {
             SensorPanel.Display = display;
@@ -64,12 +67,28 @@ public class SensorPanelService {
         _sensorPanelFileService.Save(_sensorPanel!, filePath);
     }
 
+    public void SortItems() {
+        MainWindow.IgnoreCollectionChanged = true;
+        List<PanelItem> sorted = SensorPanel.Items.OrderBy(item => item.Sort).ToList();
+        SensorPanel.Items.Clear();
+        foreach ( PanelItem item in sorted ) {
+            SensorPanel.Items.Add(item);
+        }
+
+        MainWindow.IgnoreCollectionChanged = false;
+    }
+
     public void AddNewItem(PanelItem item, bool persist = true) {
         SensorPanel.Items.Add(item);
 
         item.Reload();
 
         if ( persist ) {
+            if ( SensorPanel.Items.Count != 0 && item.Sort == 0 ) {
+                item.Sort = SensorPanel.Items.Count;
+            }
+
+            SortItems();
             SavePanel();
         }
     }
@@ -101,6 +120,7 @@ public class SensorPanelService {
         if ( panelFound != null ) SensorPanel.Items.Remove(panelFound);
 
         if ( persist ) {
+            SortItems();
             SavePanel();
         }
 

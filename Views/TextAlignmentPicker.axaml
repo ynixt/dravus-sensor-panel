@@ -6,10 +6,10 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:CompileBindings="True"
              x:DataType="views:DisplayPicker"
-             x:Class="DravusSensorPanel.Views.DisplayPicker">
+             x:Class="DravusSensorPanel.Views.TextAlignmentPicker">
     <ComboBox
         HorizontalAlignment="Stretch"
-        ItemsSource="{Binding Displays, RelativeSource={RelativeSource AncestorType=views:DisplayPicker}}"
-        SelectedItem="{Binding DisplaySelected, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=views:DisplayPicker}}"
+        ItemsSource="{Binding TextAlignments, RelativeSource={RelativeSource AncestorType=views:TextAlignmentPicker}}"
+        SelectedItem="{Binding TextAlignmentSelected, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=views:TextAlignmentPicker}}"
         VerticalAlignment="Top" />
 </UserControl>

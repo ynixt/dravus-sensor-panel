@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using DravusSensorPanel.Models;
+using DravusSensorPanel.Models.Sensors;
+using DravusSensorPanel.Models.Units;
 using DravusSensorPanel.Repositories;
 using LibreHardwareMonitor.Hardware;
 using UnitsNet.Units;
@@ -24,10 +25,12 @@ public class LibreHardwareExtractor : IInfoExtractor {
 
     private readonly UpdateVisitor _visitor = new();
     private readonly SensorRepository _sensorRepository;
+    private readonly UnitRepository _unitRepository;
     private bool _started;
 
-    public LibreHardwareExtractor(SensorRepository sensorRepository) {
+    public LibreHardwareExtractor(SensorRepository sensorRepository, UnitRepository unitRepository) {
         _sensorRepository = sensorRepository;
+        _unitRepository = unitRepository;
     }
 
     public List<Sensor> Start() {
@@ -59,10 +62,10 @@ public class LibreHardwareExtractor : IInfoExtractor {
                 if ( libreSensor.SensorType == SensorType.Factor ) continue;
 
                 string? sourceId = libreSensor.Identifier.ToString();
-                Sensor? sensor = _sensorRepository.FindSensor(SourceName, sourceId);
+                var sensor = _sensorRepository.FindSensor<NumberSensor>(SourceName, sourceId);
 
                 if ( sensor == null ) {
-                    sensor = new Sensor {
+                    sensor = new NumberSensor {
                         Id = Guid.NewGuid().ToString(),
                         Source = SourceName,
                         SourceId = sourceId,
@@ -102,48 +105,50 @@ public class LibreHardwareExtractor : IInfoExtractor {
         }
     }
 
-    private Enum GetUnit(ISensor libreSensor, HardwareType hardwareType) {
+    private Unit GetUnit(ISensor libreSensor, HardwareType hardwareType) {
         switch ( libreSensor.SensorType ) {
             case SensorType.Fan:
-                return RotationalSpeedUnit.RevolutionPerMinute;
+                return _unitRepository.GetUnitById(
+                    UnitUnitsNet.GetIdFromEnum(RotationalSpeedUnit.RevolutionPerMinute))!;
             case SensorType.Flow:
-                return VolumeFlowUnit.LiterPerHour;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(VolumeFlowUnit.LiterPerHour))!;
             case SensorType.Power:
-                return PowerUnit.Watt;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(PowerUnit.Watt))!;
             case SensorType.Energy:
-                return EnergyUnit.WattHour;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(EnergyUnit.WattHour))!;
             case SensorType.Voltage:
-                return ElectricPotentialUnit.Volt;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(ElectricPotentialUnit.Volt))!;
             case SensorType.Current:
-                return ElectricCurrentUnit.Ampere;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(ElectricCurrentUnit.Ampere))!;
             case SensorType.Temperature:
-                return TemperatureUnit.DegreeCelsius;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(TemperatureUnit.DegreeCelsius))!;
             case SensorType.Clock:
             case SensorType.Frequency:
-                return FrequencyUnit.Megahertz;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(FrequencyUnit.Megahertz))!;
             case SensorType.Data:
-                return InformationUnit.Gigabyte;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(InformationUnit.Gigabyte))!;
             case SensorType.SmallData:
-                return InformationUnit.Megabyte;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(InformationUnit.Megabyte))!;
             case SensorType.Throughput:
                 if ( hardwareType is HardwareType.GpuNvidia or HardwareType.GpuIntel or HardwareType.GpuAmd ) {
-                    return BitRateUnit.KibibitPerSecond;
+                    return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(BitRateUnit.KibibitPerSecond))!;
                 }
 
-                return BitRateUnit.BytePerSecond;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(BitRateUnit.BytePerSecond))!;
             case SensorType.Load:
             case SensorType.Control:
             case SensorType.Level:
             case SensorType.Humidity:
-                return RatioUnit.Percent;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(RatioUnit.Percent))!;
             case SensorType.Factor:
-                return RatioUnit.DecimalFraction;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(RatioUnit.DecimalFraction))!;
             case SensorType.TimeSpan:
-                return DurationUnit.Second;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(DurationUnit.Second))!;
             case SensorType.Noise:
-                return LevelUnit.Decibel;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(LevelUnit.Decibel))!;
             case SensorType.Conductivity:
-                return ElectricConductivityUnit.SiemensPerMeter;
+                return _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(ElectricConductivityUnit.SiemensPerMeter))
+                    !;
             default:
                 throw new NotSupportedException(
                     $"Sensor type {libreSensor.SensorType} was not mapped para UnitsNet.");

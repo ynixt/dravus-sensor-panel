@@ -51,7 +51,7 @@ public class FileDialogService {
             FileTypeFilter = [
                 new FilePickerFileType("Dravus Sensor Panel") {
                     Patterns = [
-                        "*.dravus"
+                        "*.dravus",
                     ],
                 },
             ],
@@ -69,7 +69,7 @@ public class FileDialogService {
 
     public async Task<string?> SaveDravusFileDialog(Visual visual) {
         var topLevel = TopLevel.GetTopLevel(visual);
-        var options = new FilePickerSaveOptions() {
+        var options = new FilePickerSaveOptions {
             Title = "Export Dravus sensor panel",
             FileTypeChoices = [
                 new FilePickerFileType("Dravus Sensor Panel") {

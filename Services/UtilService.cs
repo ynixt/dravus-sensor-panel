@@ -27,7 +27,8 @@ public class UtilService {
 
     public string GetAppVersion() {
         var asm = Assembly.GetEntryAssembly();
-        return asm?.GetName().Version?.ToString() ?? asm?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-            ?? "unknown version";
+        return asm?.GetName().Version?.ToString() ??
+               asm?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+               ?? "unknown version";
     }
 }

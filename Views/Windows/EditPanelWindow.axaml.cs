@@ -20,7 +20,14 @@ public partial class EditPanelWindow : WindowViewModel {
 
     public PanelItem? SelectedItem {
         get => _selectedItem;
-        set => RaiseAndSetIfChanged(ref _selectedItem, value);
+        set {
+            if ( !SetField(ref _selectedItem, value) ) return;
+
+            MainWindow?.UnselectControls();
+            if ( SelectedItem != null ) {
+                MainWindow?.SelectItem(SelectedItem);
+            }
+        }
     }
 
     // Empty constructor to preview works on IDE
@@ -41,6 +48,8 @@ public partial class EditPanelWindow : WindowViewModel {
         _splashScreenWindowFactory = splashScreenWindowFactory;
 
         PanelItems = sensorPanelService?.SensorPanel.Items ?? [];
+        Closed += OnWindowClosed;
+
         InitializeComponent();
     }
 
@@ -70,7 +79,16 @@ public partial class EditPanelWindow : WindowViewModel {
             else {
                 _sensorPanelService?.RemoveItem(originalItem, false, false);
                 _sensorPanelService?.AddNewItem(clone, false);
+                _sensorPanelService?.SortItems();
             }
+        }
+    }
+
+    public void CloneItemClick(object sender, RoutedEventArgs args) {
+        if ( _panelItemFormWindowFactory != null && SelectedItem != null ) {
+            PanelItem clone = SelectedItem.ToDto().ToModel();
+            clone.Id = Guid.NewGuid().ToString("N");
+            _sensorPanelService?.AddNewItem(clone);
         }
     }
 
@@ -109,5 +127,9 @@ public partial class EditPanelWindow : WindowViewModel {
 
     private void ExportClick(object? sender, RoutedEventArgs e) {
         _sensorPanelImportService?.ExportUsingDialog(this);
+    }
+
+    private void OnWindowClosed(object? sender, EventArgs e) {
+        MainWindow?.UnselectControls();
     }
 }

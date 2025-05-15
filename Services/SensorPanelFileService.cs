@@ -52,6 +52,7 @@ public class SensorPanelFileService {
                                          [SensorPanelItemType.SensorValue.ToString()] = typeof(PanelItemValueDto),
                                          [SensorPanelItemType.SensorChart.ToString()] = typeof(PanelItemChartDto),
                                          [SensorPanelItemType.Image.ToString()] = typeof(PanelItemImageDto),
+                                         [SensorPanelItemType.SensorObject.ToString()] = typeof(PanelItemObjectDto),
                                      };
 
                                      o.AddKeyValueTypeDiscriminator<PanelItemDto>("type", keyMappings);

@@ -1,45 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DravusSensorPanel.Enums;
+using DravusSensorPanel.Models.Units;
+using DravusSensorPanel.Repositories;
 using UnitsNet;
 
 namespace DravusSensorPanel.Services;
 
 public class UnitService {
-    private readonly Dictionary<string, Enum> _unitsByNameAndQuantityName = new();
+    private readonly UnitRepository _unitRepository;
     private readonly Dictionary<Enum, List<Enum>> _unitsCacheDictionary = new();
 
-    public UnitService() {
-        foreach ( UnitInfo unitInfo in Quantity
-                                       .Infos
-                                       .SelectMany(q => q.UnitInfos) ) {
-            _unitsByNameAndQuantityName[JoinUnitAndQuantityName(unitInfo.QuantityName, unitInfo.Value)] =
-                unitInfo.Value;
-        }
-
-        _unitsByNameAndQuantityName[JoinUnitAndQuantityName(nameof(FrameUnit), FrameUnit.Fps)] = FrameUnit.Fps;
+    public UnitService(UnitRepository unitRepository) {
+        _unitRepository = unitRepository;
     }
 
-    public Enum? GetUnitFromNameAndQuantityName(string? nameAndQuantityName) {
-        if ( nameAndQuantityName == null ) return null;
-
-        return _unitsByNameAndQuantityName.GetValueOrDefault(nameAndQuantityName);
-    }
-
-    public string GetUnitWithQuantityName(Enum unit) {
-        try {
-            UnitInfo? unitInfo = Quantity.GetUnitInfo(unit);
-
-            return JoinUnitAndQuantityName(unitInfo.QuantityName, unit);
+    public double Convert(QuantityValue value, Unit source, Unit target) {
+        if ( source is IUnitConvertableToAnotherUnit sourceConvertable &&
+             target is IUnitConvertableToAnotherUnit targetConvertable ) {
+            return sourceConvertable.ConvertTo(( double ) value, targetConvertable);
         }
-        catch ( Exception e ) {
-            if ( Equals(unit, FrameUnit.Fps) ) {
-                return JoinUnitAndQuantityName(nameof(FrameUnit), unit);
-            }
 
-            return unit.ToString();
-        }
+        return ( double ) value;
     }
 
     public double Convert(QuantityValue value, Enum fromUnitValue, Enum toUnitValue) {
@@ -55,17 +37,17 @@ public class UnitService {
         }
     }
 
-    public string GetAbbreviation(Enum unit) {
-        try {
-            return UnitAbbreviationsCache.Default.GetDefaultAbbreviation(unit);
+    public List<Unit> GetPossibleUnits(Unit unit) {
+        if ( unit is UnitUnitsNet unitUnitsNet ) {
+            return GetPossibleUnits(unitUnitsNet.Value)
+                   .Select(u => _unitRepository.GetUnitById(UnitUnitsNet.GetIdFromEnum(u)))
+                   .Where(u => u != null).Cast<Unit>().ToList();
         }
-        catch ( Exception ex ) {
-            Console.WriteLine($"Unable to get abbreviation for {unit}");
-            return unit.ToString();
-        }
+
+        return [unit];
     }
 
-    public IList<Enum> GetPossibleUnits(Enum unit) {
+    private List<Enum> GetPossibleUnits(Enum unit) {
         if ( _unitsCacheDictionary.TryGetValue(unit, out List<Enum>? units) ) return units;
 
         Type unitType = unit.GetType();
@@ -95,9 +77,5 @@ public class UnitService {
         _unitsCacheDictionary[unit] = units!;
 
         return units!;
-    }
-
-    private string JoinUnitAndQuantityName(string? quantityName, Enum unit) {
-        return quantityName + "---" + unit;
     }
 }
