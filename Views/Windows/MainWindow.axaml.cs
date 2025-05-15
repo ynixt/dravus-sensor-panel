@@ -526,6 +526,11 @@ public partial class MainWindow : WindowViewModel {
         }
         else {
             _editWindowOpen.Activate();
+
+            if ( _editWindowOpen is EditPanelWindow editWindow ) {
+                editWindow.SelectedItem = selectedItem;
+                editWindow.OpenModifyItemDialog();
+            }
         }
     }
 
@@ -578,7 +583,11 @@ public partial class MainWindow : WindowViewModel {
     }
 
     private void AddToCanvas(PanelItem item) {
-        var stackPanel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 5 };
+        var panel = new Grid() {
+            ColumnSpacing = 5,
+            ColumnDefinitions = new ColumnDefinitions
+                { new[] { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } } }
+        };
         Control? control = null;
 
         switch ( item ) {
@@ -600,7 +609,8 @@ public partial class MainWindow : WindowViewModel {
                 control.Bind(CartesianChart.YAxesProperty, new Binding(nameof(itemChart.YAxes)));
                 control.Bind(CartesianChart.XAxesProperty, new Binding(nameof(itemChart.XAxes)));
                 control.Bind(CartesianChart.SeriesProperty, new Binding(nameof(itemChart.Series)));
-                control.Bind(CartesianChart.BackgroundProperty, new Binding(nameof(itemChart.BackgroundBrush)));
+                control.Bind(BackgroundProperty, new Binding(nameof(itemChart.BackgroundBrush)));
+
                 break;
         }
 
@@ -610,7 +620,7 @@ public partial class MainWindow : WindowViewModel {
             var border = new Border {
                 DataContext = item,
                 BorderThickness = new Thickness(0),
-                Child = stackPanel,
+                Child = panel,
             };
 
             CanvasPanel.Children.Add(border);
@@ -620,10 +630,10 @@ public partial class MainWindow : WindowViewModel {
             border.Bind(Canvas.TopProperty, new Binding(nameof(item.Y)));
 
 
-            stackPanel.Children.Add(control);
+            panel.Children.Add(control);
 
             if ( item is PanelItemValue itemValue ) {
-                stackPanel.Children.Add(CreateUnitLabel(itemValue));
+                panel.Children.Add(CreateUnitLabel(itemValue));
 
                 control.SetValue(TextBlock.TextAlignmentProperty, TextAlignment.Right);
             }
@@ -631,11 +641,11 @@ public partial class MainWindow : WindowViewModel {
             _controlsById[item.Id] = border;
 
             if ( item is IPanelItemHorizontalSizeable ) {
-                control.Bind(WidthProperty, new Binding(nameof(IPanelItemHorizontalSizeable.Width)));
+                panel.Bind(WidthProperty, new Binding(nameof(IPanelItemHorizontalSizeable.Width)));
             }
 
             if ( item is IPanelItemVerticalSizeable ) {
-                control.Bind(HeightProperty, new Binding(nameof(IPanelItemVerticalSizeable.Height)));
+                panel.Bind(HeightProperty, new Binding(nameof(IPanelItemVerticalSizeable.Height)));
             }
 
             if ( item is IPanelItemTextAlignment ) {
@@ -658,6 +668,7 @@ public partial class MainWindow : WindowViewModel {
         label.Bind(FontSizeProperty, new Binding(nameof(item.FontSize)));
         label.Bind(FontFamilyProperty, new Binding(nameof(item.FontFamily)));
         label.Bind(ForegroundProperty, new Binding(nameof(item.UnitForegroundBrush)));
+        label.SetValue(Grid.ColumnProperty, 1);
         label.Name = MountNameForControl(item, true);
 
         return label;

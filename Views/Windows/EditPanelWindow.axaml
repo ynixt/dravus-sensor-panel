@@ -4,9 +4,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:DravusSensorPanel.Views.Windows"
         x:DataType="vm:EditPanelWindow"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignHeight="450"
+        Width="1024"
         x:Class="DravusSensorPanel.Views.Windows.EditPanelWindow"
         Icon="/Assets/app-logo.ico"
+        KeyUp="InputElement_OnKeyUp"
         Title="Edit Panel">
 
     <DockPanel Margin="10">

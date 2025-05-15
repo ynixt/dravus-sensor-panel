@@ -53,37 +53,47 @@ public class LibreHardwareExtractor : InfoExtractor {
         // _computer.Close();
     }
 
+    private void ExtractSensor(DateTime currentTime, IHardware hardware, IHardware? subHardware, ISensor libreSensor) {
+        if ( libreSensor.SensorType == SensorType.Factor ) return;
+
+        string? sourceId = libreSensor.Identifier.ToString();
+        var sensor = SensorRepository.FindSensor<NumberSensor>(SourceName, sourceId);
+
+        if ( sensor == null ) {
+            sensor = new NumberSensor {
+                Id = Guid.NewGuid().ToString(),
+                Source = SourceName,
+                SourceId = sourceId,
+                Type = libreSensor.SensorType,
+                Hardware = hardware.Name,
+                Name = libreSensor.Name,
+                Unit = GetUnit(libreSensor, subHardware?.HardwareType ?? hardware.HardwareType),
+                InfoExtractor = this,
+            };
+
+            SensorRepository.AddSensor(sensor);
+        }
+
+        if ( ShouldExtract(sensor) ) {
+            sensor.UpdateValue(libreSensor.Value, currentTime);
+        }
+
+        // We already stored the values on our side
+        libreSensor.ClearValues();
+    }
+
     private List<Sensor> Extract() {
         DateTime currentTime = DateTime.Now;
 
         foreach ( IHardware? hardware in _computer.Hardware ) {
             foreach ( ISensor? libreSensor in hardware.Sensors ) {
-                if ( libreSensor.SensorType == SensorType.Factor ) continue;
+                ExtractSensor(currentTime, hardware, null, libreSensor);
+            }
 
-                string? sourceId = libreSensor.Identifier.ToString();
-                var sensor = SensorRepository.FindSensor<NumberSensor>(SourceName, sourceId);
-
-                if ( sensor == null ) {
-                    sensor = new NumberSensor {
-                        Id = Guid.NewGuid().ToString(),
-                        Source = SourceName,
-                        SourceId = sourceId,
-                        Type = libreSensor.SensorType,
-                        Hardware = hardware.Name,
-                        Name = libreSensor.Name,
-                        Unit = GetUnit(libreSensor, hardware.HardwareType),
-                        InfoExtractor = this,
-                    };
-
-                    SensorRepository.AddSensor(sensor);
+            foreach ( IHardware subHardware in hardware.SubHardware ) {
+                foreach ( ISensor? libreSensor in subHardware.Sensors ) {
+                    ExtractSensor(currentTime, hardware, subHardware, libreSensor);
                 }
-
-                if ( ShouldExtract(sensor) ) {
-                    sensor.UpdateValue(libreSensor.Value, currentTime);
-                }
-
-                // We already stored the values on our side
-                libreSensor.ClearValues();
             }
         }
 

@@ -129,13 +129,11 @@ public partial class PanelItemFormWindow : WindowViewModel {
     }
 
     public void OkClick(object sender, RoutedEventArgs args) {
-        if ( _panelControl?.IsValid() == true ) {
-            Close(PanelItem);
-        }
+        Confirm();
     }
 
     public void CancelClick(object sender, RoutedEventArgs args) {
-        Close(null);
+        Cancel();
     }
 
     private void SelectedItemChanged(int? item) {
@@ -276,5 +274,15 @@ public partial class PanelItemFormWindow : WindowViewModel {
         }
 
         return "";
+    }
+
+    private void Confirm() {
+        if ( _panelControl?.IsValid() == true ) {
+            Close(PanelItem);
+        }
+    }
+
+    private void Cancel() {
+        Close(null);
     }
 }

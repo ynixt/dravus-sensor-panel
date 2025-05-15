@@ -73,7 +73,7 @@ public partial class EditPanelWindow : WindowViewModel {
         OpenModifyItemDialog();
     }
 
-    private async void OpenModifyItemDialog() {
+    public async void OpenModifyItemDialog() {
         if ( _panelItemFormWindowFactory != null && SelectedItem != null ) {
             PanelItem originalItem = SelectedItem;
             PanelItem clone = SelectedItem.Clone();
@@ -164,9 +164,12 @@ public partial class EditPanelWindow : WindowViewModel {
     }
 
     private void InputElement_OnDoubleTapped(object? sender, TappedEventArgs args) {
-        object? source = args.Source;
-        if (source is Border) {
-            OpenModifyItemDialog();
+        OpenModifyItemDialog();
+    }
+
+    private void InputElement_OnKeyUp(object? sender, KeyEventArgs e) {
+        if ( e.Key == Key.Escape ) {
+            Close();
         }
     }
 }
