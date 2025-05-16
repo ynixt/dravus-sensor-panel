@@ -583,8 +583,7 @@ public partial class MainWindow : WindowViewModel {
     }
 
     private void AddToCanvas(PanelItem item) {
-        var panel = new Grid() {
-            ColumnSpacing = 5,
+        var panel = new Grid {
             ColumnDefinitions = new ColumnDefinitions
                 { new[] { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } } }
         };
@@ -670,6 +669,7 @@ public partial class MainWindow : WindowViewModel {
         label.Bind(ForegroundProperty, new Binding(nameof(item.UnitForegroundBrush)));
         label.SetValue(Grid.ColumnProperty, 1);
         label.Name = MountNameForControl(item, true);
+        label.Margin = new Thickness(5, 0, 0, 0);
 
         return label;
     }
