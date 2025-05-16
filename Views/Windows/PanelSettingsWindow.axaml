@@ -34,7 +34,7 @@
                 <NumericUpDown
                     Grid.Row="0"
                     Grid.Column="1" Increment="1" Minimum="1"
-                    Value="{Binding SensorPanel.Width,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+                    Value="{Binding SensorPanel.Width, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
 
                 <TextBlock
                     Grid.Row="0"
@@ -44,7 +44,7 @@
                 <NumericUpDown
                     Grid.Row="0"
                     Grid.Column="3" Increment="1" Minimum="1"
-                    Value="{Binding SensorPanel.Height,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+                    Value="{Binding SensorPanel.Height, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
 
                 <TextBlock
                     Grid.Row="1"
@@ -54,7 +54,7 @@
                 <NumericUpDown
                     Grid.Row="1"
                     Grid.Column="1" Increment="1" Minimum="1"
-                    Value="{Binding SensorPanel.X,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+                    Value="{Binding SensorPanel.X, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
 
                 <TextBlock
                     Grid.Row="1"
@@ -64,7 +64,7 @@
                 <NumericUpDown
                     Grid.Row="1"
                     Grid.Column="3" Increment="1" Minimum="1"
-                    Value="{Binding SensorPanel.Y,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+                    Value="{Binding SensorPanel.Y, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
 
                 <TextBlock
                     Grid.Row="2"

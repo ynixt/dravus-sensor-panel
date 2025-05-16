@@ -68,7 +68,7 @@
 
                 <NumericUpDown Grid.Row="2"
                                Grid.Column="1" Increment="1"
-                               Value="{Binding PanelItem.X, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+                               Value="{Binding PanelItem.X, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
 
 
                 <TextBlock Grid.Row="2"
@@ -77,7 +77,7 @@
                 </TextBlock>
                 <NumericUpDown Grid.Row="2"
                                Grid.Column="3" Increment="1"
-                               Value="{Binding PanelItem.Y,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+                               Value="{Binding PanelItem.Y, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
 
 
                 <TextBlock Grid.Row="2"
@@ -89,7 +89,7 @@
                 <NumericUpDown Grid.Row="2"
                                Grid.Column="5" Increment="1"
                                Minimum="1"
-                               Value="{Binding PanelItem.Width, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+                               Value="{Binding PanelItem.Width, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
 
 
                 <TextBlock Grid.Row="2"
@@ -99,7 +99,7 @@
                 <NumericUpDown Grid.Row="2"
                                Grid.Column="7" Increment="1"
                                Minimum="1"
-                               Value="{Binding PanelItem.Height,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+                               Value="{Binding PanelItem.Height, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
 
 
                 <TextBlock Grid.Row="3"
@@ -111,7 +111,7 @@
                 <NumericUpDown Grid.Row="3"
                                Grid.Column="1" Increment="1"
                                Maximum="9999998"
-                               Value="{Binding PanelItem.ZIndex, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
+                               Value="{Binding PanelItem.ZIndex, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoImage}}" />
 
 
                 <TextBlock

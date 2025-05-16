@@ -2,12 +2,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="DravusSensorPanel.App"
              xmlns:local="using:DravusSensorPanel"
+             xmlns:converters="clr-namespace:DravusSensorPanel.Converters"
              RequestedThemeVariant="Default">
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
+
+    <Application.Resources>
+        <converters:NullBlocker x:Key="NullBlocker"/>
+    </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />

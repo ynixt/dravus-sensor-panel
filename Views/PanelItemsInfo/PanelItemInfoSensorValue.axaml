@@ -93,7 +93,7 @@
 
                 <NumericUpDown Grid.Row="2"
                                Grid.Column="1" Increment="1"
-                               Value="{Binding PanelItem.X, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
+                               Value="{Binding PanelItem.X, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
 
 
                 <TextBlock Grid.Row="2"
@@ -102,7 +102,7 @@
                 </TextBlock>
                 <NumericUpDown Grid.Row="2"
                                Grid.Column="3" Increment="1"
-                               Value="{Binding PanelItem.Y,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
+                               Value="{Binding PanelItem.Y, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
 
                 <TextBlock Grid.Row="2"
                            Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
@@ -113,7 +113,7 @@
                 <NumericUpDown Grid.Row="2"
                                Grid.Column="5" Increment="1"
                                Maximum="9999998"
-                               Value="{Binding PanelItem.ZIndex, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
+                               Value="{Binding PanelItem.ZIndex, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
 
 
                 <TextBlock
@@ -124,7 +124,7 @@
                 <NumericUpDown
                     Grid.Row="2"
                     Grid.Column="7" Increment="1" Minimum="1"
-                    Value="{Binding PanelItem.Width,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
+                    Value="{Binding PanelItem.Width, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
 
 
                 <TextBlock
@@ -146,7 +146,7 @@
                 <NumericUpDown
                     Grid.Row="3"
                     Grid.Column="3" Increment="1" Minimum="0"
-                    Value="{Binding PanelItem.FontSize,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
+                    Value="{Binding PanelItem.FontSize, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
 
                 <TextBlock
                     Grid.Row="3"
@@ -179,7 +179,7 @@
                 <NumericUpDown
                     Grid.Row="4"
                     Grid.Column="1" Increment="1" Minimum="0"
-                    Value="{Binding PanelItem.NumDecimalPlaces, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
+                    Value="{Binding PanelItem.NumDecimalPlaces, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorValue}}" />
 
                 <TextBlock
                     Grid.Row="4"
