@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**\*" />
+        <AvaloniaResource Remove="resharper-cli\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -30,9 +31,11 @@
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc5.4" />
+        <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
         <PackageReference Include="NAudio" Version="2.2.1" />
+        <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
         <PackageReference Include="UnitsNet" Version="5.74.0" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
@@ -83,5 +86,26 @@
         <DependentUpon>TextAligmentPicker.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Windows\SensorPanelFinderWindow.axaml.cs">
+        <DependentUpon>SensorPanelBrowserWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Remove="resharper-cli\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaXaml Remove="resharper-cli\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="resharper-cli\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Remove="resharper-cli\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="resharper-cli\**" />
     </ItemGroup>
 </Project>

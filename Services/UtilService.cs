@@ -19,6 +19,12 @@ public class UtilService {
         return await OpenSite(visual, url);
     }
 
+    public async Task<bool> OpenGithubPanels(Visual visual) {
+        const string url = "https://github.com/topics/dravus-sensor-panel";
+
+        return await OpenSite(visual, url);
+    }
+
     public async Task<bool> OpenLicense(Visual visual) {
         const string url = "https://github.com/ynixt/dravus-sensor-panel/blob/master/LICENSE";
 

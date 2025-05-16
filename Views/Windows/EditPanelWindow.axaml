@@ -23,6 +23,7 @@
             <Button Content="PANEL SETTINGS" Click="PanelSettingsClick" />
             <Button Content="IMPORT" Click="ImportClick" />
             <Button Content="EXPORT" Click="ExportClick" />
+            <Button Background="CadetBlue" Foreground="White" Content="SENSOR PANEL FINDER" Click="SensorPanelFinderClick" />
         </StackPanel>
 
         <Grid ColumnSpacing="20" Margin="0, 10">

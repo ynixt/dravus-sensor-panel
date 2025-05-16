@@ -16,6 +16,7 @@ public partial class EditPanelWindow : WindowViewModel {
     private readonly Func<PanelItem?, PanelItemFormWindow>? _panelItemFormWindowFactory;
     private readonly Func<PanelSettingsWindow>? _panelSettingsWindowFactory;
     private readonly Func<SplashScreenWindow>? _splashScreenWindowFactory;
+    private readonly Func<SensorPanelFinderWindow>? _sensorPanelFinderWindowFactory;
     private readonly SensorPanelService? _sensorPanelService;
     private readonly SensorPanelImportService? _sensorPanelImportService;
 
@@ -34,7 +35,7 @@ public partial class EditPanelWindow : WindowViewModel {
     }
 
     // Empty constructor to preview works on IDE
-    public EditPanelWindow() : this(null, null, null, null, null) {
+    public EditPanelWindow() : this(null, null, null, null, null, null) {
     }
 
     public EditPanelWindow(
@@ -42,13 +43,15 @@ public partial class EditPanelWindow : WindowViewModel {
         SensorPanelService? sensorPanelService,
         Func<PanelSettingsWindow>? panelSettingsWindowFactory,
         SensorPanelImportService? sensorPanelImportService,
-        Func<SplashScreenWindow>? splashScreenWindowFactory) {
+        Func<SplashScreenWindow>? splashScreenWindowFactory,
+        Func<SensorPanelFinderWindow>? sensorPanelFinderWindowFactory) {
         DataContext = this;
         _panelItemFormWindowFactory = panelItemFormWindowFactory;
         _sensorPanelService = sensorPanelService;
         _panelSettingsWindowFactory = panelSettingsWindowFactory;
         _sensorPanelImportService = sensorPanelImportService;
         _splashScreenWindowFactory = splashScreenWindowFactory;
+        _sensorPanelFinderWindowFactory = sensorPanelFinderWindowFactory;
 
         PanelItems = sensorPanelService?.SensorPanel.Items ?? [];
         Closed += OnWindowClosed;
@@ -129,6 +132,10 @@ public partial class EditPanelWindow : WindowViewModel {
     private async void ImportClick(object? sender, RoutedEventArgs e) {
         if ( !await _sensorPanelImportService!.ImportUsingDialog(this) ) return;
 
+        RestartApp();
+    }
+
+    private void RestartApp() {
         MainWindow?.CloseWithoutKillApp();
 
         SplashScreenWindow? splashScreen = _splashScreenWindowFactory?.Invoke();
@@ -170,6 +177,19 @@ public partial class EditPanelWindow : WindowViewModel {
     private void InputElement_OnKeyUp(object? sender, KeyEventArgs e) {
         if ( e.Key == Key.Escape ) {
             Close();
+        }
+    }
+
+    private async void SensorPanelFinderClick(object? sender, RoutedEventArgs e) {
+        if ( _sensorPanelFinderWindowFactory == null || _sensorPanelImportService == null ) return;
+
+        SensorPanelFinderWindow window = _sensorPanelFinderWindowFactory();
+
+        string? path = await window.ShowDialog<string?>(this);
+
+        if ( path != null ) {
+            _sensorPanelImportService.Import(path);
+            RestartApp();
         }
     }
 }

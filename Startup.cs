@@ -29,6 +29,7 @@ public static class Startup {
         services.AddSingleton<FileDialogService>();
         services.AddSingleton<UtilService>();
         services.AddSingleton<SensorPanelImportService>();
+        services.AddSingleton<GithubService>();
 
         services.AddSingleton<InfoExtractor, LibreHardwareExtractor>();
         services.AddTransient<InfoExtractor, RtssHardwareExtractor>();
@@ -59,12 +60,14 @@ public static class Startup {
         services.AddTransient<PanelItemFormWindow>();
         services.AddTransient<PanelSettingsWindow>();
         services.AddTransient<AboutWindow>();
+        services.AddTransient<SensorPanelFinderWindow>();
 
         services.AddTransient<Func<SplashScreenWindow>>(sp => sp.GetRequiredService<SplashScreenWindow>);
         services.AddTransient<Func<MainWindow>>(sp => sp.GetRequiredService<MainWindow>);
         services.AddTransient<Func<EditPanelWindow>>(sp => sp.GetRequiredService<EditPanelWindow>);
         services.AddTransient<Func<PanelSettingsWindow>>(sp => sp.GetRequiredService<PanelSettingsWindow>);
         services.AddTransient<Func<AboutWindow>>(sp => sp.GetRequiredService<AboutWindow>);
+        services.AddTransient<Func<SensorPanelFinderWindow>>(sp => sp.GetRequiredService<SensorPanelFinderWindow>);
 
         services.AddTransient<Func<PanelItem?, PanelItemFormWindow>>(sp =>
             panelItem => {

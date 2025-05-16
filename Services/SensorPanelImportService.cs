@@ -90,7 +90,7 @@ public class SensorPanelImportService {
         }
     }
 
-    private void Import(string dravusFilePath) {
+    public void Import(string dravusFilePath) {
         if ( !File.Exists(dravusFilePath) ) {
             throw new FileNotFoundException("File .dravus not found.", dravusFilePath);
         }
