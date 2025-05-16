@@ -34,7 +34,7 @@ public unsafe class RtssHardwareExtractor : InfoExtractor, IDisposable {
     private byte* _pBase = null;
     private bool _started;
 
-    public RtssHardwareExtractor(SensorRepository sensorRepository): base(sensorRepository) {
+    public RtssHardwareExtractor(SensorRepository sensorRepository) : base(sensorRepository) {
         base.SensorRepository = sensorRepository;
     }
 
@@ -158,8 +158,12 @@ public unsafe class RtssHardwareExtractor : InfoExtractor, IDisposable {
     }
 
     protected override void InternalUpdate() {
-        if ( !_started ) return;
-        Extract();
+        if ( !_started ) {
+            Start();
+        }
+        else {
+            Extract();
+        }
     }
 
     public override void Dispose() {
