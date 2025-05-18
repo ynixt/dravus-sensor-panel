@@ -42,6 +42,6 @@ Enjoy!
 
 ## Screenshots
 
-![image](./screenshots/edit panel.jpg)
-![image](./screenshots/edit item.jpg)
+![image](./screenshots/edit%20panel.jpg)
+![image](./screenshots/edit%20item.jpg)
 
