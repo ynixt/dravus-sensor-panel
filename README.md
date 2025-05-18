@@ -3,8 +3,8 @@
 
 Welcome to the **open source** solution to build amazing Sensor Panels!
 
-<img 
-  src="https://github.com/user-attachments/assets/1e756721-93a3-4067-82d2-18e1ed947c6b" 
+<img
+  src="./screenshots/screenshot-with-first-theme.jpg"
   width="612" width="360"/>
 
 :warning: The App is in alpha version. Bugs may happen. :warning:
@@ -42,6 +42,6 @@ Enjoy!
 
 ## Screenshots
 
-![image](https://github.com/user-attachments/assets/0972a508-b946-4afa-91a2-0ffa60a54bd5)
-![image](https://github.com/user-attachments/assets/e157e9e8-36f2-4fde-bb3b-464743dc96b7)
+![image](./screenshots/edit panel.jpg)
+![image](./screenshots/edit item.jpg)
 
