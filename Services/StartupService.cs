@@ -3,13 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Win32;
+using System.Security.Principal;
+using Microsoft.Win32.TaskScheduler;
 
 namespace DravusSensorPanel.Services;
 
 /// <summary>
-///     Service to manage the automatic startup of the application in the operating system.
-///     Supports Windows (Registry), Linux (XDG .desktop) and macOS (LaunchAgents).
+///     Service to manage automatic start-up of the application on each supported OS.
+///     Windows: Scheduled Task (elevated); Linux: XDG autostart; macOS: LaunchAgents.
 /// </summary>
 public class StartupService {
     private static readonly string AppName = Assembly.GetEntryAssembly()?
@@ -40,9 +41,6 @@ public class StartupService {
         }
     }
 
-    /// <summary>
-    ///     Desabilita a inicialização automática.
-    /// </summary>
     public void Disable() {
         if ( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ) {
             DisableWindows();
@@ -58,9 +56,6 @@ public class StartupService {
         }
     }
 
-    /// <summary>
-    ///     Retorna se a inicialização automática está habilitada.
-    /// </summary>
     public bool IsEnabled() {
         if ( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ) {
             return IsEnabledWindows();
@@ -77,23 +72,44 @@ public class StartupService {
         throw new PlatformNotSupportedException("Platform not supported for StartupService.");
     }
 
-#region Windows (Registry)
+#region Windows (Scheduled Task, elevated)
 
-    private const string RegistryRunPath = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    private const string TaskName = "DravusSensorPanel_AutoStart";
 
     private void EnableWindows() {
-        using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, true);
-        key.SetValue(AppName, $"\"{ExecutablePath}\"");
+        using var ts = new TaskService();
+
+        TaskDefinition td = ts.NewTask();
+        td.RegistrationInfo.Description = $"Automatically starts {AppName} on user logon (elevated)";
+
+        td.Principal.UserId = WindowsIdentity.GetCurrent().Name;
+        td.Principal.LogonType = TaskLogonType.InteractiveToken;
+        td.Principal.RunLevel = TaskRunLevel.Highest;
+
+        td.Triggers.Add(new LogonTrigger());
+
+        td.Actions.Add(new ExecAction(
+            ExecutablePath,
+            null,
+            Path.GetDirectoryName(ExecutablePath)));
+
+        ts.RootFolder.RegisterTaskDefinition(
+            TaskName,
+            td,
+            TaskCreation.CreateOrUpdate,
+            null, // use current security context
+            null,
+            TaskLogonType.InteractiveToken);
     }
 
     private void DisableWindows() {
-        using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, true);
-        key.DeleteValue(AppName, false);
+        using var ts = new TaskService();
+        ts.RootFolder.DeleteTask(TaskName, false);
     }
 
     private bool IsEnabledWindows() {
-        using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, false);
-        return key.GetValue(AppName) != null;
+        using var ts = new TaskService();
+        return ts.GetTask(TaskName) is not null;
     }
 
 #endregion
@@ -119,7 +135,7 @@ public class StartupService {
             $"NoDisplay=false\n" +
             $"X-GNOME-Autostart-enabled=true\n" +
             $"Name={AppName}\n" +
-            $"Comment=Start {AppName} on inicialization\n";
+            $"Comment=Start {AppName} on initialization\n";
         File.WriteAllText(path, content);
     }
 
