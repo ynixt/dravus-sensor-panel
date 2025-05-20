@@ -716,7 +716,7 @@ public partial class MainWindow : WindowViewModel {
 
     private string? GetFirstControlName(StyledElement? control) {
         if ( control?.Parent == null ) return null;
-        if ( control.Name != null ) return control.Name;
+        if ( control.Name != null && control is ContentControl ) return control.Name;
 
         return GetFirstControlName(control.Parent);
     }
