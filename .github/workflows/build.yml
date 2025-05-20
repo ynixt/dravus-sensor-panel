@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish self-contained win-x64
         run: |
-          dotnet publish DravusSensorPanel/DravusSensorPanel.csproj \
+          dotnet publish DravusSensorPanel.csproj \
             -c Release \
             -r win-x64 \
             -p:PublishSingleFile=true \
@@ -63,7 +63,7 @@ jobs:
 
       - name: Publish portable (framework-dependent)
         run: |
-          dotnet publish DravusSensorPanel/DravusSensorPanel.csproj \
+          dotnet publish DravusSensorPanel.csproj \
             -c Release \
             -f net8.0 \
             -p:PublishSingleFile=false \
