@@ -17,8 +17,14 @@ public class StartupService {
                                                  .Product
                                              ?? Assembly.GetEntryAssembly()?.GetName().Name!;
 
-    private static readonly string ExecutablePath = Assembly.GetEntryAssembly()?.Location
-                                                    ?? Process.GetCurrentProcess().MainModule.FileName;
+    private static readonly string ExecutablePath = GetExecutablePath();
+
+    private static string GetExecutablePath()
+    {
+        string? path = Environment.ProcessPath;
+
+        return !string.IsNullOrEmpty(path) ? path : Process.GetCurrentProcess().MainModule!.FileName!;
+    }
 
     public void Enable() {
         if ( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) )
