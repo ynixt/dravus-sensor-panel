@@ -35,14 +35,11 @@ jobs:
             -p:IncludeNativeLibrariesForSelfExtract=true \
             -o ./publish/win-x64
 
-      - name: Compress artifact (zip)
-        run: Compress-Archive -Path ./publish/win-x64/* -DestinationPath DravusSensorPanel_win-x64.zip
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: DravusSensorPanel_win-x64
-          path: DravusSensorPanel_win-x64.zip
+          path: ./publish/win-x64
           retention-days: 30
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -70,14 +67,9 @@ jobs:
             -p:PublishSingleFile=false \
             -o ./publish/portable
 
-      - name: Package portable build (tar.gz)
-        run: |
-          cd publish
-          tar -czf ../DravusSensorPanel_portable.tar.gz portable
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: DravusSensorPanel_portable
-          path: DravusSensorPanel_portable.tar.gz
+          path: ./publish/portable
           retention-days: 30
