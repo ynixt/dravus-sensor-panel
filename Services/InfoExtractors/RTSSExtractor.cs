@@ -35,7 +35,7 @@ public unsafe class RtssHardwareExtractor : InfoExtractor, IDisposable {
     private bool _started;
 
     public RtssHardwareExtractor(SensorRepository sensorRepository) : base(sensorRepository) {
-        base.SensorRepository = sensorRepository;
+        SensorRepository = sensorRepository;
     }
 
 #region P/Invoke ------------------------------------------------------

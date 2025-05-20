@@ -245,7 +245,9 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
                 Series = [
                     new RowSeries<double> {
                         Stroke =
-                            Stroke.A == 0 ? null : new SolidColorPaint(new SKColor(Stroke.R, Stroke.G, Stroke.B, Stroke.A)),
+                            Stroke.A == 0
+                                ? null
+                                : new SolidColorPaint(new SKColor(Stroke.R, Stroke.G, Stroke.B, Stroke.A)),
                         Fill = Fill.A == 0 ? null : new SolidColorPaint(new SKColor(Fill.R, Fill.G, Fill.B, Fill.A)),
                         Values = points.Count > 0 && points[^1].Value != null ? [points[^1].Value!.Value] : null,
                     },
@@ -255,7 +257,9 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
                 Series = [
                     new RowSeries<DateTimePoint> {
                         Stroke =
-                            Stroke.A == 0 ? null : new SolidColorPaint(new SKColor(Stroke.R, Stroke.G, Stroke.B, Stroke.A)),
+                            Stroke.A == 0
+                                ? null
+                                : new SolidColorPaint(new SKColor(Stroke.R, Stroke.G, Stroke.B, Stroke.A)),
                         Fill = Fill.A == 0 ? null : new SolidColorPaint(new SKColor(Fill.R, Fill.G, Fill.B, Fill.A)),
                         Values = points,
                     },
@@ -287,7 +291,10 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
         double? minYLimit;
         double? maxYLimit;
 
-        string DefaultLabeler(double x) => x.ToString(CultureInfo.CurrentCulture);
+        string DefaultLabeler(double x) {
+            return x.ToString(CultureInfo.CurrentCulture);
+        }
+
         Func<double, string> tickerLabeler = ticks => new DateTime(( long ) ticks).ToString("HH:mm:ss");
         Func<double, string> valueLabeler = v => $"{v.ToString(CultureInfo.CurrentCulture)} {UnitSymbol}";
 

@@ -77,8 +77,8 @@ public partial class SensorPanelFinderWindow : WindowViewModel {
 
         LoadItems();
 
-        ViewItemCommand = ReactiveCommand.Create<GithubSensorPanel>((item) => { SeeItem(item); });
-        OpenItemOnBrowserCommand = ReactiveCommand.Create<GithubSensorPanel>((item) => { OpenItemOnBrowser(item); });
+        ViewItemCommand = ReactiveCommand.Create<GithubSensorPanel>(item => { SeeItem(item); });
+        OpenItemOnBrowserCommand = ReactiveCommand.Create<GithubSensorPanel>(item => { OpenItemOnBrowser(item); });
     }
 
     private async Task LoadItems() {
@@ -126,7 +126,7 @@ public partial class SensorPanelFinderWindow : WindowViewModel {
         IMsBox<ButtonResult> confirmationBox = MessageBoxManager
             .GetMessageBoxStandard(
                 "Confirmation",
-                $"Are you sure that you want to download {{Selected.Name}}? This will delete your actual sensor panel and is irreversible.",
+                "Are you sure that you want to download {Selected.Name}? This will delete your actual sensor panel and is irreversible.",
                 ButtonEnum.YesNo);
 
         ButtonResult result = await confirmationBox.ShowAsPopupAsync(this);
@@ -139,8 +139,7 @@ public partial class SensorPanelFinderWindow : WindowViewModel {
                     await MessageBoxManager
                           .GetMessageBoxStandard(
                               "Error",
-                              $"Sensor panel not imported.",
-                              ButtonEnum.Ok).ShowAsPopupAsync(this);
+                              "Sensor panel not imported.").ShowAsPopupAsync(this);
                 }
                 else {
                     Close(path);

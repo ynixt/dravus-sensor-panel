@@ -27,8 +27,9 @@ public class LibreHardwareExtractor : InfoExtractor {
     private readonly UnitRepository _unitRepository;
     private bool _started;
 
-    public LibreHardwareExtractor(SensorRepository sensorRepository, UnitRepository unitRepository) : base(sensorRepository) {
-        base.SensorRepository = sensorRepository;
+    public LibreHardwareExtractor(SensorRepository sensorRepository, UnitRepository unitRepository) : base(
+        sensorRepository) {
+        SensorRepository = sensorRepository;
         _unitRepository = unitRepository;
     }
 

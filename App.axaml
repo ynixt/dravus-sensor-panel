@@ -11,7 +11,7 @@
     </Application.DataTemplates>
 
     <Application.Resources>
-        <converters:NullBlocker x:Key="NullBlocker"/>
+        <converters:NullBlocker x:Key="NullBlocker" />
     </Application.Resources>
 
     <Application.Styles>

@@ -9,9 +9,12 @@ using Octokit;
 namespace DravusSensorPanel.Services;
 
 public class GithubService {
-    private readonly GitHubClient _client = new GitHubClient(new ProductHeaderValue("dravus-sensor-panel"));
+    private readonly GitHubClient _client = new(new ProductHeaderValue("dravus-sensor-panel"));
 
-    public async Task<(bool, List<GithubSensorPanel>)> ListPanels(RepoSearchSort sort, SortDirection direction, int page = 0) {
+    public async Task<(bool, List<GithubSensorPanel>)> ListPanels(
+        RepoSearchSort sort,
+        SortDirection direction,
+        int page = 0) {
         int perPage = 20;
 
         var search = new SearchRepositoriesRequest("topic:dravus-sensor-panel") {
@@ -26,8 +29,9 @@ public class GithubService {
 
         int totalPages = ( int ) Math.Ceiling(result.TotalCount / ( double ) perPage);
         bool hasNextPage = page + 1 < totalPages;
-        List<GithubSensorPanel>? items = result.Items.Select(item => new GithubSensorPanel() {
-                                                   Name = item.Name, Description = item.Description, Url = item.HtmlUrl, Stars = item.StargazersCount,
+        List<GithubSensorPanel>? items = result.Items.Select(item => new GithubSensorPanel {
+                                                   Name = item.Name, Description = item.Description, Url = item.HtmlUrl,
+                                                   Stars = item.StargazersCount,
                                                    UpdatedAt = item.UpdatedAt, Author = item.Owner.Login,
                                                })
                                                .ToList();

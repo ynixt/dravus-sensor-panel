@@ -596,8 +596,11 @@ public partial class MainWindow : WindowViewModel {
 
     private void AddToCanvas(PanelItem item) {
         var panel = new Grid {
-            ColumnDefinitions = new ColumnDefinitions
-                { new[] { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } } }
+            ColumnDefinitions = new ColumnDefinitions {
+                new[] {
+                    new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto },
+                },
+            },
         };
         Control? control = null;
 

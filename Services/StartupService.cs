@@ -1,15 +1,15 @@
-﻿namespace DravusSensorPanel.Services;
-
-using System;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
 using Microsoft.Win32;
 
+namespace DravusSensorPanel.Services;
+
 /// <summary>
-/// Service to manage the automatic startup of the application in the operating system.
-/// Supports Windows (Registry), Linux (XDG .desktop) and macOS (LaunchAgents).
+///     Service to manage the automatic startup of the application in the operating system.
+///     Supports Windows (Registry), Linux (XDG .desktop) and macOS (LaunchAgents).
 /// </summary>
 public class StartupService {
     private static readonly string AppName = Assembly.GetEntryAssembly()?
@@ -19,48 +19,61 @@ public class StartupService {
 
     private static readonly string ExecutablePath = GetExecutablePath();
 
-    private static string GetExecutablePath()
-    {
+    private static string GetExecutablePath() {
         string? path = Environment.ProcessPath;
 
         return !string.IsNullOrEmpty(path) ? path : Process.GetCurrentProcess().MainModule!.FileName!;
     }
 
     public void Enable() {
-        if ( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) )
+        if ( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ) {
             EnableWindows();
-        else if ( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) )
+        }
+        else if ( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ) {
             EnableLinux();
-        else if ( RuntimeInformation.IsOSPlatform(OSPlatform.OSX) )
+        }
+        else if ( RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ) {
             EnableMac();
-        else
+        }
+        else {
             throw new PlatformNotSupportedException("Platform not supported for StartupService.");
+        }
     }
 
     /// <summary>
-    /// Desabilita a inicialização automática.
+    ///     Desabilita a inicialização automática.
     /// </summary>
     public void Disable() {
-        if ( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) )
+        if ( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ) {
             DisableWindows();
-        else if ( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) )
+        }
+        else if ( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ) {
             DisableLinux();
-        else if ( RuntimeInformation.IsOSPlatform(OSPlatform.OSX) )
+        }
+        else if ( RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ) {
             DisableMac();
-        else
+        }
+        else {
             throw new PlatformNotSupportedException("Platform not supported for StartupService.");
+        }
     }
 
     /// <summary>
-    /// Retorna se a inicialização automática está habilitada.
+    ///     Retorna se a inicialização automática está habilitada.
     /// </summary>
     public bool IsEnabled() {
-        if ( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) )
+        if ( RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ) {
             return IsEnabledWindows();
-        if ( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) )
+        }
+
+        if ( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ) {
             return IsEnabledLinux();
-        if ( RuntimeInformation.IsOSPlatform(OSPlatform.OSX) )
+        }
+
+        if ( RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ) {
             return IsEnabledMac();
+        }
+
         throw new PlatformNotSupportedException("Platform not supported for StartupService.");
     }
 
@@ -69,17 +82,17 @@ public class StartupService {
     private const string RegistryRunPath = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
     private void EnableWindows() {
-        using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, writable: true);
+        using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, true);
         key.SetValue(AppName, $"\"{ExecutablePath}\"");
     }
 
     private void DisableWindows() {
-        using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, writable: true);
-        key.DeleteValue(AppName, throwOnMissingValue: false);
+        using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, true);
+        key.DeleteValue(AppName, false);
     }
 
     private bool IsEnabledWindows() {
-        using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, writable: false);
+        using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RegistryRunPath, false);
         return key.GetValue(AppName) != null;
     }
 
@@ -112,8 +125,9 @@ public class StartupService {
 
     private void DisableLinux() {
         string path = GetDesktopFilePath();
-        if ( File.Exists(path) )
+        if ( File.Exists(path) ) {
             File.Delete(path);
+        }
     }
 
     private bool IsEnabledLinux() {
@@ -155,8 +169,9 @@ public class StartupService {
 
     private void DisableMac() {
         string path = GetPlistPath();
-        if ( File.Exists(path) )
+        if ( File.Exists(path) ) {
             File.Delete(path);
+        }
     }
 
     private bool IsEnabledMac() {

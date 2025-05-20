@@ -28,12 +28,14 @@ public abstract class InfoExtractor : IDisposable {
     public abstract string SourceName { get; }
 
     public InfoExtractor(SensorRepository sensorRepository) {
-        this.SensorRepository = sensorRepository;
+        SensorRepository = sensorRepository;
     }
 
     private static void ClearDataOfAllNotUsedSensors() {
-        IEnumerable<Sensor>? allSensorsNotInUse = App.ServiceProvider?.GetRequiredService<SensorRepository>().GetAllSensors()
-                                                     .Where(s => !s.InUse);
+        IEnumerable<Sensor>? allSensorsNotInUse = App
+                                                  .ServiceProvider?.GetRequiredService<SensorRepository>()
+                                                  .GetAllSensors()
+                                                  .Where(s => !s.InUse);
 
         if ( allSensorsNotInUse != null ) {
             foreach ( Sensor sensor in allSensorsNotInUse ) {
@@ -59,6 +61,12 @@ public abstract class InfoExtractor : IDisposable {
     }
 
     protected abstract void InternalUpdate();
-    protected bool ShouldExtract() => ByPassNoUse || GetSensors().FirstOrDefault(s => s.InUse) != null;
-    protected bool ShouldExtract(Sensor s) => ByPassNoUse || s.InUse;
+
+    protected bool ShouldExtract() {
+        return ByPassNoUse || GetSensors().FirstOrDefault(s => s.InUse) != null;
+    }
+
+    protected bool ShouldExtract(Sensor s) {
+        return ByPassNoUse || s.InUse;
+    }
 }

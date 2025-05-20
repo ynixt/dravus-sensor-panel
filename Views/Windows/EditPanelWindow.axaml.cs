@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using DravusSensorPanel.Models;
 using DravusSensorPanel.Services;
-using DravusSensorPanel.Services.InfoExtractors;
 
 namespace DravusSensorPanel.Views.Windows;
 

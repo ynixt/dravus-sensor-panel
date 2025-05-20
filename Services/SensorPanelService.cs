@@ -14,7 +14,7 @@ namespace DravusSensorPanel.Services;
 
 public class SensorPanelService {
     private SensorPanel? _sensorPanel;
-    private StartupService? _startupService;
+    private readonly StartupService? _startupService;
 
     public SensorPanel SensorPanel {
         get => _sensorPanel!;
