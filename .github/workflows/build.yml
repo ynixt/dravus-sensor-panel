@@ -25,6 +25,7 @@ jobs:
         run: dotnet restore
 
       - name: Publish self-contained win-x64
+        shell: bash
         run: |
           dotnet publish DravusSensorPanel.csproj \
             -c Release \
