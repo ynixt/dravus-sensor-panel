@@ -1,0 +1,82 @@
+name: Build & Publish DravusSensorPanel
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Self‑contained build for Windows (win‑x64)
+  # single‑file (.NET not required.)
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      - name: Publish self-contained win-x64
+        run: |
+          dotnet publish DravusSensorPanel/DravusSensorPanel.csproj \
+            -c Release \
+            -r win-x64 \
+            -p:PublishSingleFile=true \
+            -p:SelfContained=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -o ./publish/win-x64
+
+      - name: Compress artifact (zip)
+        run: Compress-Archive -Path ./publish/win-x64/* -DestinationPath DravusSensorPanel_win-x64.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DravusSensorPanel_win-x64
+          path: DravusSensorPanel_win-x64.zip
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Framework‑dependent portable build
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-portable:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      - name: Publish portable (framework-dependent)
+        run: |
+          dotnet publish DravusSensorPanel/DravusSensorPanel.csproj \
+            -c Release \
+            -f net8.0 \
+            -p:PublishSingleFile=false \
+            -o ./publish/portable
+
+      - name: Package portable build (tar.gz)
+        run: |
+          cd publish
+          tar -czf ../DravusSensorPanel_portable.tar.gz portable
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DravusSensorPanel_portable
+          path: DravusSensorPanel_portable.tar.gz
+          retention-days: 30
