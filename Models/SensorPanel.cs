@@ -17,6 +17,7 @@ public class SensorPanel : SuperReactiveObject {
     private int _width = 400;
     private int _height = 400;
     private bool _hideBar;
+    private bool _startWithSystem;
     private bool _maximized;
     private int _displayIndex;
     private Screen _display;
@@ -50,6 +51,11 @@ public class SensorPanel : SuperReactiveObject {
         set => SetField(ref _hideBar, value);
     }
 
+    public bool StartWithSystem {
+        get => _startWithSystem;
+        set => SetField(ref _startWithSystem, value);
+    }
+
     public bool Maximized {
         get => _maximized;
         set => SetField(ref _maximized, value);
@@ -79,13 +85,14 @@ public class SensorPanel : SuperReactiveObject {
             Items = Items.Select(item => item.ToDto()).ToList(), X = X, Y = Y, Width = Width, Height = Height,
             HideBar = HideBar,
             Maximized = Maximized, DisplayIndex = window.Screens.All.IndexOf(Display), Background = Background,
+            StartWithSystem = StartWithSystem,
         };
     }
 
     public SensorPanel Clone() {
         return new SensorPanel {
             Items = Items, X = X, Y = Y, Width = Width, Height = Height, HideBar = HideBar, Maximized = Maximized,
-            Display = Display, Background = Background,
+            Display = Display, Background = Background, StartWithSystem = StartWithSystem,
         };
     }
 
@@ -98,6 +105,7 @@ public class SensorPanel : SuperReactiveObject {
         HideBar = sensorPanel.HideBar;
         Maximized = sensorPanel.Maximized;
         Background = sensorPanel.Background;
+        StartWithSystem = sensorPanel.StartWithSystem;
 
         if ( includeItems ) {
             Items.Clear();

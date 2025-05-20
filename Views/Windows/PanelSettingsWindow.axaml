@@ -97,6 +97,17 @@
                     Grid.Column="1"
                     IsChecked="{Binding SensorPanel.HideBar,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
 
+                <TextBlock
+                    Grid.Row="3"
+                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Start with System
+                </TextBlock>
+                <CheckBox
+                    Grid.Row="3"
+                    Grid.Column="3"
+                    IsChecked="{Binding SensorPanel.StartWithSystem,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+
+
             </Grid>
 
             <StackPanel

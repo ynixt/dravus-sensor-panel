@@ -15,6 +15,7 @@ public class SensorPanelDto {
     public int Width { get; set; }
     public int Height { get; set; }
     public bool HideBar { get; set; }
+    public bool StartWithSystem { get; set; } = false;
     public bool Maximized { get; set; }
     public int DisplayIndex { get; set; }
     public Color Background { get; set; }
@@ -35,7 +36,7 @@ public class SensorPanelDto {
 
         var sensorPanel = new SensorPanel {
             X = X, Y = Y, Width = Width, Height = Height, HideBar = HideBar, Maximized = Maximized, Display = display,
-            Background = Background,
+            Background = Background, StartWithSystem = StartWithSystem,
         };
 
         sensorPanel.Items.AddRange(Items.Select(item => item.ToModel()).OrderBy(s => s.Sort));

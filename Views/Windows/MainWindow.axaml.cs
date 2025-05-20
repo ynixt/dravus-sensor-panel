@@ -9,7 +9,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
@@ -39,6 +38,7 @@ public partial class MainWindow : WindowViewModel {
     private readonly Dictionary<string, Border> _controlsById = new();
     private readonly SensorPanelService? _sensorPanelService;
     private readonly List<Border> _selectedControls = [];
+    private readonly StartupService? _startupService;
 
     private Window? _editWindowOpen;
     private IDisposable? _subscriptionDisposable;
@@ -49,7 +49,7 @@ public partial class MainWindow : WindowViewModel {
     private PanelItem? SelectedItem;
 
     // Empty constructor to preview works on IDE
-    public MainWindow() : this(null, null, null, null, null, null) {
+    public MainWindow() : this(null, null, null, null, null, null, null) {
     }
 
     public MainWindow(
@@ -58,7 +58,8 @@ public partial class MainWindow : WindowViewModel {
         IEnumerable<InfoExtractor>? infoExtractors,
         Func<PanelItem?, PanelItemFormWindow>? panelItemFormWindowFactory,
         UtilService? utilService,
-        Func<AboutWindow>? aboutWindowFactory) {
+        Func<AboutWindow>? aboutWindowFactory,
+        StartupService? startupService) {
         DataContext = this;
 
         InitializeComponent();
@@ -69,6 +70,7 @@ public partial class MainWindow : WindowViewModel {
         _panelItemFormWindowFactory = panelItemFormWindowFactory;
         _utilService = utilService;
         _aboutWindowFactory = aboutWindowFactory;
+        _startupService = startupService;
 
         Closed += OnWindowClosed;
         KeyDown += OnKeyDown;
@@ -132,6 +134,16 @@ public partial class MainWindow : WindowViewModel {
             sensorPanel.WhenAnyValue(sp => sp.HideBar)
                        .ObserveOn(RxApp.MainThreadScheduler)
                        .Subscribe(ChangeBar),
+            sensorPanel.WhenAnyValue(sp => sp.StartWithSystem)
+                       .ObserveOn(RxApp.MainThreadScheduler)
+                       .Subscribe(startWithSystem => {
+                           if ( startWithSystem ) {
+                               _startupService?.Enable();
+                           }
+                           else {
+                               _startupService?.Disable();
+                           }
+                       }),
             Observable.FromEventPattern<EventHandler<SizeChangedEventArgs>, SizeChangedEventArgs>(
                           h => SizeChanged += h,
                           h => SizeChanged -= h

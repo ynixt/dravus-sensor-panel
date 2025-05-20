@@ -101,7 +101,7 @@ public class SystemExtractor : InfoExtractor {
         if ( !ShouldExtract(sensor) ) return;
 
         var enumerator = new MMDeviceEnumerator();
-        var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+        MMDevice? device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
         float volume = device.AudioEndpointVolume.MasterVolumeLevelScalar;
 
         if ( device.AudioEndpointVolume.Mute ) {

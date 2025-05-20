@@ -30,6 +30,7 @@ public static class Startup {
         services.AddSingleton<UtilService>();
         services.AddSingleton<SensorPanelImportService>();
         services.AddSingleton<GithubService>();
+        services.AddSingleton<StartupService>();
 
         services.AddSingleton<InfoExtractor, LibreHardwareExtractor>();
         services.AddTransient<InfoExtractor, RtssHardwareExtractor>();

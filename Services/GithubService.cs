@@ -22,15 +22,15 @@ public class GithubService {
         };
 
 
-        var result = await _client.Search.SearchRepo(search);
+        SearchRepositoryResult? result = await _client.Search.SearchRepo(search);
 
         int totalPages = ( int ) Math.Ceiling(result.TotalCount / ( double ) perPage);
         bool hasNextPage = page + 1 < totalPages;
-        var items = result.Items.Select(item => new GithubSensorPanel() {
-                              Name = item.Name, Description = item.Description, Url = item.HtmlUrl, Stars = item.StargazersCount,
-                              UpdatedAt = item.UpdatedAt, Author = item.Owner.Login,
-                          })
-                          .ToList();
+        List<GithubSensorPanel>? items = result.Items.Select(item => new GithubSensorPanel() {
+                                                   Name = item.Name, Description = item.Description, Url = item.HtmlUrl, Stars = item.StargazersCount,
+                                                   UpdatedAt = item.UpdatedAt, Author = item.Owner.Login,
+                                               })
+                                               .ToList();
 
         return ( hasNextPage, items );
     }
@@ -46,7 +46,7 @@ public class GithubService {
     }
 
     public async Task<string?> DownloadSensorPanel(GithubSensorPanel item) {
-        var contentBytes = await _client.Repository.Content.GetRawContent(item.Author, item.Name, "panel.dravus");
+        byte[]? contentBytes = await _client.Repository.Content.GetRawContent(item.Author, item.Name, "panel.dravus");
 
         if ( contentBytes == null ) {
             return null;

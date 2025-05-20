@@ -14,6 +14,7 @@ namespace DravusSensorPanel.Services;
 
 public class SensorPanelService {
     private SensorPanel? _sensorPanel;
+    private StartupService? _startupService;
 
     public SensorPanel SensorPanel {
         get => _sensorPanel!;
@@ -23,8 +24,9 @@ public class SensorPanelService {
 
     private readonly SensorPanelFileService _sensorPanelFileService;
 
-    public SensorPanelService(SensorPanelFileService sensorPanelFileService) {
+    public SensorPanelService(SensorPanelFileService sensorPanelFileService, StartupService? startupService) {
         _sensorPanelFileService = sensorPanelFileService;
+        _startupService = startupService;
     }
 
     public PanelItem? GetItemById(string id) {
@@ -53,6 +55,8 @@ public class SensorPanelService {
         }
 
         NormaliseSort();
+
+        SensorPanel.StartWithSystem = _startupService?.IsEnabled() ?? false;
     }
 
     public void ChangeSensorPanelXY(int x, int y) {
