@@ -22,7 +22,6 @@ Welcome to the **open source** solution to build amazing Sensor Panels!
 ## Not supported yet :weary:
 
 - Gauge (Coming soon :clock10:)
-- Start the app with the system (Coming soon :clock10:)
 - Linux/MacOS (Theoretically, it works, but I haven't had the opportunity to test it yet.)
 
 ## Download
