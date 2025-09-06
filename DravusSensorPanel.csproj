@@ -12,6 +12,10 @@
         <ApplicationIcon>Assets\\app-logo.ico</ApplicationIcon>
         <PublishTrimmed Condition="'$(RuntimeIdentifier)' == 'linux-x64' Or '$(RuntimeIdentifier)' == 'linux-musl-x64'">false</PublishTrimmed>
         <IncludeAllContentForSelfExtract Condition="'$(RuntimeIdentifier)' == 'linux-x64' Or '$(RuntimeIdentifier)' == 'linux-musl-x64'">true</IncludeAllContentForSelfExtract>
+
+        <PropertyGroup Condition="'$(OS)' == 'Windows_NT' Or '$(RuntimeIdentifier)' == 'win-x64' Or '$(RuntimeIdentifier)' == 'win-arm64'">
+          <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+        </PropertyGroup>
     </PropertyGroup>
 
     <ItemGroup>
@@ -38,7 +42,6 @@
         <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
-        <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
         <PackageReference Include="TaskScheduler" Version="2.12.1" />
@@ -52,6 +55,10 @@
 
     <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
       <Compile Remove="Services\InfoExtractors\RtssHardwareExtractor.cs" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(OS)' == 'Windows_NT' Or '$(RuntimeIdentifier)' == 'win-x64' Or '$(RuntimeIdentifier)' == 'win-arm64'">
+      <PackageReference Include="NAudio" Version="2.2.1" />
     </ItemGroup>
 
     <ItemGroup>
