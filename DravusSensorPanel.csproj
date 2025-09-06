@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <Version>0.0.2</Version>
+        <Version>0.0.3</Version>
         <Product>Dravus Sensor Panel</Product>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
@@ -10,6 +10,7 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationIcon>Assets\\app-logo.ico</ApplicationIcon>
+        <PublishTrimmed Condition="'$(RuntimeIdentifier)' == 'linux-x64' Or '$(RuntimeIdentifier)' == 'linux-musl-x64'">false</PublishTrimmed>
     </PropertyGroup>
 
     <ItemGroup>
@@ -42,6 +43,10 @@
         <PackageReference Include="TaskScheduler" Version="2.12.1" />
         <PackageReference Include="UnitsNet" Version="5.74.0" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
+
+        <ItemGroup Condition="$(RuntimeIdentifier.Contains('linux'))">
+          <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
+        </ItemGroup>
     </ItemGroup>
 
     <ItemGroup>
