@@ -43,10 +43,10 @@
         <PackageReference Include="TaskScheduler" Version="2.12.1" />
         <PackageReference Include="UnitsNet" Version="5.74.0" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
+    </ItemGroup>
 
-        <ItemGroup Condition="$(RuntimeIdentifier.Contains('linux'))">
-          <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
-        </ItemGroup>
+    <ItemGroup Condition="$(RuntimeIdentifier.Contains('linux'))">
+      <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
     </ItemGroup>
 
     <ItemGroup>
