@@ -73,3 +73,49 @@ jobs:
           name: DravusSensorPanel_portable
           path: ./publish/portable
           retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Linux self-contained
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rid: [linux-x64, linux-musl-x64]  # glibc e musl
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install musl tools (only for musl)
+        if: matrix.rid == 'linux-musl-x64'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Publish self-contained ${{ matrix.rid }}
+        run: |
+          dotnet publish DravusSensorPanel.csproj \
+            -c Release \
+            -r ${{ matrix.rid }} \
+            -p:PublishSingleFile=true \
+            -p:SelfContained=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -p:PublishTrimmed=true \
+            -p:StripSymbols=true \
+            -p:DebugType=none \
+            -o ./publish/${{ matrix.rid }}
+
+      - name: Upload artifact (${{ matrix.rid }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: DravusSensorPanel_${{ matrix.rid }}
+          path: ./publish/${{ matrix.rid }}
+          retention-days: 30
+
+    
