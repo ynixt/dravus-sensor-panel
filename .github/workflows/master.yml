@@ -106,9 +106,6 @@ jobs:
             -p:PublishSingleFile=true \
             -p:SelfContained=true \
             -p:IncludeNativeLibrariesForSelfExtract=true \
-            -p:PublishTrimmed=true \
-            -p:StripSymbols=true \
-            -p:DebugType=none \
             -o ./publish/${{ matrix.rid }}
 
       - name: Upload artifact (${{ matrix.rid }})
