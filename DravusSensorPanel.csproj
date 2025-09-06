@@ -12,10 +12,10 @@
         <ApplicationIcon>Assets\\app-logo.ico</ApplicationIcon>
         <PublishTrimmed Condition="'$(RuntimeIdentifier)' == 'linux-x64' Or '$(RuntimeIdentifier)' == 'linux-musl-x64'">false</PublishTrimmed>
         <IncludeAllContentForSelfExtract Condition="'$(RuntimeIdentifier)' == 'linux-x64' Or '$(RuntimeIdentifier)' == 'linux-musl-x64'">true</IncludeAllContentForSelfExtract>
+    </PropertyGroup>
 
-        <PropertyGroup Condition="'$(OS)' == 'Windows_NT' Or '$(RuntimeIdentifier)' == 'win-x64' Or '$(RuntimeIdentifier)' == 'win-arm64'">
-          <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
-        </PropertyGroup>
+    <PropertyGroup Condition="'$(OS)' == 'Windows_NT' Or '$(RuntimeIdentifier)' == 'win-x64' Or '$(RuntimeIdentifier)' == 'win-arm64'">
+      <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
