@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using DravusSensorPanel.Models.Sensors;
 using DravusSensorPanel.Models.Units;
 using DravusSensorPanel.Repositories;
+using LibreHardwareMonitor.Hardware;
 using UnitsNet.Units;
 
 #if WINDOWS
@@ -199,10 +200,8 @@ public class SystemExtractor : InfoExtractor {
 
     private static int Clamp0To100(int v) => v < 0 ? 0 : (v > 100 ? 100 : v);
 
-    private static string? RunShell(string fileName, string args, int timeoutMs = 700)
-    {
-        try
-        {
+    private static string? RunShell(string fileName, params string[] args) {
+        try {
             var psi = new ProcessStartInfo
             {
                 FileName = fileName,
@@ -210,21 +209,20 @@ public class SystemExtractor : InfoExtractor {
                 RedirectStandardError = true,
                 UseShellExecute = false
             };
-            psi.ArgumentList.AddRange(args.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+            foreach (var a in args)
+                psi.ArgumentList.Add(a);
 
             using var p = Process.Start(psi);
             if (p == null) return null;
 
-            if (!p.WaitForExit(timeoutMs))
-            {
+            if (!p.WaitForExit(800)) {
                 try { p.Kill(entireProcessTree: true); } catch { }
             }
 
-            var output = p.StandardOutput.ReadToEnd();
-            return output;
+            return p.StandardOutput.ReadToEnd();
         }
-        catch
-        {
+        catch {
             return null;
         }
     }
