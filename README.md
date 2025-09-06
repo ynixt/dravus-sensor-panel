@@ -14,7 +14,6 @@ Welcome to the **open source** solution to build amazing Sensor Panels!
 
 ## Features
 
-- Windows and Linux!
 - Much info extracted using [Libre Hardware Monitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
 - FPS extracted from [RivaTuner Statistics Server (RTSS)](https://www.guru3d.com/page/rivatuner-rtss-homepage/) (Only Windows)
 - Line charts
@@ -26,6 +25,7 @@ Welcome to the **open source** solution to build amazing Sensor Panels!
 ## Not supported yet :weary:
 
 - Gauge (Coming soon :clock10:)
+- Linux: Works, but for now there's a lot of bugs.
 - MacOS (Theoretically, it works, but I haven't had the opportunity to test it yet.)
 
 ## Download
