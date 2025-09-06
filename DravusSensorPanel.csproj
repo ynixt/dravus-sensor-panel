@@ -50,6 +50,10 @@
         <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
     </ItemGroup>
 
+    <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+      <Compile Remove="Services\InfoExtractors\RtssHardwareExtractor.cs" />
+    </ItemGroup>
+
     <ItemGroup>
       <Compile Update="Views\Windows\EditPanelWindow.axaml.cs">
         <DependentUpon>EditPanelWindow.axaml</DependentUpon>

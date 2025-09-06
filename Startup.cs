@@ -33,7 +33,12 @@ public static class Startup {
         services.AddSingleton<StartupService>();
 
         services.AddSingleton<InfoExtractor, LibreHardwareExtractor>();
-        services.AddTransient<InfoExtractor, RtssHardwareExtractor>();
+
+        if (OperatingSystem.IsWindows())
+        {
+            services.AddTransient<InfoExtractor, RtssHardwareExtractor>();
+        }
+
         services.AddTransient<InfoExtractor, SystemExtractor>();
 
         services.AddSingleton<Dictionary<string, Unit>>(_ => RtssHardwareExtractor.UnitsByName);
