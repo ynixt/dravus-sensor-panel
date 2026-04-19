@@ -66,13 +66,13 @@ public class SensorPanelService {
         SensorPanel.X = Math.Clamp(
             x,
             0,
-            SensorPanel.Display.WorkingArea.Width - panelW
+            Math.Max(SensorPanel.Display.WorkingArea.Width - panelW, 0)
         );
 
         SensorPanel.Y = Math.Clamp(
             y,
             0,
-            SensorPanel.Display.WorkingArea.Height - panelH
+            Math.Max(SensorPanel.Display.WorkingArea.Height - panelH, 0)
         );
     }
 

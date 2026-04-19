@@ -46,6 +46,7 @@ public partial class MainWindow : WindowViewModel {
     private PanelItem? _itemDragging;
     private Point? _lastMousePosition;
     private bool _dontCloseApp;
+    private bool _isUpdatingPanelFromWindow;
     private PanelItem? SelectedItem;
 
     // Empty constructor to preview works on IDE
@@ -108,7 +109,7 @@ public partial class MainWindow : WindowViewModel {
         Width = sensorPanel.Width;
         Height = sensorPanel.Height;
         ApplyPanelPosition(sensorPanel, sensorPanel.X, sensorPanel.Y);
-        WindowState = sensorPanel.Maximized ? WindowState.Maximized : WindowState.Normal;
+        ApplyPanelWindowState(sensorPanel, sensorPanel.Maximized);
         ChangeBar(sensorPanel.HideBar);
         Background = sensorPanel.BackgroundBrush;
 
@@ -124,13 +125,28 @@ public partial class MainWindow : WindowViewModel {
                        .Subscribe(newHeight => { Height = newHeight; }),
             sensorPanel.WhenAnyValue(sp => sp.X)
                        .ObserveOn(RxApp.MainThreadScheduler)
-                       .Subscribe(newX => { ApplyPanelPosition(sensorPanel, newX, sensorPanel.Y); }),
+                       .Subscribe(newX => {
+                           if ( _isUpdatingPanelFromWindow || WindowState == WindowState.Maximized ) return;
+
+                           ApplyPanelPosition(sensorPanel, newX, sensorPanel.Y);
+                       }),
             sensorPanel.WhenAnyValue(sp => sp.Y)
                        .ObserveOn(RxApp.MainThreadScheduler)
-                       .Subscribe(newY => { ApplyPanelPosition(sensorPanel, sensorPanel.X, newY); }),
+                       .Subscribe(newY => {
+                           if ( _isUpdatingPanelFromWindow || WindowState == WindowState.Maximized ) return;
+
+                           ApplyPanelPosition(sensorPanel, sensorPanel.X, newY);
+                       }),
             sensorPanel.WhenAnyValue(sp => sp.Display)
                        .ObserveOn(RxApp.MainThreadScheduler)
-                       .Subscribe(newY => { ApplyPanelPosition(sensorPanel, sensorPanel.X, sensorPanel.Y); }),
+                       .Subscribe(_ => {
+                           if ( _isUpdatingPanelFromWindow ) return;
+
+                           MoveWindowToPanelDisplay(sensorPanel);
+                       }),
+            sensorPanel.WhenAnyValue(sp => sp.Maximized)
+                       .ObserveOn(RxApp.MainThreadScheduler)
+                       .Subscribe(isMaximized => { ApplyPanelWindowState(sensorPanel, isMaximized); }),
             sensorPanel.WhenAnyValue(sp => sp.HideBar)
                        .ObserveOn(RxApp.MainThreadScheduler)
                        .Subscribe(ChangeBar),
@@ -161,22 +177,78 @@ public partial class MainWindow : WindowViewModel {
                       .Select(e => e.EventArgs)
                       .Subscribe(OnMainWindowPositionChange),
             this.GetObservable(WindowStateProperty)
-                .Throttle(TimeSpan.FromMilliseconds(throttleSeconds))
+                .DistinctUntilChanged()
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(OnMainWindowStateChanged),
         ];
     }
 
     private void ChangeBar(bool shouldHide) {
-        ExtendClientAreaToDecorationsHint = shouldHide;
-        ExtendClientAreaChromeHints =
-            shouldHide ? ExtendClientAreaChromeHints.NoChrome : ExtendClientAreaChromeHints.Default;
+        // ExtendClientAreaToDecorationsHint = shouldHide;
+        // ExtendClientAreaChromeHints =
+        //     shouldHide ? ExtendClientAreaChromeHints.NoChrome : ExtendClientAreaChromeHints.Default;
+        SystemDecorations = shouldHide ? SystemDecorations.None : SystemDecorations.Full;
     }
 
     private void ApplyPanelPosition(SensorPanel sensorPanel, int x, int y) {
+        Position = GetPanelPosition(sensorPanel, x, y);
+    }
+
+    private void ApplyPanelWindowState(SensorPanel sensorPanel, bool isMaximized) {
+        if ( isMaximized ) {
+            if ( WindowState == WindowState.Maximized ) {
+                MoveWindowToPanelDisplay(sensorPanel);
+                return;
+            }
+
+            Position = GetPanelPosition(sensorPanel, sensorPanel.X, sensorPanel.Y);
+            WindowState = WindowState.Maximized;
+            return;
+        }
+
+        if ( WindowState == WindowState.Maximized ) {
+            WindowState = WindowState.Normal;
+        }
+    }
+
+    private void MoveWindowToPanelDisplay(SensorPanel sensorPanel) {
+        PixelPoint targetPosition = GetPanelPosition(sensorPanel, sensorPanel.X, sensorPanel.Y);
+
+        if ( WindowState != WindowState.Maximized ) {
+            Position = targetPosition;
+            return;
+        }
+
+        Screen currentDisplay = GetWindowDisplay(sensorPanel.Display);
+        if ( AreDisplaysEquivalent(currentDisplay, sensorPanel.Display) ) return;
+
+        WindowState = WindowState.Normal;
+        Position = targetPosition;
+        WindowState = WindowState.Maximized;
+    }
+
+    private PixelPoint GetPanelPosition(SensorPanel sensorPanel, int x, int y) {
         PixelRect workingArea = sensorPanel.Display.WorkingArea;
 
-        Position = new PixelPoint(workingArea.TopLeft.X + x, workingArea.TopLeft.Y + y);
+        return new PixelPoint(workingArea.TopLeft.X + x, workingArea.TopLeft.Y + y);
+    }
+
+    private Screen GetWindowDisplay(Screen fallbackDisplay, PixelPoint? position = null) {
+        if ( position.HasValue ) {
+            return Screens.ScreenFromPoint(position.Value)
+                ?? Screens.ScreenFromWindow(this)
+                ?? fallbackDisplay;
+        }
+
+        return Screens.ScreenFromWindow(this)
+            ?? Screens.ScreenFromPoint(Position)
+            ?? fallbackDisplay;
+    }
+
+    private static bool AreDisplaysEquivalent(Screen? left, Screen? right) {
+        if ( left == null || right == null ) return false;
+
+        return left.Bounds == right.Bounds && left.WorkingArea == right.WorkingArea;
     }
 
     private void TrackSensorsValue() {
@@ -222,9 +294,14 @@ public partial class MainWindow : WindowViewModel {
 
     private void OnMainWindowStateChanged(WindowState windowState) {
         if ( _sensorPanelService != null ) {
-            bool isMaximized = WindowState == WindowState.Maximized;
-            if ( _sensorPanelService.SensorPanel.Maximized != isMaximized ) {
-                _sensorPanelService.SensorPanel.Maximized = isMaximized;
+            SensorPanel sensorPanel = _sensorPanelService.SensorPanel;
+            bool isMaximized = windowState == WindowState.Maximized;
+            if ( isMaximized ) {
+                MoveWindowToPanelDisplay(sensorPanel);
+            }
+
+            if ( sensorPanel.Maximized != isMaximized ) {
+                sensorPanel.Maximized = isMaximized;
 
                 _sensorPanelService.SavePanel();
             }
@@ -232,48 +309,43 @@ public partial class MainWindow : WindowViewModel {
     }
 
     private void OnMainWindowPositionChange(PixelPointEventArgs e) {
-        if ( _sensorPanelService != null ) {
-            bool changed = false;
-            SensorPanel? sensorPanel = _sensorPanelService.SensorPanel;
+        if ( _sensorPanelService == null || WindowState == WindowState.Maximized ) return;
 
-            PixelRect workingArea = sensorPanel.Display.WorkingArea;
-            int x = e.Point.X - workingArea.TopLeft.X;
-            int y = e.Point.Y - workingArea.TopLeft.Y;
+        bool changed = false;
+        SensorPanel sensorPanel = _sensorPanelService.SensorPanel;
+        Screen currentDisplay = GetWindowDisplay(sensorPanel.Display, e.Point);
+        int newX = e.Point.X - currentDisplay.WorkingArea.TopLeft.X;
+        int newY = e.Point.Y - currentDisplay.WorkingArea.TopLeft.Y;
+        PixelPoint targetPosition = e.Point;
 
-            if ( sensorPanel.X != x ) {
-                sensorPanel.X = x;
+        _isUpdatingPanelFromWindow = true;
+        try {
+            if ( !AreDisplaysEquivalent(sensorPanel.Display, currentDisplay) ) {
+                sensorPanel.Display = currentDisplay;
                 changed = true;
             }
 
-            if ( sensorPanel.Y != y ) {
-                sensorPanel.Y = y;
+            int previousX = sensorPanel.X;
+            int previousY = sensorPanel.Y;
+
+            _sensorPanelService.ChangeSensorPanelXY(newX, newY);
+
+            if ( sensorPanel.X != previousX || sensorPanel.Y != previousY ) {
                 changed = true;
             }
 
-            // TODO: improve this. Currently has a weird behaviour when changing the screen using mouse drag.
-            if ( x < 0 || x >= sensorPanel.Display.Bounds.Width ||
-                 y >= _sensorPanelService.SensorPanel.Display.Bounds.Height ) {
-                int displayIndex = Screens.All.IndexOf(sensorPanel.Display);
+            targetPosition = GetPanelPosition(sensorPanel, sensorPanel.X, sensorPanel.Y);
+        }
+        finally {
+            _isUpdatingPanelFromWindow = false;
+        }
 
-                if ( x < 0 ) {
-                    if ( displayIndex >= 1 ) {
-                        sensorPanel.Display = Screens.All[displayIndex - 1];
-                    }
-                }
-                else {
-                    Screen? correctDisplay =
-                        Screens.All.FirstOrDefault(s => x >= s.Bounds.TopLeft.X && x < s.Bounds.TopRight.X);
-                    if ( correctDisplay != null ) {
-                        sensorPanel.Display = correctDisplay;
-                    }
-                }
+        if ( targetPosition != e.Point ) {
+            ApplyPanelPosition(sensorPanel, sensorPanel.X, sensorPanel.Y);
+        }
 
-                _sensorPanelService.ChangeSensorPanelXY(0, 0);
-            }
-
-            if ( changed ) {
-                _sensorPanelService.SavePanel();
-            }
+        if ( changed ) {
+            _sensorPanelService.SavePanel();
         }
     }
 
