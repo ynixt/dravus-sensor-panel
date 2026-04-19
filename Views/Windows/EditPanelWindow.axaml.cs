@@ -77,19 +77,14 @@ public partial class EditPanelWindow : WindowViewModel {
     public async void OpenModifyItemDialog() {
         if ( _panelItemFormWindowFactory != null && SelectedItem != null ) {
             PanelItem originalItem = SelectedItem;
-            PanelItem clone = SelectedItem.Clone();
-            PanelItemFormWindow window = _panelItemFormWindowFactory(originalItem);
+            PanelItem editableItem = SelectedItem.Clone();
+            PanelItemFormWindow window = _panelItemFormWindowFactory(editableItem);
 
             var item = await window.ShowDialog<PanelItem?>(this);
 
             if ( item != null ) {
-                _sensorPanelService?.EditItem(item, clone);
-            }
-            else {
-                _sensorPanelService?.RemoveItem(originalItem, false, false);
-                _sensorPanelService?.AddNewItem(clone, false);
-                _sensorPanelService?.SortItems();
-                SelectedItem = clone;
+                _sensorPanelService?.EditItem(item, originalItem);
+                SelectedItem = item;
             }
         }
     }

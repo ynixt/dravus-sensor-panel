@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,15 +14,15 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <DataGrid
-            Grid.Row="0"
-            Margin="0, 10"
-            ItemsSource="{Binding Sensors,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-            SelectedItem="{Binding SelectedSensor, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-            AutoGenerateColumns="False"
-            GridLinesVisibility="All"
-            IsReadOnly="True"
-            BorderThickness="1" BorderBrush="Gray">
+        <DataGrid Grid.Row="0"
+                  Margin="0, 10"
+                  ItemsSource="{Binding Sensors,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                  SelectedItem="{Binding SelectedSensor, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                  AutoGenerateColumns="False"
+                  GridLinesVisibility="All"
+                  IsReadOnly="True"
+                  BorderThickness="1"
+                  BorderBrush="Gray">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="250" />
                 <DataGridTextColumn Header="Hardware" Binding="{Binding Hardware}" Width="*" />
@@ -35,10 +35,10 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <StackPanel
-            Margin="0, 10"
-            Grid.Row="1"
-            Orientation="Vertical" Spacing="30">
+        <StackPanel Grid.Row="1"
+                    Margin="0, 10"
+                    Orientation="Vertical"
+                    Spacing="30">
 
             <Grid ColumnSpacing="20" RowSpacing="8">
                 <Grid.RowDefinitions>
@@ -62,135 +62,148 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Description
                 </TextBlock>
+                <TextBox Grid.Row="0"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="7"
+                         Text="{Binding PanelItem.Description,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-                <TextBox
-                    Grid.ColumnSpan="7"
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    Text="{Binding PanelItem.Description,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
-
-                <!-- Tipo do gráfico -->
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
+                    Transparency
+                </TextBlock>
+                <NumericUpDown Grid.Row="1"
+                               Grid.Column="1"
+                               Increment="1"
+                               Minimum="0"
+                               Maximum="100"
+                               Value="{Binding PanelItem.Transparency, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
                 <TextBlock Grid.Row="2"
-                           Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     X
                 </TextBlock>
-
-
                 <NumericUpDown Grid.Row="2"
-                               Grid.Column="1" Increment="1"
+                               Grid.Column="1"
+                               Increment="1"
                                Value="{Binding PanelItem.X, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-
                 <TextBlock Grid.Row="2"
-                           Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Y
                 </TextBlock>
                 <NumericUpDown Grid.Row="2"
-                               Grid.Column="3" Increment="1"
+                               Grid.Column="3"
+                               Increment="1"
                                Value="{Binding PanelItem.Y, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
                 <TextBlock Grid.Row="2"
-                           Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                           Grid.Column="4"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Z
                 </TextBlock>
-
-
                 <NumericUpDown Grid.Row="2"
-                               Grid.Column="5" Increment="1"
+                               Grid.Column="5"
+                               Increment="1"
                                Maximum="9999998"
-                               Value="{Binding PanelItem.ZIndex, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                               Value="{Binding PanelItem.ZIndex, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-
-                <TextBlock
-                    Grid.Row="3"
-                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Width
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="3"
-                    Grid.Column="1" Increment="1" Minimum="1"
-                    Value="{Binding PanelItem.Width, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <NumericUpDown Grid.Row="3"
+                               Grid.Column="1"
+                               Increment="1"
+                               Minimum="1"
+                               Value="{Binding PanelItem.Width, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-                <TextBlock
-                    Grid.Row="3"
-                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="3"
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Height
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="3"
-                    Grid.Column="3" Increment="1" Minimum="1"
-                    Value="{Binding PanelItem.Height, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <NumericUpDown Grid.Row="3"
+                               Grid.Column="3"
+                               Increment="1"
+                               Minimum="1"
+                               Value="{Binding PanelItem.Height, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-                <TextBlock
-                    Grid.Row="3"
-                    Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="3"
+                           Grid.Column="4"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Stroke Color
                 </TextBlock>
-                <ColorPicker
-                    HorizontalAlignment="Left"
-                    Grid.Row="3"
-                    Grid.Column="5"
-                    Color="{Binding PanelItem.Stroke, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <ColorPicker Grid.Row="3"
+                             Grid.Column="5"
+                             HorizontalAlignment="Left"
+                             Color="{Binding PanelItem.Stroke, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-
-                <TextBlock
-                    Grid.Row="3"
-                    Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="3"
+                           Grid.Column="6"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Fill Color
                 </TextBlock>
-                <ColorPicker
-                    HorizontalAlignment="Left"
-                    Grid.Row="3"
-                    Grid.Column="7"
-                    Color="{Binding PanelItem.Fill, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <ColorPicker Grid.Row="3"
+                             Grid.Column="7"
+                             HorizontalAlignment="Left"
+                             Color="{Binding PanelItem.Fill, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-
-                <TextBlock
-                    Grid.Row="4"
-                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Decimal places
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="4"
-                    Grid.Column="1" Increment="1" Minimum="0"
-                    Value="{Binding PanelItem.NumDecimalPlaces, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <NumericUpDown Grid.Row="4"
+                               Grid.Column="1"
+                               Increment="1"
+                               Minimum="0"
+                               Value="{Binding PanelItem.NumDecimalPlaces, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-                <TextBlock
-                    Grid.Row="4"
-                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="4"
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Value type
                 </TextBlock>
-
-                <ComboBox
-                    Grid.Row="4"
-                    Grid.Column="3"
-                    HorizontalAlignment="Stretch"
-                    SelectedIndex="{Binding ValueTypeIndex, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                <ComboBox Grid.Row="4"
+                          Grid.Column="3"
+                          HorizontalAlignment="Stretch"
+                          SelectedIndex="{Binding ValueTypeIndex, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
                     <ComboBoxItem>Value</ComboBoxItem>
                     <ComboBoxItem>Min</ComboBoxItem>
                     <ComboBoxItem>Max</ComboBoxItem>
                 </ComboBox>
 
-                <TextBlock
-                    Grid.Row="4"
-                    Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="4"
+                           Grid.Column="4"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Unit
                 </TextBlock>
-
-
-                <ComboBox
-                    Grid.Row="4"
-                    Grid.Column="5"
-                    HorizontalAlignment="Stretch"
-                    SelectedValue="{Binding PanelItem.Unit, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-                    ItemsSource="{Binding PossibleUnits, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                <ComboBox Grid.Row="4"
+                          Grid.Column="5"
+                          HorizontalAlignment="Stretch"
+                          SelectedValue="{Binding PanelItem.Unit, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                          ItemsSource="{Binding PossibleUnits, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" />
@@ -198,145 +211,148 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <TextBlock
-                    Grid.Row="4"
-                    Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="4"
+                           Grid.Column="6"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Background Color
                 </TextBlock>
-                <ColorPicker
-                    HorizontalAlignment="Left"
-                    Grid.Row="4"
-                    Grid.Column="7"
-                    Color="{Binding PanelItem.Background, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <ColorPicker Grid.Row="4"
+                             Grid.Column="7"
+                             HorizontalAlignment="Left"
+                             Color="{Binding PanelItem.Background, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-
-                <TextBlock
-                    Grid.Row="5"
-                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
-                    IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
                     Y min value
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="5"
-                    Grid.Column="1" Increment="1"
-                    IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-                    Value="{Binding PanelItem.YMinValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <NumericUpDown Grid.Row="5"
+                               Grid.Column="1"
+                               Increment="1"
+                               IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                               Value="{Binding PanelItem.YMinValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-
-                <TextBlock
-                    Grid.Row="5"
-                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
-                    IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                <TextBlock Grid.Row="5"
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
                     Y max value
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="5"
-                    Grid.Column="3" Increment="1"
-                    Value="{Binding PanelItem.YMaxValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-                    IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <NumericUpDown Grid.Row="5"
+                               Grid.Column="3"
+                               Increment="1"
+                               IsVisible="{Binding IsVerticalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                               Value="{Binding PanelItem.YMaxValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-                <TextBlock
-                    Grid.Row="5"
-                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
-                    IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
                     X min value
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="5"
-                    Grid.Column="1" Increment="1"
-                    IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-                    Value="{Binding PanelItem.XMinValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <NumericUpDown Grid.Row="5"
+                               Grid.Column="1"
+                               Increment="1"
+                               IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                               Value="{Binding PanelItem.XMinValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-
-                <TextBlock
-                    Grid.Row="5"
-                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
-                    IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                <TextBlock Grid.Row="5"
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
                     X max value
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="5"
-                    Grid.Column="3" Increment="1"
-                    Value="{Binding PanelItem.XMaxValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-                    IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <NumericUpDown Grid.Row="5"
+                               Grid.Column="3"
+                               Increment="1"
+                               IsVisible="{Binding IsHorizontalChart, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                               Value="{Binding PanelItem.XMaxValue, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-
-                <TextBlock
-                    Grid.Row="5"
-                    Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="5"
+                           Grid.Column="4"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Line smoothness
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="5"
-                    Grid.Column="5" Increment="0.1" Minimum="0" Maximum="1"
-                    Value="{Binding PanelItem.LineSmoothness, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <NumericUpDown Grid.Row="5"
+                               Grid.Column="5"
+                               Increment="0.1"
+                               Minimum="0"
+                               Maximum="1"
+                               Value="{Binding PanelItem.LineSmoothness, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-                <TextBlock
-                    Grid.Row="5"
-                    Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="5"
+                           Grid.Column="6"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Min step
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="5"
-                    Grid.Column="7" Increment="1" Minimum="1" Maximum="60"
-                    Value="{Binding PanelItem.MinStep, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <NumericUpDown Grid.Row="5"
+                               Grid.Column="7"
+                               Increment="1"
+                               Minimum="1"
+                               Maximum="60"
+                               Value="{Binding PanelItem.MinStep, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-
-                <TextBlock
-                    Grid.Row="6"
-                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="6"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Chart type
                 </TextBlock>
-
-                <ComboBox
-                    Grid.Row="6"
-                    Grid.Column="1"
-                    HorizontalAlignment="Stretch"
-                    SelectedIndex="{Binding CharTypeIndex, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
+                <ComboBox Grid.Row="6"
+                          Grid.Column="1"
+                          HorizontalAlignment="Stretch"
+                          SelectedIndex="{Binding CharTypeIndex, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}">
                     <ComboBoxItem>Line</ComboBoxItem>
                     <ComboBoxItem>Bar</ComboBoxItem>
                     <ComboBoxItem>Bars</ComboBoxItem>
                 </ComboBox>
 
-                <TextBlock
-                    Grid.Row="6"
-                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="6"
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Show x axis
                 </TextBlock>
-                <CheckBox
-                    Grid.Row="6"
-                    Grid.Column="3"
-                    IsThreeState="False"
-                    IsChecked="{Binding PanelItem.ShowXAxis,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <CheckBox Grid.Row="6"
+                          Grid.Column="3"
+                          IsThreeState="False"
+                          IsChecked="{Binding PanelItem.ShowXAxis,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-                <TextBlock
-                    Grid.Row="6"
-                    Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="6"
+                           Grid.Column="4"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Show y axis
                 </TextBlock>
-                <CheckBox
-                    Grid.Row="6"
-                    Grid.Column="5"
-                    IsThreeState="False"
-                    IsChecked="{Binding PanelItem.ShowYAxis,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
+                <CheckBox Grid.Row="6"
+                          Grid.Column="5"
+                          IsThreeState="False"
+                          IsChecked="{Binding PanelItem.ShowYAxis,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
 
-                <TextBlock
-                    Grid.Row="7"
-                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="7"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Preview
                 </TextBlock>
-
-                <avalonia:CartesianChart
-                    Height="200"
-                    Grid.Row="7"
-                    Grid.Column="1"
-                    Grid.ColumnSpan="7"
-                    AnimationsSpeed="0:0:0"
-                    Background="{Binding PanelItem.BackgroundBrush, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-                    YAxes="{Binding PanelItem.YAxes, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-                    XAxes="{Binding PanelItem.XAxes, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
-                    Series="{Binding PanelItem.Series, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
-
+                <avalonia:CartesianChart Grid.Row="7"
+                                         Grid.Column="1"
+                                         Grid.ColumnSpan="7"
+                                         Height="200"
+                                         AnimationsSpeed="0:0:0"
+                                         Opacity="{Binding PanelItem.Opacity, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                                         Background="{Binding PanelItem.BackgroundBrush, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                                         YAxes="{Binding PanelItem.YAxes, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                                         XAxes="{Binding PanelItem.XAxes, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}"
+                                         Series="{Binding PanelItem.Series, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorChart}}" />
             </Grid>
         </StackPanel>
     </Grid>

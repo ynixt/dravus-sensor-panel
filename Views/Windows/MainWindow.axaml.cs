@@ -714,6 +714,7 @@ public partial class MainWindow : WindowViewModel {
             border.Bind(ZIndexProperty, new Binding(nameof(item.ZIndex)));
             border.Bind(Canvas.LeftProperty, new Binding(nameof(item.X)));
             border.Bind(Canvas.TopProperty, new Binding(nameof(item.Y)));
+            border.Bind(OpacityProperty, new Binding(nameof(item.Opacity)));
 
 
             panel.Children.Add(control);
@@ -750,7 +751,7 @@ public partial class MainWindow : WindowViewModel {
         var label = new Label { DataContext = item };
 
         label.Bind(IsVisibleProperty, new Binding(nameof(item.ShowUnit)));
-        label.Bind(ContentProperty, new Binding(nameof(item.UnitSymbol)));
+        label.Bind(ContentProperty, new Binding(nameof(item.DisplayedUnitSymbol)));
         label.Bind(FontSizeProperty, new Binding(nameof(item.FontSize)));
         label.Bind(FontFamilyProperty, new Binding(nameof(item.FontFamily)));
         label.Bind(ForegroundProperty, new Binding(nameof(item.UnitForegroundBrush)));
