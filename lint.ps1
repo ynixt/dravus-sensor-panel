@@ -20,7 +20,7 @@ $inspectExe = Join-Path $cliDir "InspectCode.exe"
 # Verifica se CleanupCode.exe e InspectCode.exe existem
 if (!((Test-Path $cleanupExe) -and (Test-Path $inspectExe))) {
     Write-Host "ReSharper CLI não encontrado. Baixando..."
-    $downloadUrl = "https://download.jetbrains.com/resharper/dotUltimate.2024.3.6/JetBrains.ReSharper.CommandLineTools.2024.3.6.zip"
+    $downloadUrl = "https://download.jetbrains.com/resharper/dotUltimate.2026.1/JetBrains.ReSharper.CommandLineTools.2026.1.zip"
 
     Invoke-WebRequest -Uri $downloadUrl -OutFile $cliZip
     Expand-Archive -Path $cliZip -DestinationPath $cliDir

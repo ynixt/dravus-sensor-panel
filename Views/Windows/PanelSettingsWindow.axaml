@@ -18,6 +18,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -53,7 +54,7 @@
                 </TextBlock>
                 <NumericUpDown
                     Grid.Row="1"
-                    Grid.Column="1" Increment="1" Minimum="1"
+                    Grid.Column="1" Increment="1" Minimum="0"
                     Value="{Binding SensorPanel.X, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
 
                 <TextBlock
@@ -63,7 +64,7 @@
                 </TextBlock>
                 <NumericUpDown
                     Grid.Row="1"
-                    Grid.Column="3" Increment="1" Minimum="1"
+                    Grid.Column="3" Increment="1" Minimum="0"
                     Value="{Binding SensorPanel.Y, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
 
                 <TextBlock
@@ -106,6 +107,16 @@
                     Grid.Row="3"
                     Grid.Column="3"
                     IsChecked="{Binding SensorPanel.StartWithSystem,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
+
+                <TextBlock
+                    Grid.Row="4"
+                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    Maximized
+                </TextBlock>
+                <CheckBox
+                    Grid.Row="4"
+                    Grid.Column="1"
+                    IsChecked="{Binding SensorPanel.Maximized,RelativeSource={RelativeSource AncestorType=vm:PanelSettingsWindow}}" />
 
 
             </Grid>

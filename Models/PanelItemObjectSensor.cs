@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Avalonia.Media;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models.Dtos;
@@ -16,6 +16,9 @@ public sealed class PanelItemObjectSensor : PanelItemSensor, IPanelItemText, IPa
     private FontFamily _fontFamily = FontFamily.Default;
     private string? _format;
     private TextAlignment _textAlignment = TextAlignment.Center;
+    private string _caseStyle = PanelItemTextTransform.NormalCaseStyle;
+    private string? _replaceRegexPattern;
+    private string? _replaceRegexReplacement;
 
     private IDisposable? _subscription;
 
@@ -49,6 +52,33 @@ public sealed class PanelItemObjectSensor : PanelItemSensor, IPanelItemText, IPa
         }
     }
 
+    public string CaseStyle {
+        get => _caseStyle;
+        set {
+            if ( value == null && _caseStyle != null ) return;
+
+            string normalized = PanelItemTextTransform.NormalizeCaseStyle(value);
+            if ( !SetField(ref _caseStyle, normalized) ) return;
+            RefreshLabels();
+        }
+    }
+
+    public string? ReplaceRegexPattern {
+        get => _replaceRegexPattern;
+        set {
+            if ( !SetField(ref _replaceRegexPattern, value) ) return;
+            RefreshLabels();
+        }
+    }
+
+    public string? ReplaceRegexReplacement {
+        get => _replaceRegexReplacement;
+        set {
+            if ( !SetField(ref _replaceRegexReplacement, value) ) return;
+            RefreshLabels();
+        }
+    }
+
     public TextAlignment TextAlignment {
         get => _textAlignment;
         set => SetField(ref _textAlignment, value);
@@ -66,17 +96,19 @@ public sealed class PanelItemObjectSensor : PanelItemSensor, IPanelItemText, IPa
 
     public string Label {
         get {
-            if ( ObjectSensor == null ) return "";
+            if ( ObjectSensor == null ) return string.Empty;
 
+            string rawLabel;
             if ( ObjectSensor.Unit is UnitFnFormat unitFn ) {
-                if ( Format != null ) {
-                    return unitFn.WithValueConverter(ObjectSensor.ObjectValue, Format);
-                }
-
-                return unitFn.EmptyValueConverter(ObjectSensor.ObjectValue);
+                rawLabel = Format != null
+                    ? unitFn.WithValueConverter(ObjectSensor.ObjectValue, Format)
+                    : unitFn.EmptyValueConverter(ObjectSensor.ObjectValue);
+            }
+            else {
+                rawLabel = ObjectSensor.NotFormatedValue;
             }
 
-            return ObjectSensor.NotFormatedValue;
+            return PanelItemTextTransform.Apply(rawLabel, CaseStyle, ReplaceRegexPattern, ReplaceRegexReplacement);
         }
     }
 
@@ -86,18 +118,20 @@ public sealed class PanelItemObjectSensor : PanelItemSensor, IPanelItemText, IPa
             X = X,
             Y = Y,
             ZIndex = ZIndex,
+            Transparency = Transparency,
             Description = Description,
             Sort = Sort,
-
             Sensor = Sensor,
             Unit = Unit,
-
             Width = Width,
             FontSize = FontSize,
             FontFamily = FontFamily,
             Foreground = Foreground,
             Format = Format,
             TextAlignment = TextAlignment,
+            CaseStyle = CaseStyle,
+            ReplaceRegexPattern = ReplaceRegexPattern,
+            ReplaceRegexReplacement = ReplaceRegexReplacement,
         };
 
         return clone;
@@ -109,19 +143,21 @@ public sealed class PanelItemObjectSensor : PanelItemSensor, IPanelItemText, IPa
             X = X,
             Y = Y,
             ZIndex = ZIndex,
+            Transparency = Transparency,
             Description = Description,
             Type = Type,
             Sort = Sort,
-
             Sensor = Sensor == null ? null : new SensorDto { Source = Sensor.Source, SourceId = Sensor.SourceId },
             Unit = Unit?.ToDto(),
-
             Width = Width,
             FontSize = FontSize,
             FontFamily = FontFamily,
             Foreground = Foreground,
             Format = Format,
             TextAlignment = TextAlignment,
+            CaseStyle = CaseStyle,
+            ReplaceRegexPattern = ReplaceRegexPattern,
+            ReplaceRegexReplacement = ReplaceRegexReplacement,
         };
     }
 
@@ -158,11 +194,8 @@ public sealed class PanelItemObjectSensor : PanelItemSensor, IPanelItemText, IPa
         _subscription?.Dispose();
 
         if ( Sensor is ObjectSensor objectSensor ) {
-            if ( Sensor != null ) {
-                _subscription = objectSensor.WhenAnyValue(s => s.ObjectValue).Subscribe(SensorValueChanged);
-            }
-
-            SensorValueChanged(objectSensor?.ObjectValue);
+            _subscription = objectSensor.WhenAnyValue(s => s.ObjectValue).Subscribe(SensorValueChanged);
+            SensorValueChanged(objectSensor.ObjectValue);
         }
     }
 }
