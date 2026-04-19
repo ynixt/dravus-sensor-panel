@@ -1,5 +1,8 @@
 # Dravus Sensor Panel
 [![GitHub license](https://img.shields.io/github/license/ynixt/dravus-sensor-panel)](https://github.com/ynixt/dravus-sensor-panel/blob/master/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/ynixt/dravus-sensor-panel)](https://github.com/ynixt/dravus-sensor-panel/releases/latest)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ynixt/dravus-sensor-panel/master.yml)](https://github.com/ynixt/dravus-sensor-panel/actions/workflows/master.yml)
+
 
 Welcome to the **open source** solution to build amazing Sensor Panels!
 
