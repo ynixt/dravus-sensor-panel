@@ -84,8 +84,8 @@ public partial class EditPanelWindow : WindowViewModel {
 
             if ( item != null ) {
                 _sensorPanelService?.EditItem(item, clone);
-            }
-            else {
+                SelectedItem = item;
+            } else {
                 _sensorPanelService?.RemoveItem(originalItem, false, false);
                 _sensorPanelService?.AddNewItem(clone, false);
                 _sensorPanelService?.SortItems();

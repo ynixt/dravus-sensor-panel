@@ -1,5 +1,6 @@
-﻿using Avalonia.Media;
+using Avalonia.Media;
 using DravusSensorPanel.Enums;
+using DravusSensorPanel.Models;
 using DravusSensorPanel.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +12,7 @@ public abstract class PanelItemDto {
     public int Y { get; set; }
     public int ZIndex { get; set; }
     public int Sort { get; set; }
+    public int Transparency { get; set; }
     public SensorPanelItemType Type { get; set; }
     public string Description { get; set; }
 
@@ -21,6 +23,7 @@ public abstract class PanelItemDto {
         target.ZIndex = ZIndex;
         target.Description = Description;
         target.Sort = Sort;
+        target.Transparency = Transparency;
     }
 
     public abstract PanelItem ToModel();
@@ -73,14 +76,20 @@ public class PanelItemLabelDto : PanelItemDto {
     public Color Foreground { get; set; }
     public string Label { get; set; }
     public TextAlignment TextAlignment { get; set; }
+    public string CaseStyle { get; set; } = PanelItemTextTransform.NormalCaseStyle;
+    public string? ReplaceRegexPattern { get; set; }
+    public string? ReplaceRegexReplacement { get; set; }
 
     public override PanelItemLabel ToModel() {
         var model = new PanelItemLabel {
             FontSize = FontSize,
             FontFamily = FontFamily,
             Foreground = Foreground,
-            Label = Label,
+            RawLabel = Label,
             TextAlignment = TextAlignment,
+            CaseStyle = CaseStyle,
+            ReplaceRegexPattern = ReplaceRegexPattern,
+            ReplaceRegexReplacement = ReplaceRegexReplacement,
         };
         CopyBaseToTarget(model);
         return model;
@@ -94,6 +103,9 @@ public class PanelItemValueDto : PanelItemNumberSensorDto {
     public Color Foreground { get; set; }
     public Color UnitForeground { get; set; }
     public bool ShowUnit { get; set; }
+    public string CaseStyle { get; set; } = PanelItemTextTransform.NormalCaseStyle;
+    public string? ReplaceRegexPattern { get; set; }
+    public string? ReplaceRegexReplacement { get; set; }
 
     public override PanelItemValue ToModel() {
         var model = new PanelItemValue {
@@ -103,6 +115,9 @@ public class PanelItemValueDto : PanelItemNumberSensorDto {
             Foreground = Foreground,
             UnitForeground = UnitForeground,
             ShowUnit = ShowUnit,
+            CaseStyle = CaseStyle,
+            ReplaceRegexPattern = ReplaceRegexPattern,
+            ReplaceRegexReplacement = ReplaceRegexReplacement,
         };
         CopySensorBase(model);
         model.Reload();
@@ -156,6 +171,9 @@ public class PanelItemObjectDto : PanelItemSensorDto {
     public Color Foreground { get; set; }
     public string? Format { get; set; }
     public TextAlignment TextAlignment { get; set; }
+    public string CaseStyle { get; set; } = PanelItemTextTransform.NormalCaseStyle;
+    public string? ReplaceRegexPattern { get; set; }
+    public string? ReplaceRegexReplacement { get; set; }
 
     public override PanelItemObjectSensor ToModel() {
         var model = new PanelItemObjectSensor {
@@ -165,6 +183,9 @@ public class PanelItemObjectDto : PanelItemSensorDto {
             Foreground = Foreground,
             Format = Format,
             TextAlignment = TextAlignment,
+            CaseStyle = CaseStyle,
+            ReplaceRegexPattern = ReplaceRegexPattern,
+            ReplaceRegexReplacement = ReplaceRegexReplacement,
         };
         CopySensorBase(model);
         model.Reload();

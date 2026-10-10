@@ -181,6 +181,7 @@ public partial class PanelItemFormWindow : WindowViewModel {
             PanelItem.X = oldPanelItem.X;
             PanelItem.Y = oldPanelItem.Y;
             PanelItem.ZIndex = oldPanelItem.ZIndex;
+            PanelItem.Transparency = oldPanelItem.Transparency;
 
 
             if ( PanelItem is IPanelItemHorizontalSizeable panelItemHorizontalSizeable &&

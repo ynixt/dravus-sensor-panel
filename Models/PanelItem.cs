@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using Avalonia.Media;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models.Dtos;
+using ReactiveUI;
 
 namespace DravusSensorPanel.Models;
 
@@ -44,6 +45,7 @@ public abstract class PanelItem : SuperReactiveObject, IDisposable {
     private int _x;
     private int _y;
     private int _sort;
+    private int _transparency;
 
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
 
@@ -83,6 +85,17 @@ public abstract class PanelItem : SuperReactiveObject, IDisposable {
         get => _description;
         set => SetField(ref _description, value);
     }
+
+    public int Transparency {
+        get => _transparency;
+        set {
+            int normalized = Math.Clamp(value, 0, 100);
+            if ( !SetField(ref _transparency, normalized) ) return;
+            this.RaisePropertyChanged(nameof(Opacity));
+        }
+    }
+
+    public double Opacity => 1d - ( Transparency / 100d );
 
     public virtual void Reload() {
     }

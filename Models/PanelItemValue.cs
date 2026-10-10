@@ -1,4 +1,4 @@
-﻿using Avalonia.Media;
+using Avalonia.Media;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models.Dtos;
 using DravusSensorPanel.Models.Sensors;
@@ -16,6 +16,9 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
     private int _width = 100;
     private int _fontSize = 14;
     private FontFamily _fontFamily = FontFamily.Default;
+    private string _caseStyle = PanelItemTextTransform.NormalCaseStyle;
+    private string? _replaceRegexPattern;
+    private string? _replaceRegexReplacement;
 
     public NumberSensor? NumberSensor {
         get => Sensor as NumberSensor;
@@ -47,6 +50,33 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
         }
     }
 
+    public string CaseStyle {
+        get => _caseStyle;
+        set {
+            if ( value == null && _caseStyle != null ) return;
+
+            string normalized = PanelItemTextTransform.NormalizeCaseStyle(value);
+            if ( !SetField(ref _caseStyle, normalized) ) return;
+            RefreshLabels();
+        }
+    }
+
+    public string? ReplaceRegexPattern {
+        get => _replaceRegexPattern;
+        set {
+            if ( !SetField(ref _replaceRegexPattern, value) ) return;
+            RefreshLabels();
+        }
+    }
+
+    public string? ReplaceRegexReplacement {
+        get => _replaceRegexReplacement;
+        set {
+            if ( !SetField(ref _replaceRegexReplacement, value) ) return;
+            RefreshLabels();
+        }
+    }
+
     public Color Foreground {
         get => _foreground;
         set {
@@ -68,7 +98,7 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
 
     public string Label {
         get {
-            if ( NumberSensor == null ) return Format(0);
+            if ( NumberSensor == null ) return TransformLabel(Format(0));
 
             double raw = ValueType switch {
                 PanelItemSensorValueType.Value => NumberSensor.Value ?? 0,
@@ -82,11 +112,13 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
                          .GetRequiredService<UnitService>().Convert(raw, NumberSensor.Unit, Unit);
             }
 
-            return Format(raw);
+            return TransformLabel(Format(raw));
         }
     }
 
-    public string LabelWithUnit => ShowUnit ? $"{Label} {UnitSymbol}" : Label;
+    public string DisplayedUnitSymbol => TransformLabel(UnitSymbol);
+
+    public string LabelWithUnit => ShowUnit ? $"{Label} {DisplayedUnitSymbol}" : Label;
 
     public override PanelItem Clone() {
         var clone = new PanelItemValue {
@@ -94,20 +126,22 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
             X = X,
             Y = Y,
             ZIndex = ZIndex,
+            Transparency = Transparency,
             Description = Description,
             Sort = Sort,
-
             Sensor = Sensor,
             Unit = Unit,
             NumDecimalPlaces = NumDecimalPlaces,
             ValueType = ValueType,
-
             Width = Width,
             FontSize = FontSize,
             FontFamily = FontFamily,
             Foreground = Foreground,
             UnitForeground = UnitForeground,
             ShowUnit = ShowUnit,
+            CaseStyle = CaseStyle,
+            ReplaceRegexPattern = ReplaceRegexPattern,
+            ReplaceRegexReplacement = ReplaceRegexReplacement,
         };
 
         return clone;
@@ -119,21 +153,23 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
             X = X,
             Y = Y,
             ZIndex = ZIndex,
+            Transparency = Transparency,
             Description = Description,
             Type = Type,
             Sort = Sort,
-
             Sensor = Sensor == null ? null : new SensorDto { Source = Sensor.Source, SourceId = Sensor.SourceId },
             Unit = Unit?.ToDto(),
             NumDecimalPlaces = NumDecimalPlaces,
             ValueType = ValueType,
-
             Width = Width,
             FontSize = FontSize,
             FontFamily = FontFamily,
             Foreground = Foreground,
             UnitForeground = UnitForeground,
             ShowUnit = ShowUnit,
+            CaseStyle = CaseStyle,
+            ReplaceRegexPattern = ReplaceRegexPattern,
+            ReplaceRegexReplacement = ReplaceRegexReplacement,
         };
     }
 
@@ -147,8 +183,13 @@ public sealed class PanelItemValue : PanelItemNumberSensor, IPanelItemText, IPan
         RefreshLabels();
     }
 
+    private string TransformLabel(string value) {
+        return PanelItemTextTransform.Apply(value, CaseStyle, ReplaceRegexPattern, ReplaceRegexReplacement);
+    }
+
     private void RefreshLabels() {
         this.RaisePropertyChanged(nameof(Label));
+        this.RaisePropertyChanged(nameof(DisplayedUnitSymbol));
         this.RaisePropertyChanged(nameof(LabelWithUnit));
     }
 }

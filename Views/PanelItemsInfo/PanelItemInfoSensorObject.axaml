@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,15 +14,15 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <DataGrid
-            Grid.Row="0"
-            Margin="0, 10"
-            ItemsSource="{Binding Sensors,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}"
-            SelectedItem="{Binding SelectedSensor, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}"
-            AutoGenerateColumns="False"
-            GridLinesVisibility="All"
-            IsReadOnly="True"
-            BorderThickness="1" BorderBrush="Gray">
+        <DataGrid Grid.Row="0"
+                  Margin="0, 10"
+                  ItemsSource="{Binding Sensors,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}"
+                  SelectedItem="{Binding SelectedSensor, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}"
+                  AutoGenerateColumns="False"
+                  GridLinesVisibility="All"
+                  IsReadOnly="True"
+                  BorderThickness="1"
+                  BorderBrush="Gray">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="250" />
                 <DataGridTextColumn Header="Hardware" Binding="{Binding Hardware}" Width="*" />
@@ -32,13 +32,15 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <StackPanel
-            Margin="0, 10"
-            Grid.Row="1"
-            Orientation="Vertical" Spacing="30">
+        <StackPanel Grid.Row="1"
+                    Margin="0, 10"
+                    Orientation="Vertical"
+                    Spacing="30">
 
             <Grid ColumnSpacing="20" RowSpacing="8">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -56,129 +58,176 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Description
                 </TextBlock>
+                <TextBox Grid.Row="0"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="7"
+                         Text="{Binding PanelItem.Description,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
-                <TextBox
-                    Grid.ColumnSpan="7"
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    Text="{Binding PanelItem.Description,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
-
-
-                <TextBlock
-                    Grid.Row="1"
-                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Label
                 </TextBlock>
-                <TextBox
-                    Grid.Row="1"
-                    Grid.Column="1"
-                    Grid.ColumnSpan="7"
-                    IsReadOnly="True"
-                    Text="{Binding PanelItem.Label,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+                <TextBox Grid.Row="1"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="7"
+                         IsReadOnly="True"
+                         Text="{Binding PanelItem.Label,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
                 <TextBlock Grid.Row="2"
-                           Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     X
                 </TextBlock>
-
-
                 <NumericUpDown Grid.Row="2"
-                               Grid.Column="1" Increment="1"
-                               Value="{Binding PanelItem.X, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
-
+                               Grid.Column="1"
+                               Increment="1"
+                               Value="{Binding PanelItem.X, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
                 <TextBlock Grid.Row="2"
-                           Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Y
                 </TextBlock>
                 <NumericUpDown Grid.Row="2"
-                               Grid.Column="3" Increment="1"
+                               Grid.Column="3"
+                               Increment="1"
                                Value="{Binding PanelItem.Y, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
                 <TextBlock Grid.Row="2"
-                           Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                           Grid.Column="4"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Z
                 </TextBlock>
-
-
                 <NumericUpDown Grid.Row="2"
-                               Grid.Column="5" Increment="1"
+                               Grid.Column="5"
+                               Increment="1"
                                Maximum="9999998"
-                               Value="{Binding PanelItem.ZIndex, Converter={StaticResource NullBlocker},  RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+                               Value="{Binding PanelItem.ZIndex, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
-
-                <TextBlock
-                    Grid.Row="2"
-                    Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="2"
+                           Grid.Column="6"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Width
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="2"
-                    Grid.Column="7" Increment="1" Minimum="1"
-                    Value="{Binding PanelItem.Width, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+                <NumericUpDown Grid.Row="2"
+                               Grid.Column="7"
+                               Increment="1"
+                               Minimum="1"
+                               Value="{Binding PanelItem.Width, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
-
-                <TextBlock
-                    Grid.Row="3"
-                    Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Font name
                 </TextBlock>
+                <views:FontPicker Grid.Row="3"
+                                  Grid.Column="1"
+                                  FontSelected="{Binding PanelItem.FontFamily, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
-                <views:FontPicker
-                    Grid.Row="3"
-                    Grid.Column="1"
-                    FontSelected="{Binding PanelItem.FontFamily, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
-
-                <TextBlock
-                    Grid.Row="3"
-                    Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="3"
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Font size
                 </TextBlock>
-                <NumericUpDown
-                    Grid.Row="3"
-                    Grid.Column="3" Increment="1" Minimum="0"
-                    Value="{Binding PanelItem.FontSize, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+                <NumericUpDown Grid.Row="3"
+                               Grid.Column="3"
+                               Increment="1"
+                               Minimum="0"
+                               Value="{Binding PanelItem.FontSize, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
-                <TextBlock
-                    Grid.Row="3"
-                    Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="3"
+                           Grid.Column="4"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Font Color
                 </TextBlock>
-                <ColorPicker
-                    HorizontalAlignment="Left"
-                    Grid.Row="3"
-                    Grid.Column="5"
-                    Color="{Binding PanelItem.Foreground, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+                <ColorPicker Grid.Row="3"
+                             Grid.Column="5"
+                             HorizontalAlignment="Left"
+                             Color="{Binding PanelItem.Foreground, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
-                <TextBlock
-                    Grid.Row="3"
-                    Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <TextBlock Grid.Row="3"
+                           Grid.Column="6"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Text Alignment
                 </TextBlock>
-                <views:TextAlignmentPicker
-                    Grid.Row="3"
-                    Grid.Column="7"
-                    TextAlignmentSelected="{Binding PanelItem.TextAlignment, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+                <views:TextAlignmentPicker Grid.Row="3"
+                                           Grid.Column="7"
+                                           TextAlignmentSelected="{Binding PanelItem.TextAlignment, Mode=TwoWay,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
-                <TextBlock
-                    Grid.Row="4"
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Right">
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
                     Format
                 </TextBlock>
-                <TextBox
-                    Grid.Row="4"
-                    Grid.Column="1"
-                    Grid.ColumnSpan="7"
-                    Text="{Binding PanelItem.Format, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+                <TextBox Grid.Row="4"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="7"
+                         Text="{Binding PanelItem.Format, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
 
+                <TextBlock Grid.Row="5"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
+                    Transparency
+                </TextBlock>
+                <NumericUpDown Grid.Row="5"
+                               Grid.Column="1"
+                               Increment="1"
+                               Minimum="0"
+                               Maximum="100"
+                               Value="{Binding PanelItem.Transparency, Converter={StaticResource NullBlocker}, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+
+                <TextBlock Grid.Row="5"
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
+                    Case style
+                </TextBlock>
+                <ComboBox Grid.Row="5"
+                          Grid.Column="3"
+                          Grid.ColumnSpan="5"
+                          HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding CaseStyles, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}"
+                          SelectedValue="{Binding PanelItem.CaseStyle, RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+
+                <TextBlock Grid.Row="6"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
+                    Regex pattern
+                </TextBlock>
+                <TextBox Grid.Row="6"
+                         Grid.Column="1"
+                         Grid.ColumnSpan="3"
+                         Text="{Binding PanelItem.ReplaceRegexPattern,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
+
+                <TextBlock Grid.Row="6"
+                           Grid.Column="4"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right">
+                    Regex replace
+                </TextBlock>
+                <TextBox Grid.Row="6"
+                         Grid.Column="5"
+                         Grid.ColumnSpan="3"
+                         Text="{Binding PanelItem.ReplaceRegexReplacement,RelativeSource={RelativeSource AncestorType=vm:PanelItemInfoSensorObject}}" />
             </Grid>
         </StackPanel>
     </Grid>

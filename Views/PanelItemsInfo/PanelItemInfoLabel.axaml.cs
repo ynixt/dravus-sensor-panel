@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using DravusSensorPanel.Models;
 
 namespace DravusSensorPanel.Views.PanelItemsInfo;
@@ -30,7 +30,7 @@ public partial class PanelItemInfoLabel : PanelItemInfo {
             return false;
         }
 
-        return PanelItem.Label.Trim().Length > 0;
+        return PanelItem.RawLabel.Trim().Length > 0 && IsRegexPatternValid(PanelItem.ReplaceRegexPattern);
     }
 
     private void OnDetached(object? sender, VisualTreeAttachmentEventArgs e) {

@@ -123,6 +123,7 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
             X = X,
             Y = Y,
             ZIndex = ZIndex,
+            Transparency = Transparency,
             Description = Description,
             Sort = Sort,
 
@@ -158,6 +159,7 @@ public sealed class PanelItemChart : PanelItemNumberSensor, IPanelItemSizeable {
             X = X,
             Y = Y,
             ZIndex = ZIndex,
+            Transparency = Transparency,
             Description = Description,
             Type = Type,
             Sort = Sort,

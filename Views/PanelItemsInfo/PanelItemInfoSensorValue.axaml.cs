@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using Avalonia;
@@ -67,7 +67,7 @@ public partial class PanelItemInfoSensorValue : PanelItemInfoNumberSensor {
             return false;
         }
 
-        return PanelItem.Label.Trim().Length > 0 && PanelItem.Sensor != null;
+        return PanelItem.Sensor != null && IsRegexPatternValid(PanelItem.ReplaceRegexPattern);
     }
 
     protected override void OnAttached(object? sender, VisualTreeAttachmentEventArgs e) {
