@@ -34,11 +34,11 @@ public class SensorPanelService {
     }
 
     public void LoadSensorPanel(
-        string filePath = SensorPanelFileService.DefaultSensorPanelPath,
+        string? filePath = null,
         bool ignorePersonalFields = false) {
         Screen display = GetPrimaryDisplay() ?? GetAllDisplays()[0];
 
-        SensorPanel = _sensorPanelFileService.Load(filePath) ?? new SensorPanel { Display = display };
+        SensorPanel = _sensorPanelFileService.Load(filePath ?? AppPaths.SensorPanelFile) ?? new SensorPanel { Display = display };
 
         if ( ignorePersonalFields ) {
             SensorPanel.Display = display;
@@ -76,8 +76,8 @@ public class SensorPanelService {
         );
     }
 
-    public void SavePanel(string filePath = SensorPanelFileService.DefaultSensorPanelPath) {
-        _sensorPanelFileService.Save(_sensorPanel!, filePath);
+    public void SavePanel(string? filePath = null) {
+        _sensorPanelFileService.Save(_sensorPanel!, filePath ?? AppPaths.SensorPanelFile);
     }
 
     public void SortItems() {
@@ -206,8 +206,9 @@ public class SensorPanelService {
 
     private void DeleteImageFromItem(PanelItem item) {
         if ( item is PanelItemImage panelItemImage ) {
-            if ( File.Exists(panelItemImage.ImagePath) ) {
-                File.Delete(panelItemImage.ImagePath);
+            string imagePath = AppPaths.Resolve(panelItemImage.ImagePath);
+            if ( File.Exists(imagePath) ) {
+                File.Delete(imagePath);
             }
         }
     }

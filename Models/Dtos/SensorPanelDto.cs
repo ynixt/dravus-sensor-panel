@@ -27,7 +27,7 @@ public class SensorPanelDto {
             .MainWindow!;
 
         Screen display;
-        if ( DisplayIndex > window.Screens.All.Count ) {
+        if ( DisplayIndex < 0 || DisplayIndex >= window.Screens.All.Count ) {
             display = window.Screens.Primary ?? window.Screens.All[0];
         }
         else {

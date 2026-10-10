@@ -47,8 +47,7 @@ public partial class PanelItemInfoImage : PanelItemInfo {
 
         if ( sourcePath == null ) return;
 
-        string exeDir = AppContext.BaseDirectory;
-        string imagesDir = Path.Combine(exeDir, "images");
+        string imagesDir = AppPaths.ImagesDirectory;
         Directory.CreateDirectory(imagesDir);
         string originalExt = Path.GetExtension(sourcePath);
 

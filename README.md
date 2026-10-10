@@ -15,6 +15,7 @@ Welcome to the **open source** solution to build amazing Sensor Panels!
 ## Features
 
 - Much info extracted using [Libre Hardware Monitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor)
+- Linux: temperatures, fans, voltages, power and clocks from the kernel (`hwmon`), AMD GPU load/VRAM and NVIDIA GPU (via `nvidia-smi`)
 - FPS extracted from [RivaTuner Statistics Server (RTSS)](https://www.guru3d.com/page/rivatuner-rtss-homepage/) (Only Windows)
 - Line charts
 - Bar charts
@@ -25,11 +26,20 @@ Welcome to the **open source** solution to build amazing Sensor Panels!
 ## Not supported yet :weary:
 
 - Gauge (Coming soon :clock10:)
-- Linux: Works, but for now there's a lot of bugs.
 - MacOS (Theoretically, it works, but I haven't had the opportunity to test it yet.)
 
 ## Download
 You can download the latest release [here](https://github.com/ynixt/dravus-sensor-panel/releases).
+
+### Linux
+
+Download `DravusSensorPanel_linux-x64.tar.gz` (or `linux-musl-x64` for Alpine), extract it and run `./DravusSensorPanel`.
+
+- Your panel (`sensorpanel.yaml`) and images are saved in `~/.config/DravusSensorPanel`.
+- Sensors come from `/sys/class/hwmon`. If you don't see your CPU/motherboard temperatures, install `lm-sensors` and run `sudo sensors-detect`.
+- NVIDIA GPUs need the proprietary driver (`nvidia-smi` must be available).
+- Volume is read with `wpctl` (PipeWire), `pactl` (PulseAudio) or `amixer` (ALSA).
+- FPS (RTSS) is Windows only.
 
 ## Contribute
 

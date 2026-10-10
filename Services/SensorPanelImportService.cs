@@ -58,7 +58,7 @@ public class SensorPanelImportService {
 
             IEnumerable<string> imagePaths = _sensorPanelService.SensorPanel.Items
                                                                 .OfType<PanelItemImage>()
-                                                                .Select(i => i.ImagePath)
+                                                                .Select(i => AppPaths.Resolve(i.ImagePath))
                                                                 .Distinct()
                                                                 .Where(File.Exists);
 
@@ -103,7 +103,7 @@ public class SensorPanelImportService {
 
             //---------------- images --------------------------
             string extractedImagesDir = Path.Combine(tempDir, "images");
-            string exeImagesDir = Path.Combine(AppContext.BaseDirectory, "images");
+            string exeImagesDir = AppPaths.ImagesDirectory;
 
             if ( Directory.Exists(exeImagesDir) ) {
                 Directory.Delete(exeImagesDir, true);

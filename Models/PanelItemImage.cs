@@ -1,6 +1,9 @@
-﻿using Avalonia.Media.Imaging;
+﻿using System;
+using System.IO;
+using Avalonia.Media.Imaging;
 using DravusSensorPanel.Enums;
 using DravusSensorPanel.Models.Dtos;
+using DravusSensorPanel.Services;
 
 namespace DravusSensorPanel.Models;
 
@@ -82,6 +85,16 @@ public sealed class PanelItemImage : PanelItem, IPanelItemSizeable {
 
     private void LoadBitmap() {
         ImageBitmap?.Dispose();
-        ImageBitmap = string.IsNullOrWhiteSpace(_imagePath) ? null : new Bitmap(_imagePath);
+        ImageBitmap = null;
+
+        if ( string.IsNullOrWhiteSpace(_imagePath) ) return;
+
+        string fullPath = AppPaths.Resolve(_imagePath);
+        if ( !File.Exists(fullPath) ) {
+            Console.WriteLine($"Image not found: {fullPath}");
+            return;
+        }
+
+        ImageBitmap = new Bitmap(fullPath);
     }
 }

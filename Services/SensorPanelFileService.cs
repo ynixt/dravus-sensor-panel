@@ -12,8 +12,6 @@ using YamlDotNet.Serialization.NamingConventions;
 namespace DravusSensorPanel.Services;
 
 public class SensorPanelFileService {
-    public const string DefaultSensorPanelPath = "sensorpanel.yaml";
-
     private readonly List<IYamlTypeConverter> _converters = [new FontFamilyYamlConverter(), new ColorYamlConverter()];
 
     public void Save(SensorPanel sensorPanel, string filePath) {
@@ -59,11 +57,11 @@ public class SensorPanelFileService {
                                  });
 
 
-        IDeserializer deserializer = db.Build();
-
         foreach ( IYamlTypeConverter converter in _converters ) {
             db.WithTypeConverter(converter);
         }
+
+        IDeserializer deserializer = db.Build();
 
         return deserializer.Deserialize<SensorPanelDto>(yaml).ToModel();
     }

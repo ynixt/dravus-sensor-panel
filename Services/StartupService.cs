@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Security;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Security.Principal;
 using Microsoft.Win32.TaskScheduler;
 
@@ -24,6 +27,21 @@ public class StartupService {
         string? path = Environment.ProcessPath;
 
         return !string.IsNullOrEmpty(path) ? path : Process.GetCurrentProcess().MainModule!.FileName!;
+    }
+
+    /// <summary>
+    ///     Framework-dependent builds can be started with "dotnet DravusSensorPanel.dll": in this case the process is
+    ///     dotnet itself and the dll must be passed as argument.
+    /// </summary>
+    private static string[] GetStartCommand() {
+        string fileName = Path.GetFileNameWithoutExtension(ExecutablePath);
+        string? entryAssembly = Assembly.GetEntryAssembly()?.Location;
+
+        if ( fileName.Equals("dotnet", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(entryAssembly) ) {
+            return [ExecutablePath, entryAssembly];
+        }
+
+        return [ExecutablePath];
     }
 
     public void Enable() {
@@ -76,6 +94,7 @@ public class StartupService {
 
     private const string TaskName = "DravusSensorPanel_AutoStart";
 
+    [SupportedOSPlatform("windows")]
     private void EnableWindows() {
         using var ts = new TaskService();
 
@@ -102,11 +121,13 @@ public class StartupService {
             TaskLogonType.InteractiveToken);
     }
 
+    [SupportedOSPlatform("windows")]
     private void DisableWindows() {
         using var ts = new TaskService();
         ts.RootFolder.DeleteTask(TaskName, false);
     }
 
+    [SupportedOSPlatform("windows")]
     private bool IsEnabledWindows() {
         using var ts = new TaskService();
         return ts.GetTask(TaskName) is not null;
@@ -130,13 +151,23 @@ public class StartupService {
         string content =
             $"[Desktop Entry]\n" +
             $"Type=Application\n" +
-            $"Exec=\"{ExecutablePath}\"\n" +
+            $"Exec={string.Join(' ', GetStartCommand().Select(QuoteDesktopExecArg))}\n" +
             $"Hidden=false\n" +
             $"NoDisplay=false\n" +
             $"X-GNOME-Autostart-enabled=true\n" +
             $"Name={AppName}\n" +
             $"Comment=Start {AppName} on initialization\n";
         File.WriteAllText(path, content);
+    }
+
+    /// <summary>Quoting rules of the "Exec" key from the Desktop Entry specification.</summary>
+    private static string QuoteDesktopExecArg(string arg) {
+        string escaped = arg.Replace("\\", "\\\\")
+                            .Replace("\"", "\\\"")
+                            .Replace("`", "\\`")
+                            .Replace("$", "\\$");
+
+        return $"\"{escaped}\"".Replace("%", "%%");
     }
 
     private void DisableLinux() {
@@ -174,7 +205,7 @@ public class StartupService {
             $"  <string>com.{AppName}</string>\n" +
             $"  <key>ProgramArguments</key>\n" +
             $"  <array>\n" +
-            $"    <string>{ExecutablePath}</string>\n" +
+            string.Concat(GetStartCommand().Select(arg => $"    <string>{SecurityElement.Escape(arg)}</string>\n")) +
             $"  </array>\n" +
             $"  <key>RunAtLoad</key>\n" +
             $"  <true/>\n" +

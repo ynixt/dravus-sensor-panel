@@ -34,9 +34,12 @@ public static class Startup {
 
         services.AddSingleton<InfoExtractor, LibreHardwareExtractor>();
 
-        if (OperatingSystem.IsWindows())
-        {
+        if ( OperatingSystem.IsWindows() ) {
             services.AddTransient<InfoExtractor, RtssHardwareExtractor>();
+        }
+
+        if ( OperatingSystem.IsLinux() ) {
+            services.AddSingleton<InfoExtractor, LinuxHardwareExtractor>();
         }
 
         services.AddTransient<InfoExtractor, SystemExtractor>();

@@ -10,9 +10,6 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationIcon>Assets\\app-logo.ico</ApplicationIcon>
-        <PublishTrimmed Condition="'$(RuntimeIdentifier)' == 'linux-x64' Or '$(RuntimeIdentifier)' == 'linux-musl-x64'">false</PublishTrimmed>
-        <IncludeAllContentForSelfExtract Condition="'$(RuntimeIdentifier)' == 'linux-x64' Or '$(RuntimeIdentifier)' == 'linux-musl-x64'">true</IncludeAllContentForSelfExtract>
-        <DefineConstants Condition="'$(OS)' == 'Windows_NT' Or '$(RuntimeIdentifier)' == 'win-x64' Or '$(RuntimeIdentifier)' == 'win-arm64'">$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
@@ -34,28 +31,20 @@
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
+        <!-- Don't update: since 0.9.5 the package only ships Windows binaries and fails to load on Linux.
+             Its Linux support is the same anyway (CPU load, memory, network), see LinuxHardwareExtractor. -->
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
         <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc5.4" />
         <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
         <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
+        <!-- NAudio is managed code, so it is safe to reference on every OS. It is only called on Windows. -->
+        <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
         <PackageReference Include="TaskScheduler" Version="2.12.1" />
         <PackageReference Include="UnitsNet" Version="5.74.0" />
         <PackageReference Include="YamlDotNet" Version="16.3.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(OS)' == 'Unix' Or '$(RuntimeIdentifier)' == 'linux-x64' Or '$(RuntimeIdentifier)' == 'linux-musl-x64'">
-        <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-      <Compile Remove="Services\InfoExtractors\RtssHardwareExtractor.cs" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(OS)' == 'Windows_NT' Or '$(RuntimeIdentifier)' == 'win-x64' Or '$(RuntimeIdentifier)' == 'win-arm64'">
-      <PackageReference Include="NAudio" Version="2.2.1" />
     </ItemGroup>
 
     <ItemGroup>
